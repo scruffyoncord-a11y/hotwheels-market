@@ -3,12 +3,12 @@
 import { Suspense } from "react";
 import { BrowseListings } from "@/components/BrowseListings";
 
-export default function Home() {
+export default function AuctionsPage() {
   return (
     <Suspense>
       <BrowseListings
-        type="TRADE"
-        subheading="swap cars with other collectors, no cash needed"
+        type="AUCTION"
+        subheading="bid against other collectors, highest offer wins"
       />
     </Suspense>
   );
