@@ -7,9 +7,9 @@ export function Footer() {
         <div>
           <div className="flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-md bg-orange-600 text-sm font-black text-white">
-              HW
+              LC
             </span>
-            <span className="text-lg font-bold text-white">TrackTrade</span>
+            <span className="text-lg font-bold text-white">LotClub</span>
           </div>
           <p className="mt-3 text-sm text-zinc-400">
             Trade and auction Hot Wheels and diecast cars with collectors near you.
@@ -52,7 +52,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-zinc-900 px-4 py-4 text-center text-xs text-zinc-500 sm:px-6">
-        TrackTrade is a peer-to-peer listing board — payments and shipping are arranged directly
+        LotClub is a peer-to-peer listing board — payments and shipping are arranged directly
         between collectors.
       </div>
     </footer>

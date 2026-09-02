@@ -466,7 +466,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                     Trade safely:
                   </span>{" "}
                   meet in a public place or use tracked shipping, and inspect the item before you
-                  commit — TrackTrade doesn&apos;t process payments directly.
+                  commit — LotClub doesn&apos;t process payments directly.
                 </div>
               </div>
             </SectionCard>

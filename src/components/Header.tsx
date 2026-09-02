@@ -32,10 +32,10 @@ export function Header() {
       <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-600 text-sm font-black text-white">
-            HW
+            LC
           </span>
           <span className="hidden text-lg font-bold tracking-tight text-zinc-900 sm:inline dark:text-zinc-50">
-            TrackTrade
+            LotClub
           </span>
         </Link>
 

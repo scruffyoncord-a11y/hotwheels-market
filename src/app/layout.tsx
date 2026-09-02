@@ -22,7 +22,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "TrackTrade — Hot Wheels Trading Marketplace",
+  title: "LotClub — Hot Wheels Trading Marketplace",
   description: "Trade and auction Hot Wheels and diecast cars with collectors near you.",
 };
 
