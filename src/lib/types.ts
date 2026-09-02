@@ -32,6 +32,11 @@ export interface Listing {
   buyNowInr?: number;
   endsAt?: string; // ISO timestamp the auction closes
   biddingPaused?: boolean; // host has temporarily paused new bids
+  // --- Private auction access control ---
+  isPrivate?: boolean;
+  // Secret shared via an invite link (?access=<token>) that grants a
+  // viewer access instantly, without needing the seller to approve a request.
+  accessToken?: string;
   city: string;
   status: ListingStatus;
   images: string[];
@@ -71,6 +76,22 @@ export interface InventoryItem {
   notes?: string;
   image: string;
   createdAt: string;
+}
+
+export type AccessRequestStatus = "PENDING" | "APPROVED" | "DENIED";
+
+export interface AccessRequest {
+  id: string;
+  listingId: string;
+  requesterName: string;
+  status: AccessRequestStatus;
+  createdAt: string;
+}
+
+export interface AccessGrant {
+  listingId: string;
+  viewerName: string;
+  grantedAt: string;
 }
 
 export interface Bid {

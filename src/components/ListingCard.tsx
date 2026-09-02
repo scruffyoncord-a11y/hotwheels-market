@@ -6,18 +6,23 @@ import { ConditionBadge } from "./ConditionBadge";
 import { AuctionTimer } from "./AuctionTimer";
 import { useBids } from "@/lib/bids-store";
 import { useFavorites } from "@/lib/favorites-store";
+import { useAccess } from "@/lib/access-store";
 import { formatInr, timeAgo } from "@/lib/format";
-import { HammerIcon, HeartIcon, PauseIcon, SwapIcon } from "./icons";
+import { HammerIcon, HeartIcon, LockIcon, PauseIcon, SwapIcon } from "./icons";
 import type { Listing } from "@/lib/types";
 
 export function ListingCard({ listing }: { listing: Listing }) {
   const { bidsForListing, highestBid } = useBids();
   const { isFavorited, toggleFavorite } = useFavorites();
+  const { hasAccess } = useAccess();
   const favorited = isFavorited(listing.id);
   const sold = listing.status === "SOLD";
   const reserved = listing.status === "RESERVED";
   const isTrade = listing.type === "TRADE";
   const isAuction = listing.type === "AUCTION";
+  const isHost = listing.seller.name === "You";
+  const isPrivateAuction = isAuction && !!listing.isPrivate;
+  const isLocked = isPrivateAuction && !isHost && !hasAccess(listing.id, "You");
 
   const topBid = isAuction ? highestBid(listing.id) : undefined;
   const bidCount = isAuction ? bidsForListing(listing.id).length : 0;
@@ -55,6 +60,11 @@ export function ListingCard({ listing }: { listing: Listing }) {
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> LIVE
               </span>
             )
+          )}
+          {isPrivateAuction && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-zinc-900 px-2 py-0.5 text-[10px] font-bold text-white">
+              <LockIcon className="h-2.5 w-2.5" /> Private
+            </span>
           )}
         </div>
         <button
@@ -99,13 +109,21 @@ export function ListingCard({ listing }: { listing: Listing }) {
         </p>
         {isAuction ? (
           <div className="mt-1">
-            <p className="text-lg font-bold text-red-600 dark:text-red-400">
-              {formatInr(currentBid)}
-            </p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              {bidCount > 0 ? `${bidCount} ${bidCount === 1 ? "bid" : "bids"}` : "No bids yet"}
-              {listing.buyNowInr && ` · Buy Now ${formatInr(listing.buyNowInr)}`}
-            </p>
+            {isLocked ? (
+              <p className="flex items-center gap-1.5 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+                <LockIcon className="h-3.5 w-3.5" /> Request access to view bidding
+              </p>
+            ) : (
+              <>
+                <p className="text-lg font-bold text-red-600 dark:text-red-400">
+                  {formatInr(currentBid)}
+                </p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {bidCount > 0 ? `${bidCount} ${bidCount === 1 ? "bid" : "bids"}` : "No bids yet"}
+                  {listing.buyNowInr && ` · Buy Now ${formatInr(listing.buyNowInr)}`}
+                </p>
+              </>
+            )}
           </div>
         ) : (
           <div className="mt-1 flex items-start gap-1.5 rounded-xl bg-violet-50 px-2 py-1.5 dark:bg-violet-950/60">

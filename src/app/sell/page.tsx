@@ -103,6 +103,7 @@ function SellForm() {
   const [bidIncrement, setBidIncrement] = useState("100");
   const [buyNowPrice, setBuyNowPrice] = useState("");
   const [durationDays, setDurationDays] = useState("3");
+  const [isPrivate, setIsPrivate] = useState(false);
   const [error, setError] = useState("");
   const [prefilledFromInventory, setPrefilledFromInventory] = useState(false);
 
@@ -178,6 +179,8 @@ function SellForm() {
       endsAt: isAuction
         ? new Date(Date.now() + Number(durationDays) * 24 * 60 * 60 * 1000).toISOString()
         : undefined,
+      isPrivate: isAuction ? isPrivate : undefined,
+      accessToken: isAuction && isPrivate ? Math.random().toString(36).slice(2, 10) : undefined,
       city: city.trim(),
       status: "ACTIVE",
       images: [frontPhoto, backPhoto, ...extraPhotos],
@@ -387,6 +390,21 @@ function SellForm() {
                   />
                 </Field>
               </div>
+              <label className="col-span-2 flex items-start gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                <input
+                  type="checkbox"
+                  checked={isPrivate}
+                  onChange={(e) => setIsPrivate(e.target.checked)}
+                  className="mt-0.5 rounded border-zinc-300 text-red-600 focus:ring-red-500"
+                />
+                <span>
+                  <span className="font-medium">Make this a private auction</span>
+                  <span className="block text-xs text-zinc-500 dark:text-zinc-400">
+                    It still shows up on the auctions page, but bidders need your approval — or an
+                    invite link — before they can see it.
+                  </span>
+                </span>
+              </label>
             </div>
           )}
 

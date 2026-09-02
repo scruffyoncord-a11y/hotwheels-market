@@ -9,6 +9,7 @@ import { BidsProvider } from "@/lib/bids-store";
 import { FavoritesProvider } from "@/lib/favorites-store";
 import { InventoryProvider } from "@/lib/inventory-store";
 import { AuthProvider } from "@/lib/auth-store";
+import { AccessProvider } from "@/lib/access-store";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -38,9 +39,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <BidsProvider>
                 <FavoritesProvider>
                   <InventoryProvider>
-                    <Header />
-                    {children}
-                    <Footer />
+                    <AccessProvider>
+                      <Header />
+                      {children}
+                      <Footer />
+                    </AccessProvider>
                   </InventoryProvider>
                 </FavoritesProvider>
               </BidsProvider>

@@ -19,6 +19,8 @@ import {
   FlameIcon,
   HammerIcon,
   HeartIcon,
+  LinkIcon,
+  LockIcon,
   MessageIcon,
   PauseIcon,
   ShareIcon,
@@ -29,6 +31,7 @@ import { useListings } from "@/lib/listings-store";
 import { useProposals } from "@/lib/proposals-store";
 import { useBids } from "@/lib/bids-store";
 import { useFavorites } from "@/lib/favorites-store";
+import { useAccess } from "@/lib/access-store";
 import { formatInr, timeAgo } from "@/lib/format";
 import { computeProxyBid, maybeExtendEndTime } from "@/lib/auction";
 import { CONDITION_LABELS } from "@/lib/types";
@@ -57,7 +60,10 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const { proposals } = useProposals();
   const { bidsForListing, highestBid, addBid } = useBids();
   const { isFavorited, toggleFavorite } = useFavorites();
+  const { hasAccess, grantViaToken, requestAccess, respondToRequest, requestsForListing, myRequest } =
+    useAccess();
   const listing = getListing(id);
+  const viewerName = "You";
 
   const [activeImage, setActiveImage] = useState(0);
   const [chatOpen, setChatOpen] = useState(false);
@@ -69,6 +75,8 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const [bidPlaced, setBidPlaced] = useState(false);
   const [liveFlash, setLiveFlash] = useState<{ name: string; amount: number } | null>(null);
   const [extendedFlash, setExtendedFlash] = useState(false);
+  const [accessTokenParam, setAccessTokenParam] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
   const similarRailRef = useRef<HTMLDivElement>(null);
   const simulatedCountRef = useRef(0);
   const fireSimulatedBidRef = useRef<() => void>(() => {});
@@ -105,6 +113,23 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const biddingBlocked = disabled || biddingPaused;
   const isHost = isAuction && listing.seller.name === "You";
   const increment = listing.bidIncrementInr ?? 100;
+
+  const isPrivateAuction = isAuction && !!listing.isPrivate;
+  const hasAccessGranted = isHost || !isPrivateAuction || hasAccess(listing.id, viewerName);
+  const myAccessRequest = myRequest(listing.id, viewerName);
+  const accessRequests = requestsForListing(listing.id);
+
+  useEffect(() => {
+    setAccessTokenParam(new URLSearchParams(window.location.search).get("access"));
+  }, []);
+
+  useEffect(() => {
+    if (!isPrivateAuction || !accessTokenParam) return;
+    if (accessTokenParam === listing!.accessToken) {
+      grantViaToken(listing!.id, viewerName);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPrivateAuction, accessTokenParam, listing?.id]);
 
   // Keep a ref to the latest version of this handler so the scheduling
   // effect below never fires against a stale bids/listing snapshot — only
@@ -249,6 +274,111 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
       >
         ← Back to {isAuction ? "auctions" : "trades"}
       </Link>
+
+      {isPrivateAuction && !hasAccessGranted ? (
+        <div className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-2xl border border-zinc-100 bg-white p-8 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400">
+            <LockIcon className="h-6 w-6" />
+          </span>
+          <div>
+            <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">Private auction</h1>
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              {listing.seller.name} has kept this auction invite-only. Request access, or ask
+              them to share your invite link directly.
+            </p>
+          </div>
+          {myAccessRequest?.status === "PENDING" ? (
+            <p className="rounded-full bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+              Request sent — waiting on {listing.seller.name}
+            </p>
+          ) : myAccessRequest?.status === "DENIED" ? (
+            <div className="flex flex-col items-center gap-2">
+              <p className="rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 dark:bg-rose-950 dark:text-rose-300">
+                Your request was declined
+              </p>
+              <button
+                onClick={() => requestAccess(listing.id, viewerName)}
+                className="text-xs font-semibold text-orange-600 hover:underline"
+              >
+                Ask again
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => requestAccess(listing.id, viewerName)}
+              className="rounded-full bg-red-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-red-700"
+            >
+              Request Access
+            </button>
+          )}
+        </div>
+      ) : (
+        <>
+          {isPrivateAuction && isHost && (
+            <SectionCard title="Private Auction — Manage Access" className="mb-6">
+              <div className="flex flex-col gap-3 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900">
+                  <span className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                    <LinkIcon className="h-3.5 w-3.5" /> Invite link grants access instantly, no
+                    request needed
+                  </span>
+                  <button
+                    onClick={() => {
+                      const url = `${window.location.origin}/listing/${listing.id}?access=${listing.accessToken}`;
+                      navigator.clipboard?.writeText(url);
+                      setLinkCopied(true);
+                      setTimeout(() => setLinkCopied(false), 1800);
+                    }}
+                    className="rounded-full bg-zinc-900 px-3 py-1 text-xs font-semibold text-white transition hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900"
+                  >
+                    {linkCopied ? "Copied!" : "Copy invite link"}
+                  </button>
+                </div>
+                {accessRequests.length === 0 ? (
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                    No access requests yet.
+                  </p>
+                ) : (
+                  accessRequests.map((r) => (
+                    <div
+                      key={r.id}
+                      className="flex items-center justify-between gap-2 rounded-xl border border-zinc-100 px-3 py-2 dark:border-zinc-800"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+                          {r.requesterName}
+                        </p>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                          {r.status === "PENDING"
+                            ? "Waiting for your response"
+                            : r.status === "APPROVED"
+                              ? "Approved"
+                              : "Declined"}{" "}
+                          · {timeAgo(r.createdAt)}
+                        </p>
+                      </div>
+                      {r.status === "PENDING" && (
+                        <div className="flex shrink-0 gap-1.5">
+                          <button
+                            onClick={() => respondToRequest(r.id, true)}
+                            className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-700"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => respondToRequest(r.id, false)}
+                            className="rounded-full border border-rose-300 px-3 py-1 text-xs font-semibold text-rose-600 transition hover:bg-rose-50 dark:border-rose-800 dark:hover:bg-rose-950"
+                          >
+                            Decline
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </SectionCard>
+          )}
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_400px] lg:items-start">
         {/* Left: gallery + tabbed content */}
@@ -451,6 +581,11 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                   {isAuction && biddingPaused && !disabled && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800">
                       <PauseIcon className="h-2.5 w-2.5" /> Paused
+                    </span>
+                  )}
+                  {isPrivateAuction && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-zinc-900 px-2.5 py-0.5 text-xs font-bold text-white dark:bg-zinc-50 dark:text-zinc-900">
+                      <LockIcon className="h-2.5 w-2.5" /> Private
                     </span>
                   )}
                   {listing.series && (
@@ -774,6 +909,8 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
             ))}
           </div>
         </div>
+      )}
+        </>
       )}
 
       {isTrade && (
