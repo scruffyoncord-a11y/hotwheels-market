@@ -40,9 +40,14 @@ export function Header() {
             className="h-8 w-8 rounded-xl"
             priority
           />
-          <span className="font-display hidden text-lg font-bold tracking-tight text-zinc-900 sm:inline dark:text-zinc-50">
-            LotClub
-          </span>
+          <Image
+            src="/logo-wordmark.png"
+            alt="LotClub"
+            width={216}
+            height={72}
+            className="hidden h-6 w-auto sm:inline-block"
+            priority
+          />
         </Link>
 
         <nav className="hidden shrink-0 items-center gap-1 sm:flex">
