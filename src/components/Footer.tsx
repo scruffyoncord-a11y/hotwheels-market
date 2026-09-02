@@ -14,7 +14,7 @@ export function Footer() {
               height={32}
               className="h-8 w-8 rounded-md"
             />
-            <span className="text-lg font-bold text-white">LotClub</span>
+            <span className="font-display text-lg font-bold tracking-tight text-white">LotClub</span>
           </div>
           <p className="mt-3 text-sm text-zinc-400">
             Trade and auction Hot Wheels and diecast cars with collectors near you.

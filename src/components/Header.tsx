@@ -40,7 +40,7 @@ export function Header() {
             className="h-8 w-8 rounded-xl"
             priority
           />
-          <span className="hidden text-lg font-bold tracking-tight text-zinc-900 sm:inline dark:text-zinc-50">
+          <span className="font-display hidden text-lg font-bold tracking-tight text-zinc-900 sm:inline dark:text-zinc-50">
             LotClub
           </span>
         </Link>
