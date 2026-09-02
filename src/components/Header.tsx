@@ -31,7 +31,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
       <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2">
+        <Link href="/" className="flex shrink-0 items-center gap-1">
           <Image
             src="/logo-icon.png"
             alt="LotClub"
@@ -45,7 +45,7 @@ export function Header() {
             alt="LotClub"
             width={216}
             height={72}
-            className="hidden h-6 w-auto sm:inline-block"
+            className="hidden h-7 w-auto sm:inline-block"
             priority
           />
         </Link>
