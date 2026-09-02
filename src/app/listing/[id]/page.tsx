@@ -713,7 +713,13 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                   </p>
                 )}
 
-                {!biddingBlocked && (
+                {isHost && !disabled && (
+                  <p className="rounded-xl bg-zinc-50 px-4 py-2.5 text-sm font-medium text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
+                    This is your listing — you can&apos;t bid on your own auction.
+                  </p>
+                )}
+
+                {!biddingBlocked && !isHost && (
                   <form
                     onSubmit={handleBidSubmit}
                     className="rounded-2xl border border-zinc-100 p-4 dark:border-zinc-800"
