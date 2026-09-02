@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/lib/auth-store";
 import { CheckIcon } from "@/components/icons";
 
@@ -75,9 +76,14 @@ export default function LoginPage() {
     <main className="flex flex-1 items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center gap-2 text-center">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-600 text-sm font-black text-white">
-            LC
-          </span>
+          <Image
+            src="/logo-icon.png"
+            alt="LotClub"
+            width={40}
+            height={40}
+            className="h-10 w-10 rounded-xl"
+            priority
+          />
           <h1 className="text-xl font-extrabold text-zinc-50">Sign in to LotClub</h1>
           <p className="text-sm text-zinc-400">Trade and bid with collectors near you.</p>
         </div>
