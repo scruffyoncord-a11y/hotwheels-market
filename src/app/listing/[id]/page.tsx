@@ -707,15 +707,6 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
               <div className="flex flex-col gap-3">
                 {!disabled && listing.endsAt && <AuctionTimerBig endsAt={listing.endsAt} />}
 
-                {isHost && (
-                  <Link
-                    href={`/listing/${listing.id}/host`}
-                    className="flex items-center justify-center gap-2 rounded-full bg-zinc-900 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
-                  >
-                    <HammerIcon className="h-4 w-4" /> Host This Auction
-                  </Link>
-                )}
-
                 {biddingPaused && !disabled && (
                   <p className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
                     <PauseIcon className="h-4 w-4 shrink-0" /> The seller has paused bidding — check back shortly.
