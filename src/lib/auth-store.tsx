@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import { syncProfileIdentity } from "@/lib/profile";
 
 const STORAGE_KEY = "hotwheels-market:auth:v1";
 
@@ -140,7 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       updateProfile: async (patch) => {
         setUser((prev) => ({ ...prev, ...patch }));
-        if (user.provider !== "google") return;
+        if (user.provider !== "google" || !user.id) return;
         // Persist to the real account so it survives a session refresh —
         // onAuthStateChange (USER_UPDATED) then re-syncs `user` from Supabase.
         const data: Record<string, string> = {};
@@ -149,6 +150,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (patch.city !== undefined) data.city = patch.city;
         if (patch.pincode !== undefined) data.pincode = patch.pincode;
         if (Object.keys(data).length > 0) await supabase.auth.updateUser({ data });
+        // Also mirror the public-facing fields into `profiles` — other
+        // visitors can't read user_metadata, only this denormalized copy.
+        await syncProfileIdentity(supabase, user.id, {
+          displayName: patch.displayName,
+          avatarUrl: patch.avatarUrl,
+          city: patch.city,
+        });
       },
       setAwayMode: (away) => setUser((prev) => ({ ...prev, awayMode: away })),
       signOut: async () => {

@@ -6,7 +6,13 @@ import Image from "next/image";
 import { useAuth } from "@/lib/auth-store";
 import { createClient } from "@/lib/supabase/client";
 import { uploadAvatar, lookupPincode } from "@/lib/avatar";
+import { claimUsername, isValidUsername } from "@/lib/profile";
 import { CameraIcon, CheckIcon } from "@/components/icons";
+
+function suggestUsername(displayName: string): string {
+  const base = displayName.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return base.slice(0, 16) || "collector";
+}
 
 function OnboardingForm() {
   const router = useRouter();
@@ -21,6 +27,7 @@ function OnboardingForm() {
   }, [isAuthenticated, router]);
 
   const [displayName, setDisplayName] = useState(user.displayName);
+  const [username, setUsername] = useState(() => suggestUsername(user.displayName));
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatarUrl ?? null);
   const [pincode, setPincode] = useState("");
@@ -51,12 +58,25 @@ function OnboardingForm() {
   }
 
   async function handleContinue() {
+    if (!isValidUsername(username)) {
+      setError("Username must be 3-20 characters: lowercase letters, numbers, underscores.");
+      return;
+    }
     if (pincode.length !== 6) {
       setError("Enter your 6-digit pincode.");
       return;
     }
     setSaving(true);
     setError("");
+
+    if (user.id) {
+      const usernameResult = await claimUsername(supabase, user.id, username);
+      if (usernameResult.error) {
+        setSaving(false);
+        setError(usernameResult.error);
+        return;
+      }
+    }
 
     let avatarUrl = user.avatarUrl;
     if (avatarFile && user.id) {
@@ -130,6 +150,24 @@ function OnboardingForm() {
               onChange={(e) => setDisplayName(e.target.value)}
               className="input"
             />
+          </label>
+
+          <label className="mt-4 flex flex-col gap-1">
+            <span className="text-sm font-medium text-zinc-300">Username</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-zinc-500">@</span>
+              <input
+                value={username}
+                onChange={(e) =>
+                  setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 20))
+                }
+                placeholder="collector123"
+                className="input flex-1"
+              />
+            </div>
+            <span className="text-xs text-zinc-500">
+              How others find and mention you — letters, numbers, underscores.
+            </span>
           </label>
 
           <label className="mt-4 flex flex-col gap-1">

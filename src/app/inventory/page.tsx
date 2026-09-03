@@ -6,8 +6,12 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConditionBadge } from "@/components/ConditionBadge";
-import { CameraIcon, CarIcon, PlusIcon, TrashIcon, XIcon } from "@/components/icons";
+import { CameraIcon, CarIcon, LockIcon, PlusIcon, TrashIcon, XIcon } from "@/components/icons";
 import { useInventory } from "@/lib/inventory-store";
+import { useAuth } from "@/lib/auth-store";
+import { useMyProfile } from "@/lib/use-my-profile";
+import { setCollectionPublic } from "@/lib/profile";
+import { createClient } from "@/lib/supabase/client";
 import { readFileAsDataUrl } from "@/lib/files";
 import { placeholderImage } from "@/lib/placeholder";
 import { CONDITION_LABELS, type ListingCondition } from "@/lib/types";
@@ -38,23 +42,24 @@ function AddCarModal({ open, onClose }: { open: boolean; onClose: () => void }) 
     setError("");
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) {
       setError("Give it a title so you can find it later.");
       return;
     }
-    const id = `inv-${Date.now()}`;
-    addItem({
-      id,
+    const { error: submitError } = await addItem({
       title: title.trim(),
       castingName: castingName.trim() || undefined,
       series: series.trim() || undefined,
       condition,
       notes: notes.trim() || undefined,
-      image: photo ?? placeholderImage(id, castingName || title),
-      createdAt: new Date().toISOString(),
+      image: photo ?? placeholderImage(title, castingName || title),
     });
+    if (submitError) {
+      setError(submitError);
+      return;
+    }
     reset();
     onClose();
   }
@@ -173,8 +178,65 @@ function AddCarModal({ open, onClose }: { open: boolean; onClose: () => void }) 
   );
 }
 
+function CollectionPrivacyCard() {
+  const { user } = useAuth();
+  const { profile, setProfile, loading } = useMyProfile();
+  const [saving, setSaving] = useState(false);
+
+  if (loading || !user.id) return null;
+
+  if (!profile?.username) {
+    return (
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-zinc-100 bg-zinc-50 px-4 py-3 text-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400">
+          <LockIcon className="h-4 w-4" /> Set a username to control who can see your collection.
+        </span>
+        <Link href="/settings" className="font-semibold text-orange-600 hover:underline">
+          Set up in Settings →
+        </Link>
+      </div>
+    );
+  }
+
+  async function toggle() {
+    if (!user.id || !profile) return;
+    setSaving(true);
+    const next = !profile.collectionPublic;
+    const { error } = await setCollectionPublic(createClient(), user.id, next);
+    setSaving(false);
+    if (!error) setProfile({ ...profile, collectionPublic: next });
+  }
+
+  return (
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-100 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+      <div>
+        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+          {profile.collectionPublic ? "Your collection is public" : "Your collection is private"}
+        </p>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          {profile.collectionPublic
+            ? `Visible to anyone who views @${profile.username}'s profile.`
+            : "Only you can see it — not shown on your public profile."}
+        </p>
+      </div>
+      <button
+        onClick={toggle}
+        disabled={saving}
+        className={`rounded-full px-4 py-1.5 text-xs font-bold text-white transition disabled:opacity-60 ${
+          profile.collectionPublic
+            ? "bg-zinc-700 hover:bg-zinc-600"
+            : "bg-orange-600 hover:bg-orange-700"
+        }`}
+      >
+        {saving ? "Saving…" : profile.collectionPublic ? "Make Private" : "Make Public"}
+      </button>
+    </div>
+  );
+}
+
 export default function InventoryPage() {
   const { items, removeItem } = useInventory();
+  const { isAuthenticated } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
@@ -191,6 +253,17 @@ export default function InventoryPage() {
           </button>
         }
       />
+
+      {!isAuthenticated && (
+        <p className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-xs font-medium text-red-700 dark:bg-red-950 dark:text-red-300">
+          Sign in with a real account to build a collection.
+          <Link href="/login?next=%2Finventory" className="font-bold underline">
+            Sign in
+          </Link>
+        </p>
+      )}
+
+      {isAuthenticated && <div className="mt-6"><CollectionPrivacyCard /></div>}
 
       {items.length === 0 ? (
         <EmptyState

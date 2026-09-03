@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useFavorites } from "@/lib/favorites-store";
 import { useAuth } from "@/lib/auth-store";
+import { createClient } from "@/lib/supabase/client";
+import { getProfileByUsername } from "@/lib/profile";
 import { Avatar } from "./Avatar";
 import { HeartIcon, SearchIcon } from "./icons";
 
@@ -27,8 +30,26 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
 }
 
 export function Header() {
+  const router = useRouter();
   const { favoriteIds } = useFavorites();
   const { user, isAuthenticated } = useAuth();
+  const [query, setQuery] = useState("");
+  const [searching, setSearching] = useState(false);
+
+  async function handleSearchSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = query.trim();
+    if (trimmed.startsWith("@") && trimmed.length > 1) {
+      setSearching(true);
+      const profile = await getProfileByUsername(createClient(), trimmed.slice(1));
+      setSearching(false);
+      if (profile) {
+        router.push(`/u/${profile.username}`);
+        return;
+      }
+    }
+    router.push(`/?q=${encodeURIComponent(trimmed)}`);
+  }
 
   return (
     <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
@@ -59,13 +80,15 @@ export function Header() {
           <NavLink href="/profile?tab=listings">My Listings</NavLink>
         </nav>
 
-        <form action="/" className="flex-1">
+        <form onSubmit={handleSearchSubmit} className="flex-1">
           <div className="relative">
             <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
             <input
               type="search"
-              name="q"
-              placeholder="Search castings, series, sellers..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search castings, series, sellers, or @username..."
+              disabled={searching}
               className="w-full rounded-full border border-zinc-200 bg-zinc-50 py-2 pl-8 pr-4 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-zinc-700 dark:bg-zinc-900"
             />
           </div>

@@ -1,14 +1,41 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { MOCK_INVENTORY } from "./mock-inventory";
+import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/lib/auth-store";
 import type { InventoryItem } from "./types";
 
-const STORAGE_KEY = "hotwheels-market:inventory:v1";
+interface InventoryRow {
+  id: string;
+  owner_id: string;
+  title: string;
+  casting_name: string | null;
+  series: string | null;
+  condition: InventoryItem["condition"];
+  notes: string | null;
+  image: string;
+  created_at: string;
+}
+
+function rowToItem(r: InventoryRow): InventoryItem {
+  return {
+    id: r.id,
+    title: r.title,
+    castingName: r.casting_name ?? undefined,
+    series: r.series ?? undefined,
+    condition: r.condition,
+    notes: r.notes ?? undefined,
+    image: r.image,
+    createdAt: r.created_at,
+  };
+}
+
+type NewInventoryItem = Omit<InventoryItem, "id" | "createdAt">;
 
 interface InventoryContextValue {
   items: InventoryItem[];
-  addItem: (item: InventoryItem) => void;
+  loading: boolean;
+  addItem: (item: NewInventoryItem) => Promise<{ error?: string }>;
   getItem: (id: string) => InventoryItem | undefined;
   removeItem: (id: string) => void;
 }
@@ -16,40 +43,64 @@ interface InventoryContextValue {
 const InventoryContext = createContext<InventoryContextValue | null>(null);
 
 export function InventoryProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<InventoryItem[]>(MOCK_INVENTORY);
-  const [loaded, setLoaded] = useState(false);
+  const { user } = useAuth();
+  const [items, setItems] = useState<InventoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const userItems: InventoryItem[] = JSON.parse(raw);
-        setItems([...userItems, ...MOCK_INVENTORY]);
-      }
-    } catch {
-      // localStorage unavailable or corrupt — fall back to mock data only
+    if (!user.id) {
+      setItems([]);
+      setLoading(false);
+      return;
     }
-    setLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (!loaded) return;
-    const userItems = items.filter((i) => !MOCK_INVENTORY.some((m) => m.id === i.id));
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(userItems));
-    } catch {
-      // ignore quota/availability errors
-    }
-  }, [items, loaded]);
+    let cancelled = false;
+    setLoading(true);
+    supabase
+      .from("inventory")
+      .select("*")
+      .eq("owner_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (!error && data) setItems((data as InventoryRow[]).map(rowToItem));
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user.id, supabase]);
 
   const value = useMemo<InventoryContextValue>(
     () => ({
       items,
-      addItem: (item) => setItems((prev) => [item, ...prev]),
+      loading,
+      addItem: async (item) => {
+        if (!user.id) return { error: "Sign in to add to your collection." };
+        const { data, error } = await supabase
+          .from("inventory")
+          .insert({
+            owner_id: user.id,
+            title: item.title,
+            casting_name: item.castingName ?? null,
+            series: item.series ?? null,
+            condition: item.condition,
+            notes: item.notes ?? null,
+            image: item.image,
+          })
+          .select()
+          .single();
+        if (error) return { error: error.message };
+        setItems((prev) => [rowToItem(data as InventoryRow), ...prev]);
+        return {};
+      },
       getItem: (id) => items.find((i) => i.id === id),
-      removeItem: (id) => setItems((prev) => prev.filter((i) => i.id !== id)),
+      removeItem: (id) => {
+        setItems((prev) => prev.filter((i) => i.id !== id));
+        void supabase.from("inventory").delete().eq("id", id);
+      },
     }),
-    [items],
+    [items, loading, supabase, user.id],
   );
 
   return <InventoryContext.Provider value={value}>{children}</InventoryContext.Provider>;

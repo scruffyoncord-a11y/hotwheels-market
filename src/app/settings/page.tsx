@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,6 +8,8 @@ import { useAuth } from "@/lib/auth-store";
 import { useListings } from "@/lib/listings-store";
 import { createClient } from "@/lib/supabase/client";
 import { uploadAvatar, lookupPincode } from "@/lib/avatar";
+import { claimUsername, isValidUsername } from "@/lib/profile";
+import { useMyProfile } from "@/lib/use-my-profile";
 import { Avatar } from "@/components/Avatar";
 import {
   CameraIcon,
@@ -81,9 +83,11 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 
 function EditProfileView({ onBack }: { onBack: () => void }) {
   const { user, updateProfile, signInWithPhone } = useAuth();
+  const { profile, setProfile } = useMyProfile();
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [displayName, setDisplayName] = useState(user.displayName);
+  const [username, setUsername] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatarUrl ?? null);
   const [pincode, setPincode] = useState(user.pincode ?? "");
@@ -96,6 +100,12 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  // Seed the username field once the profile finishes loading (it starts
+  // null while the fetch is in flight).
+  useEffect(() => {
+    if (profile?.username) setUsername(profile.username);
+  }, [profile?.username]);
 
   function sendOtp() {
     if (!/^\d{10}$/.test(phone.trim())) return;
@@ -131,6 +141,28 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
   async function save() {
     setSaving(true);
     setError("");
+
+    if (user.id && username.trim() && username.trim() !== profile?.username) {
+      if (!isValidUsername(username.trim())) {
+        setSaving(false);
+        setError("Username must be 3-20 characters: lowercase letters, numbers, underscores.");
+        return;
+      }
+      const usernameResult = await claimUsername(supabase, user.id, username.trim());
+      if (usernameResult.error) {
+        setSaving(false);
+        setError(usernameResult.error);
+        return;
+      }
+      setProfile({
+        id: user.id,
+        username: username.trim(),
+        displayName: profile?.displayName ?? null,
+        avatarUrl: profile?.avatarUrl ?? null,
+        city: profile?.city ?? null,
+        collectionPublic: profile?.collectionPublic ?? false,
+      });
+    }
 
     let avatarUrl = user.avatarUrl;
     if (avatarFile && user.id) {
@@ -204,6 +236,26 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
             onChange={(e) => setDisplayName(e.target.value)}
             className="input"
           />
+        </label>
+
+        <label className="mt-4 flex flex-col gap-1">
+          <span className="text-sm font-medium text-zinc-300">Username</span>
+          <div className="flex items-center gap-1">
+            <span className="text-sm text-zinc-500">@</span>
+            <input
+              value={username}
+              onChange={(e) =>
+                setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 20))
+              }
+              placeholder="collector123"
+              className="input flex-1"
+            />
+          </div>
+          {profile?.username && (
+            <span className="text-xs text-zinc-500">
+              Your public profile: /u/{profile.username}
+            </span>
+          )}
         </label>
 
         <label className="mt-4 flex flex-col gap-1">
