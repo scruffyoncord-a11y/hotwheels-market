@@ -76,8 +76,6 @@ export function Header() {
         <nav className="hidden shrink-0 items-center gap-1 sm:flex">
           <NavLink href="/">For Trade</NavLink>
           <NavLink href="/auctions">Auctions</NavLink>
-          <NavLink href="/inventory">My Collection</NavLink>
-          <NavLink href="/profile?tab=listings">My Listings</NavLink>
         </nav>
 
         <form onSubmit={handleSearchSubmit} className="flex-1">
@@ -102,6 +100,10 @@ export function Header() {
             <span className="sm:hidden">+</span>
             <span className="hidden sm:inline">+ List a car</span>
           </Link>
+          <div className="hidden items-center gap-1 sm:flex">
+            <NavLink href="/inventory">My Collection</NavLink>
+            <NavLink href="/profile?tab=listings">My Listings</NavLink>
+          </div>
           <Link
             href="/wishlist"
             className="relative flex h-9 w-9 items-center justify-center rounded-full text-lg text-zinc-500 transition hover:bg-zinc-100 hover:text-orange-600 dark:hover:bg-zinc-800"

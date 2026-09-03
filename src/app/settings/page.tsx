@@ -13,7 +13,6 @@ import { useMyProfile } from "@/lib/use-my-profile";
 import { Avatar } from "@/components/Avatar";
 import {
   CameraIcon,
-  CarIcon,
   CheckIcon,
   ChevronRightIcon,
   ClockIcon,
@@ -421,7 +420,6 @@ export default function SettingsPage() {
               <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
                 <MenuRow icon={<ShareIcon className="h-4 w-4" />} label="Edit Profile" onClick={() => setView("profile")} />
                 <MenuRow icon={<HeartIcon className="h-4 w-4" />} label="Wishlist" href="/wishlist" />
-                <MenuRow icon={<CarIcon className="h-4 w-4" />} label="My Listings & Bids" href="/profile" />
                 <MenuRow
                   icon={<ClockIcon className="h-4 w-4" />}
                   label="Away Mode"
