@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/lib/auth-store";
 import { useListings } from "@/lib/listings-store";
+import { createClient } from "@/lib/supabase/client";
+import { uploadAvatar, lookupPincode } from "@/lib/avatar";
+import { Avatar } from "@/components/Avatar";
 import {
+  CameraIcon,
   CarIcon,
   CheckIcon,
   ChevronRightIcon,
@@ -76,12 +81,21 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 
 function EditProfileView({ onBack }: { onBack: () => void }) {
   const { user, updateProfile, signInWithPhone } = useAuth();
+  const supabase = createClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [displayName, setDisplayName] = useState(user.displayName);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatarUrl ?? null);
+  const [pincode, setPincode] = useState(user.pincode ?? "");
+  const [locationLabel, setLocationLabel] = useState(user.city ?? "");
+  const [lookingUp, setLookingUp] = useState(false);
   const [phone, setPhone] = useState(user.phone ?? "");
   const [editingPhone, setEditingPhone] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   function sendOtp() {
     if (!/^\d{10}$/.test(phone.trim())) return;
@@ -96,8 +110,48 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
     setOtp("");
   }
 
-  function save() {
-    updateProfile({ displayName: displayName.trim() || "You" });
+  function handleAvatarPick(file: File) {
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  }
+
+  async function handlePincodeChange(value: string) {
+    const digits = value.replace(/[^0-9]/g, "").slice(0, 6);
+    setPincode(digits);
+    if (digits.length !== 6) {
+      setLocationLabel("");
+      return;
+    }
+    setLookingUp(true);
+    const result = await lookupPincode(digits);
+    setLookingUp(false);
+    if (result.city) setLocationLabel(`${result.city}, ${result.state}`);
+  }
+
+  async function save() {
+    setSaving(true);
+    setError("");
+
+    let avatarUrl = user.avatarUrl;
+    if (avatarFile && user.id) {
+      const result = await uploadAvatar(supabase, user.id, avatarFile);
+      if (result.error) {
+        setSaving(false);
+        setError(result.error);
+        return;
+      }
+      avatarUrl = result.url;
+    }
+
+    const city = locationLabel.split(",")[0]?.trim() || user.city;
+    await updateProfile({
+      displayName: displayName.trim() || "You",
+      avatarUrl,
+      pincode: pincode || undefined,
+      city,
+    });
+
+    setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 1800);
   }
@@ -111,6 +165,38 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
         ← Back to settings
       </button>
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+        <div className="mb-5 flex flex-col items-center gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleAvatarPick(file);
+              e.target.value = "";
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zinc-700 bg-zinc-800 text-zinc-500 transition hover:border-orange-500 hover:text-orange-400"
+          >
+            {avatarPreview ? (
+              <Image src={avatarPreview} alt="" fill unoptimized className="object-cover" />
+            ) : (
+              <CameraIcon className="h-6 w-6" />
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="text-xs font-semibold text-orange-400 hover:underline"
+          >
+            {avatarPreview ? "Change photo" : "Add a profile photo"}
+          </button>
+        </div>
+
         <label className="flex flex-col gap-1">
           <span className="text-sm font-medium text-zinc-300">Display Name</span>
           <input
@@ -118,6 +204,23 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
             onChange={(e) => setDisplayName(e.target.value)}
             className="input"
           />
+        </label>
+
+        <label className="mt-4 flex flex-col gap-1">
+          <span className="text-sm font-medium text-zinc-300">Pincode</span>
+          <input
+            value={pincode}
+            onChange={(e) => void handlePincodeChange(e.target.value)}
+            inputMode="numeric"
+            placeholder="e.g. 682001"
+            className="input tracking-widest"
+          />
+          {lookingUp && <span className="text-xs text-zinc-500">Looking up…</span>}
+          {locationLabel && (
+            <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400">
+              <CheckIcon className="h-3.5 w-3.5" /> {locationLabel}
+            </span>
+          )}
         </label>
 
         <label className="mt-4 flex flex-col gap-1">
@@ -183,11 +286,16 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
           </span>
         </label>
 
+        {error && <p className="mt-4 text-xs text-rose-400">{error}</p>}
+
         <button
           onClick={save}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-800 py-3 text-sm font-bold text-white transition hover:bg-zinc-700"
+          disabled={saving}
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-800 py-3 text-sm font-bold text-white transition hover:bg-zinc-700 disabled:opacity-60"
         >
-          {saved ? (
+          {saving ? (
+            "Saving…"
+          ) : saved ? (
             <>
               <CheckIcon className="h-4 w-4" /> Saved
             </>
@@ -239,9 +347,7 @@ export default function SettingsPage() {
           ) : (
             <div className="flex flex-col gap-6">
               <div className="flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-lg font-bold text-white">
-                  {user.displayName.charAt(0).toUpperCase()}
-                </div>
+                <Avatar name={user.displayName} url={user.avatarUrl} size={48} />
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-zinc-50">{user.displayName}</p>
                   <p className="text-xs text-zinc-500">

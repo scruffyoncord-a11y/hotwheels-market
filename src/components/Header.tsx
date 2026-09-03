@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useFavorites } from "@/lib/favorites-store";
 import { useAuth } from "@/lib/auth-store";
+import { Avatar } from "./Avatar";
 import { HeartIcon, SearchIcon } from "./icons";
 
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
@@ -91,12 +92,8 @@ export function Header() {
             )}
           </Link>
           {isAuthenticated ? (
-            <Link
-              href="/settings"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-100 text-sm font-semibold text-orange-700 transition hover:bg-orange-200 dark:bg-orange-950 dark:text-orange-300 dark:hover:bg-orange-900"
-              title={user.displayName}
-            >
-              {user.displayName.charAt(0).toUpperCase()}
+            <Link href="/settings" title={user.displayName}>
+              <Avatar name={user.displayName} url={user.avatarUrl} size={36} />
             </Link>
           ) : (
             <Link

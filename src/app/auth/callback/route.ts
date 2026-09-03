@@ -8,8 +8,14 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      const hasPincode = !!data.user?.user_metadata?.pincode;
+      if (!hasPincode) {
+        return NextResponse.redirect(
+          `${origin}/onboarding?next=${encodeURIComponent(next)}`,
+        );
+      }
       return NextResponse.redirect(`${origin}${next}`);
     }
   }

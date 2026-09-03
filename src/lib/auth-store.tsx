@@ -14,6 +14,8 @@ export interface AuthUser {
   email?: string;
   phone?: string;
   avatarUrl?: string;
+  city?: string;
+  pincode?: string;
   provider: AuthProvider;
   awayMode?: boolean;
   // Real Supabase auth.uid() for a signed-in Google user, null otherwise.
@@ -40,7 +42,9 @@ interface AuthContextValue {
   googleBusy: boolean;
   signInWithGoogle: (next?: string) => Promise<void>;
   signInWithPhone: (phone: string) => void;
-  updateProfile: (patch: Partial<Pick<AuthUser, "displayName" | "phone">>) => void;
+  updateProfile: (
+    patch: Partial<Pick<AuthUser, "displayName" | "phone" | "avatarUrl" | "city" | "pincode">>,
+  ) => Promise<void>;
   setAwayMode: (away: boolean) => void;
   signOut: () => Promise<void>;
 }
@@ -53,6 +57,8 @@ function fromSupabaseUser(supaUser: User): AuthUser {
     displayName: meta.full_name ?? meta.name ?? supaUser.email ?? "You",
     email: supaUser.email ?? undefined,
     avatarUrl: meta.avatar_url ?? meta.picture ?? undefined,
+    city: meta.city ?? undefined,
+    pincode: meta.pincode ?? undefined,
     provider: "google",
     id: supaUser.id,
     ownerKey: "You",
@@ -132,7 +138,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           ownerKey: "You",
         }));
       },
-      updateProfile: (patch) => setUser((prev) => ({ ...prev, ...patch })),
+      updateProfile: async (patch) => {
+        setUser((prev) => ({ ...prev, ...patch }));
+        if (user.provider !== "google") return;
+        // Persist to the real account so it survives a session refresh —
+        // onAuthStateChange (USER_UPDATED) then re-syncs `user` from Supabase.
+        const data: Record<string, string> = {};
+        if (patch.displayName !== undefined) data.full_name = patch.displayName;
+        if (patch.avatarUrl !== undefined) data.avatar_url = patch.avatarUrl;
+        if (patch.city !== undefined) data.city = patch.city;
+        if (patch.pincode !== undefined) data.pincode = patch.pincode;
+        if (Object.keys(data).length > 0) await supabase.auth.updateUser({ data });
+      },
       setAwayMode: (away) => setUser((prev) => ({ ...prev, awayMode: away })),
       signOut: async () => {
         if (user.provider === "google") await supabase.auth.signOut();

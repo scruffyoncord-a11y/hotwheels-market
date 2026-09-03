@@ -10,6 +10,7 @@ import { useBids } from "@/lib/bids-store";
 import { useAuth } from "@/lib/auth-store";
 import { AuctionTimer, isAuctionEnded } from "@/components/AuctionTimer";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Avatar } from "@/components/Avatar";
 import {
   CarIcon,
   CheckIcon,
@@ -451,9 +452,7 @@ function ProfileContent() {
       <div className="bg-gradient-to-b from-zinc-900 to-zinc-950 px-4 pb-10 pt-8 sm:px-6">
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-orange-500 text-2xl font-bold text-white">
-              {user.displayName.charAt(0).toUpperCase()}
-            </div>
+            <Avatar name={user.displayName} url={user.avatarUrl} size={64} className="text-2xl" />
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold text-zinc-50">{user.displayName}</h1>
@@ -464,7 +463,9 @@ function ProfileContent() {
                   Settings
                 </Link>
               </div>
-              <p className="text-sm text-zinc-400">★ 5.0 · {myListings[0]?.seller.city ?? "Kochi"}</p>
+              <p className="text-sm text-zinc-400">
+                ★ 5.0{(user.city ?? myListings[0]?.seller.city) ? ` · ${user.city ?? myListings[0]?.seller.city}` : ""}
+              </p>
               <p className="text-xs italic text-zinc-500">Collector since {joinedLabel}</p>
             </div>
           </div>
