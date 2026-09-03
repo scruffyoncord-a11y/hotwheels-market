@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useListings } from "@/lib/listings-store";
@@ -383,12 +384,14 @@ function MyBidRow({ listing }: { listing: Listing }) {
   );
 }
 
-export default function ProfilePage() {
+function ProfileContent() {
+  const searchParams = useSearchParams();
   const { listings } = useListings();
   const { proposals } = useProposals();
   const { bids } = useBids();
   const { user } = useAuth();
-  const [tab, setTab] = useState<"listings" | "proposals" | "bids">("proposals");
+  const initialTab = searchParams.get("tab") === "listings" ? "listings" : "proposals";
+  const [tab, setTab] = useState<"listings" | "proposals" | "bids">(initialTab);
   const [proposalTab, setProposalTab] = useState<"received" | "sent">("received");
 
   const myListings = useMemo(
@@ -582,5 +585,13 @@ export default function ProfilePage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense>
+      <ProfileContent />
+    </Suspense>
   );
 }

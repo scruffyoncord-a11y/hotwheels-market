@@ -9,7 +9,8 @@ import { HeartIcon, SearchIcon } from "./icons";
 
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   const pathname = usePathname();
-  const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const path = href.split("?")[0];
+  const active = path === "/" ? pathname === "/" : pathname.startsWith(path);
   return (
     <Link
       href={href}
@@ -54,6 +55,7 @@ export function Header() {
           <NavLink href="/">For Trade</NavLink>
           <NavLink href="/auctions">Auctions</NavLink>
           <NavLink href="/inventory">My Collection</NavLink>
+          <NavLink href="/profile?tab=listings">My Listings</NavLink>
         </nav>
 
         <form action="/" className="flex-1">
