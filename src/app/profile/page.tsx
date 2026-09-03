@@ -321,11 +321,12 @@ function MyListingRow({ listing }: { listing: Listing }) {
 
 function MyBidRow({ listing }: { listing: Listing }) {
   const { bidsForListing, highestBid } = useBids();
+  const { user } = useAuth();
   const listingBids = bidsForListing(listing.id);
-  const myBest = Math.max(...listingBids.filter((b) => b.bidderName === ME).map((b) => b.amountInr));
+  const myBest = Math.max(...listingBids.filter((b) => b.bidderId === user.id).map((b) => b.amountInr));
   const top = highestBid(listing.id);
   const ended = listing.status !== "ACTIVE" || (listing.endsAt ? isAuctionEnded(listing.endsAt) : false);
-  const winning = top?.bidderName === ME;
+  const winning = !!user.id && top?.bidderId === user.id;
 
   let statusLabel: string;
   let statusStyle: string;
@@ -391,8 +392,11 @@ export default function ProfilePage() {
   const [proposalTab, setProposalTab] = useState<"received" | "sent">("received");
 
   const myListings = useMemo(
-    () => listings.filter((l) => l.seller.name === ME).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)),
-    [listings],
+    () =>
+      listings
+        .filter((l) => !!user.id && l.sellerId === user.id)
+        .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)),
+    [listings, user.id],
   );
   const received = useMemo(
     () =>
@@ -415,13 +419,13 @@ export default function ProfilePage() {
 
   const myBidListings = useMemo(() => {
     const listingIds = Array.from(
-      new Set(bids.filter((b) => b.bidderName === ME).map((b) => b.listingId)),
+      new Set(bids.filter((b) => b.bidderId === user.id).map((b) => b.listingId)),
     );
     return listingIds
       .map((id) => listings.find((l) => l.id === id))
       .filter((l): l is Listing => !!l)
       .sort((a, b) => (a.endsAt ?? "").localeCompare(b.endsAt ?? ""));
-  }, [bids, listings]);
+  }, [bids, listings, user.id]);
 
   const joinedLabel = useMemo(() => {
     const earliest = [...myListings, ...sent].reduce<string | null>((min, item) => {

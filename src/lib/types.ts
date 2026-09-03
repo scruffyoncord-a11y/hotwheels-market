@@ -42,6 +42,10 @@ export interface Listing {
   images: string[];
   views?: number;
   likes?: number;
+  // The real, authenticated Supabase account that owns this listing —
+  // this is the only thing "am I the seller" should ever be checked
+  // against. `seller` below is a display-only snapshot.
+  sellerId: string;
   seller: {
     name: string;
     city: string;
@@ -97,6 +101,8 @@ export interface AccessGrant {
 export interface Bid {
   id: string;
   listingId: string;
+  // The real, authenticated Supabase account that placed this bid.
+  bidderId: string;
   bidderName: string;
   amountInr: number;
   // The bidder's true ceiling for proxy (max) bidding. The visible amountInr

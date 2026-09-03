@@ -6,10 +6,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useListings } from "@/lib/listings-store";
 import { useBids } from "@/lib/bids-store";
+import { useAuth } from "@/lib/auth-store";
 import { AuctionTimerBig, isAuctionEnded } from "@/components/AuctionTimer";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { CheckIcon, DotIcon, HammerIcon, PauseIcon } from "@/components/icons";
-import { computeProxyBid, maybeExtendEndTime } from "@/lib/auction";
 import { formatInr, timeAgo } from "@/lib/format";
 
 const CALL_STEPS = [
@@ -22,8 +22,9 @@ const CALL_STEPS = [
 export default function HostAuctionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const { getListing, updateListing } = useListings();
-  const { bidsForListing, highestBid, addBid, removeBid } = useBids();
+  const { getListing, updateListing, loading: listingsLoading } = useListings();
+  const { bidsForListing, highestBid } = useBids();
+  const { user } = useAuth();
   const listing = getListing(id);
   const [callStage, setCallStage] = useState(0);
 
@@ -35,7 +36,15 @@ export default function HostAuctionPage({ params }: { params: Promise<{ id: stri
     setCallStage(0);
   }, [bids.length]);
 
-  if (!listing || listing.type !== "AUCTION" || listing.seller.name !== "You") {
+  if (listingsLoading) {
+    return (
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-16 text-center sm:px-6">
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading…</p>
+      </main>
+    );
+  }
+
+  if (!listing || listing.type !== "AUCTION" || !user.id || listing.sellerId !== user.id) {
     return (
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-16 text-center sm:px-6">
         <p className="text-lg font-semibold text-zinc-700 dark:text-zinc-300">
@@ -50,35 +59,6 @@ export default function HostAuctionPage({ params }: { params: Promise<{ id: stri
 
   const ended = listing.status !== "ACTIVE" || (listing.endsAt ? isAuctionEnded(listing.endsAt) : false);
   const currentBid = topBid?.amountInr ?? listing.startingBidInr ?? 0;
-  const increment = listing.bidIncrementInr ?? 100;
-
-  function recordRoomBid() {
-    const result = computeProxyBid({
-      topBid,
-      bidderName: "Room",
-      maxBidInr: currentBid + increment,
-      increment,
-      startingBid: listing!.startingBidInr ?? 0,
-    });
-    if ("error" in result) return;
-    const now = Date.now();
-    result.entries.forEach((entry, i) => {
-      addBid({
-        id: `room-${now}-${i}`,
-        listingId: listing!.id,
-        ...entry,
-        createdAt: new Date(now + i).toISOString(),
-      });
-    });
-    if (listing!.endsAt) {
-      const extended = maybeExtendEndTime(listing!.endsAt, now);
-      if (extended) updateListing(listing!.id, { endsAt: extended });
-    }
-  }
-
-  function undoLastBid() {
-    if (topBid) removeBid(topBid.id);
-  }
 
   function toggleAccepting() {
     updateListing(listing!.id, { biddingPaused: !listing!.biddingPaused });
@@ -93,10 +73,6 @@ export default function HostAuctionPage({ params }: { params: Promise<{ id: stri
   function hammer() {
     updateListing(listing!.id, { status: "SOLD", biddingPaused: true });
     setCallStage(0);
-  }
-
-  function pauseBidding() {
-    updateListing(listing!.id, { biddingPaused: true });
   }
 
   function cancelAuction() {
@@ -146,24 +122,6 @@ export default function HostAuctionPage({ params }: { params: Promise<{ id: stri
                     {topBid.bidderName} · {timeAgo(topBid.createdAt)}
                   </p>
                 )}
-              </div>
-              <div className="flex flex-col gap-1">
-                <button
-                  onClick={recordRoomBid}
-                  disabled={ended}
-                  className="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-300 text-zinc-600 transition hover:border-emerald-400 hover:text-emerald-600 disabled:opacity-40 dark:border-zinc-700"
-                  title={`Record a room bid (+${formatInr(increment)})`}
-                >
-                  ▲
-                </button>
-                <button
-                  onClick={undoLastBid}
-                  disabled={!topBid}
-                  className="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-300 text-zinc-600 transition hover:border-rose-400 hover:text-rose-600 disabled:opacity-40 dark:border-zinc-700"
-                  title="Remove the last bid"
-                >
-                  ▼
-                </button>
               </div>
             </div>
 
@@ -265,7 +223,6 @@ export default function HostAuctionPage({ params }: { params: Promise<{ id: stri
                 <th className="px-4 py-2 font-semibold">Time</th>
                 <th className="px-4 py-2 font-semibold">Status</th>
                 <th className="px-4 py-2 font-semibold">Value</th>
-                <th className="px-4 py-2 font-semibold">Remove</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -288,14 +245,6 @@ export default function HostAuctionPage({ params }: { params: Promise<{ id: stri
                   </td>
                   <td className="px-4 py-2 font-semibold text-zinc-800 dark:text-zinc-200">
                     {formatInr(b.amountInr)}
-                  </td>
-                  <td className="px-4 py-2">
-                    <button
-                      onClick={() => removeBid(b.id)}
-                      className="rounded border border-rose-300 px-2 py-0.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-50 dark:border-rose-800 dark:hover:bg-rose-950"
-                    >
-                      Remove
-                    </button>
                   </td>
                 </tr>
               ))}

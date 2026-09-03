@@ -7,6 +7,7 @@ import { AuctionTimer } from "./AuctionTimer";
 import { useBids } from "@/lib/bids-store";
 import { useFavorites } from "@/lib/favorites-store";
 import { useAccess } from "@/lib/access-store";
+import { useAuth } from "@/lib/auth-store";
 import { formatInr, timeAgo } from "@/lib/format";
 import { HammerIcon, HeartIcon, LockIcon, PauseIcon, SwapIcon } from "./icons";
 import type { Listing } from "@/lib/types";
@@ -15,12 +16,13 @@ export function ListingCard({ listing }: { listing: Listing }) {
   const { bidsForListing, highestBid } = useBids();
   const { isFavorited, toggleFavorite } = useFavorites();
   const { hasAccess } = useAccess();
+  const { user } = useAuth();
   const favorited = isFavorited(listing.id);
   const sold = listing.status === "SOLD";
   const reserved = listing.status === "RESERVED";
   const isTrade = listing.type === "TRADE";
   const isAuction = listing.type === "AUCTION";
-  const isHost = listing.seller.name === "You";
+  const isHost = !!user.id && listing.sellerId === user.id;
   const isPrivateAuction = isAuction && !!listing.isPrivate;
   const isLocked = isPrivateAuction && !isHost && !hasAccess(listing.id, "You");
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-store";
@@ -30,8 +30,10 @@ function GoogleGIcon({ className = "h-5 w-5" }: { className?: string }) {
   );
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") || "/profile";
   const { signInWithGoogle, signInWithPhone, googleBusy } = useAuth();
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
@@ -40,7 +42,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
 
   function handleGoogle() {
-    void signInWithGoogle();
+    void signInWithGoogle(next);
   }
 
   function sendOtp(e: React.FormEvent) {
@@ -63,7 +65,7 @@ export default function LoginPage() {
     setOtpBusy(true);
     setTimeout(() => {
       signInWithPhone(phone.trim());
-      router.push("/profile");
+      router.push(next);
     }, 500);
   }
 
@@ -170,5 +172,13 @@ export default function LoginPage() {
         </p>
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

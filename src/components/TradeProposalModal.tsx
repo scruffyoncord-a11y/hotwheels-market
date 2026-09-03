@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import { useListings } from "@/lib/listings-store";
 import { useProposals } from "@/lib/proposals-store";
+import { useAuth } from "@/lib/auth-store";
 import { CheckIcon, XIcon } from "./icons";
 import { CONDITION_LABELS } from "@/lib/types";
 import type { Listing } from "@/lib/types";
@@ -194,6 +195,7 @@ export function TradeProposalModal({
 }) {
   const { listings } = useListings();
   const { addProposal } = useProposals();
+  const { user } = useAuth();
 
   const [myOfferIds, setMyOfferIds] = useState<string[]>([]);
   const [theirOfferIds, setTheirOfferIds] = useState<string[]>([listing.id]);
@@ -203,15 +205,18 @@ export function TradeProposalModal({
   const [sent, setSent] = useState(false);
 
   const myListings = useMemo(
-    () => listings.filter((l) => l.seller.name === "You" && l.status === "ACTIVE" && l.id !== listing.id),
-    [listings, listing.id],
+    () =>
+      listings.filter(
+        (l) => !!user.id && l.sellerId === user.id && l.status === "ACTIVE" && l.id !== listing.id,
+      ),
+    [listings, listing.id, user.id],
   );
   const theirListings = useMemo(
     () =>
       listings.filter(
-        (l) => l.seller.name === listing.seller.name && l.type === "TRADE" && l.status === "ACTIVE",
+        (l) => l.sellerId === listing.sellerId && l.type === "TRADE" && l.status === "ACTIVE",
       ),
-    [listings, listing.seller.name],
+    [listings, listing.sellerId],
   );
 
   const myOffer = myListings.filter((l) => myOfferIds.includes(l.id));

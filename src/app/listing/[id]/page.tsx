@@ -32,8 +32,8 @@ import { useProposals } from "@/lib/proposals-store";
 import { useBids } from "@/lib/bids-store";
 import { useFavorites } from "@/lib/favorites-store";
 import { useAccess } from "@/lib/access-store";
+import { useAuth } from "@/lib/auth-store";
 import { formatInr, timeAgo } from "@/lib/format";
-import { computeProxyBid, maybeExtendEndTime } from "@/lib/auction";
 import { CONDITION_LABELS } from "@/lib/types";
 
 interface ChatMessage {
@@ -41,27 +41,15 @@ interface ChatMessage {
   body: string;
 }
 
-// Rival bidders the demo can pick from to simulate a live auction room.
-const RIVAL_BIDDERS = [
-  "Neha P.",
-  "Vikram R.",
-  "Ishaan B.",
-  "Kabir T.",
-  "Meera J.",
-  "Divya K.",
-  "Farhan I.",
-  "Sana W.",
-];
-const MAX_SIMULATED_BIDS_PER_VISIT = 6;
-
 export default function ListingDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { listings, getListing, updateListing } = useListings();
+  const { listings, getListing, loading: listingsLoading } = useListings();
   const { proposals } = useProposals();
-  const { bidsForListing, highestBid, addBid } = useBids();
+  const { bidsForListing, highestBid, placeBid: placeBidRpc } = useBids();
   const { isFavorited, toggleFavorite } = useFavorites();
   const { hasAccess, grantViaToken, requestAccess, respondToRequest, requestsForListing, myRequest } =
     useAccess();
+  const { user, isAuthenticated } = useAuth();
   const listing = getListing(id);
   const viewerName = "You";
 
@@ -72,16 +60,74 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [bidAmount, setBidAmount] = useState("");
   const [bidError, setBidError] = useState("");
+  const [bidSubmitting, setBidSubmitting] = useState(false);
   const [bidPlaced, setBidPlaced] = useState(false);
   const [liveFlash, setLiveFlash] = useState<{ name: string; amount: number } | null>(null);
   const [extendedFlash, setExtendedFlash] = useState(false);
   const [accessTokenParam, setAccessTokenParam] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
   const similarRailRef = useRef<HTMLDivElement>(null);
-  const simulatedCountRef = useRef(0);
-  const fireSimulatedBidRef = useRef<() => void>(() => {});
+  const prevTopBidIdRef = useRef<string | undefined>(undefined);
+  const prevEndsAtRef = useRef<string | undefined>(undefined);
 
-  if (!listing) return notFound();
+  // Derived from `listing` via optional chaining (rather than after an
+  // early return) so every hook below is called on every render, even
+  // while the listing is still loading — required by the Rules of Hooks.
+  const isAuction = listing?.type === "AUCTION";
+  const isPrivateAuction = isAuction && !!listing?.isPrivate;
+  const topBid = isAuction && listing ? highestBid(listing.id) : undefined;
+
+  useEffect(() => {
+    setAccessTokenParam(new URLSearchParams(window.location.search).get("access"));
+  }, []);
+
+  useEffect(() => {
+    if (!listing || !isPrivateAuction || !accessTokenParam) return;
+    if (accessTokenParam === listing.accessToken) {
+      grantViaToken(listing.id, viewerName);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPrivateAuction, accessTokenParam, listing?.id]);
+
+  // Bids arrive over Supabase Realtime from BidsProvider — flash a toast
+  // whenever the leading bid changes to someone who isn't you, so the room
+  // still feels live, but only ever from real accounts placing real bids.
+  useEffect(() => {
+    if (!isAuction || !topBid) return;
+    const isFirstRender = prevTopBidIdRef.current === undefined;
+    const changed = topBid.id !== prevTopBidIdRef.current;
+    const fromSomeoneElse = topBid.bidderId !== user.id;
+    prevTopBidIdRef.current = topBid.id;
+    if (isFirstRender || !changed || !fromSomeoneElse) return;
+    setLiveFlash({ name: topBid.bidderName, amount: topBid.amountInr });
+    const t = setTimeout(() => setLiveFlash(null), 3200);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topBid?.id]);
+
+  // Anti-snipe extension happens server-side in place_bid(); when the
+  // listing's endsAt pushes later via realtime, flash it.
+  useEffect(() => {
+    if (!isAuction || !listing?.endsAt) return;
+    const prev = prevEndsAtRef.current;
+    prevEndsAtRef.current = listing.endsAt;
+    if (prev === undefined || listing.endsAt <= prev) return;
+    setExtendedFlash(true);
+    const t = setTimeout(() => setExtendedFlash(false), 3200);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listing?.endsAt]);
+
+  if (!listing) {
+    if (listingsLoading) {
+      return (
+        <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-16 text-center sm:px-6">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading…</p>
+        </main>
+      );
+    }
+    return notFound();
+  }
 
   const similar = listings
     .filter(
@@ -94,7 +140,6 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
     .slice(0, 8);
 
   const isTrade = listing.type === "TRADE";
-  const isAuction = listing.type === "AUCTION";
   const auctionEnded = isAuction && listing.endsAt ? isAuctionEnded(listing.endsAt) : false;
   const disabled = listing.status !== "ACTIVE" || auctionEnded;
   const offerCount = proposals.filter((p) => p.listingId === listing.id).length;
@@ -102,104 +147,20 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const likeCount = (listing.likes ?? 0) + (favorited ? 1 : 0);
 
   const listingBids = isAuction ? bidsForListing(listing.id) : [];
-  const topBid = isAuction ? highestBid(listing.id) : undefined;
   const currentBid = topBid?.amountInr ?? listing.startingBidInr ?? 0;
   const nextMinBid =
     listingBids.length === 0 ? currentBid : currentBid + (listing.bidIncrementInr ?? 100);
-  const youAreHighestBidder = topBid?.bidderName === "You";
-  const myLatestBid = listingBids.find((b) => b.bidderName === "You");
+  const youAreHighestBidder = !!user.id && topBid?.bidderId === user.id;
+  const myLatestBid = listingBids.find((b) => b.bidderId === user.id);
   const isPopular = (listing.views ?? 0) > 400 || offerCount >= 2 || listingBids.length >= 3;
   const biddingPaused = !!listing.biddingPaused;
   const biddingBlocked = disabled || biddingPaused;
-  const isHost = isAuction && listing.seller.name === "You";
+  const isHost = isAuction && !!user.id && listing.sellerId === user.id;
   const increment = listing.bidIncrementInr ?? 100;
 
-  const isPrivateAuction = isAuction && !!listing.isPrivate;
   const hasAccessGranted = isHost || !isPrivateAuction || hasAccess(listing.id, viewerName);
   const myAccessRequest = myRequest(listing.id, viewerName);
   const accessRequests = requestsForListing(listing.id);
-
-  useEffect(() => {
-    setAccessTokenParam(new URLSearchParams(window.location.search).get("access"));
-  }, []);
-
-  useEffect(() => {
-    if (!isPrivateAuction || !accessTokenParam) return;
-    if (accessTokenParam === listing!.accessToken) {
-      grantViaToken(listing!.id, viewerName);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPrivateAuction, accessTokenParam, listing?.id]);
-
-  // Keep a ref to the latest version of this handler so the scheduling
-  // effect below never fires against a stale bids/listing snapshot — only
-  // the timer loop itself needs to survive across renders, not the data.
-  fireSimulatedBidRef.current = function fireSimulatedBid() {
-    if (simulatedCountRef.current >= MAX_SIMULATED_BIDS_PER_VISIT) return;
-    if (listing!.endsAt && isAuctionEnded(listing!.endsAt)) return;
-
-    const latest = highestBid(listing!.id);
-    const base = latest?.amountInr ?? listing!.startingBidInr ?? 0;
-    const step = listing!.bidIncrementInr ?? 100;
-    const bump = Math.random() < 0.3 ? step * 2 : step;
-    const candidates = RIVAL_BIDDERS.filter((n) => n !== latest?.bidderName);
-    const name = candidates[Math.floor(Math.random() * candidates.length)];
-
-    const result = computeProxyBid({
-      topBid: latest,
-      bidderName: name,
-      maxBidInr: base + bump,
-      increment: step,
-      startingBid: listing!.startingBidInr ?? 0,
-    });
-    if (!("error" in result)) {
-      const now = Date.now();
-      result.entries.forEach((entry, i) => {
-        addBid({
-          id: `sim-${now}-${i}`,
-          listingId: listing!.id,
-          ...entry,
-          createdAt: new Date(now + i).toISOString(),
-        });
-      });
-      setLiveFlash({ name: result.leaderName, amount: result.leaderAmount });
-      setTimeout(() => setLiveFlash(null), 3200);
-
-      if (listing!.endsAt) {
-        const extended = maybeExtendEndTime(listing!.endsAt, now);
-        if (extended) {
-          updateListing(listing!.id, { endsAt: extended });
-          setExtendedFlash(true);
-          setTimeout(() => setExtendedFlash(false), 3200);
-        }
-      }
-    }
-    simulatedCountRef.current += 1;
-  };
-
-  // Simulate a live auction room: while this active auction is open, other
-  // collectors occasionally jump in with a bid — so the page feels alive
-  // instead of static, and you can actually get outbid in real time.
-  useEffect(() => {
-    if (!isAuction || disabled || biddingPaused) return;
-    let cancelled = false;
-    let timeoutId: ReturnType<typeof setTimeout>;
-
-    function scheduleNext() {
-      const delay = 18000 + Math.random() * 27000; // ~18-45s
-      timeoutId = setTimeout(() => {
-        if (cancelled) return;
-        fireSimulatedBidRef.current();
-        scheduleNext();
-      }, delay);
-    }
-
-    scheduleNext();
-    return () => {
-      cancelled = true;
-      clearTimeout(timeoutId);
-    };
-  }, [isAuction, disabled, biddingPaused, listing?.id]);
 
   function sendMessage() {
     const body = draft.trim();
@@ -223,47 +184,20 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
     similarRailRef.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
   }
 
-  function placeBid(maxBid: number) {
-    if (disabled) return;
-    const result = computeProxyBid({
-      topBid,
-      bidderName: "You",
-      maxBidInr: maxBid,
-      increment,
-      startingBid: listing!.startingBidInr ?? 0,
-    });
+  async function handleBidSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (disabled || bidSubmitting) return;
+    setBidSubmitting(true);
+    setBidError("");
+    const result = await placeBidRpc(listing!.id, Number(bidAmount));
+    setBidSubmitting(false);
     if ("error" in result) {
       setBidError(result.error);
       return;
     }
-    const now = Date.now();
-    result.entries.forEach((entry, i) => {
-      addBid({
-        id: `bid-${now}-${i}`,
-        listingId: listing!.id,
-        ...entry,
-        createdAt: new Date(now + i).toISOString(),
-      });
-    });
-
-    if (listing!.endsAt) {
-      const extended = maybeExtendEndTime(listing!.endsAt, now);
-      if (extended) {
-        updateListing(listing!.id, { endsAt: extended });
-        setExtendedFlash(true);
-        setTimeout(() => setExtendedFlash(false), 3200);
-      }
-    }
-
-    setBidError("");
     setBidAmount("");
     setBidPlaced(true);
     setTimeout(() => setBidPlaced(false), 2000);
-  }
-
-  function handleBidSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    placeBid(Number(bidAmount));
   }
 
   return (
@@ -658,8 +592,8 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                 )}
                 {disabled && topBid && (
                   <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-zinc-600 dark:text-zinc-300">
-                    {topBid.bidderName === "You" && <TrophyIcon className="h-3.5 w-3.5" />}
-                    Won by {topBid.bidderName === "You" ? "you" : topBid.bidderName}
+                    {topBid.bidderId === user.id && <TrophyIcon className="h-3.5 w-3.5" />}
+                    Won by {topBid.bidderId === user.id ? "you" : topBid.bidderName}
                   </p>
                 )}
               </div>
@@ -719,7 +653,21 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                   </p>
                 )}
 
-                {!biddingBlocked && !isHost && (
+                {!biddingBlocked && !isHost && !isAuthenticated && (
+                  <div className="flex flex-col items-center gap-2 rounded-2xl border border-zinc-100 p-4 text-center dark:border-zinc-800">
+                    <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                      Sign in with a real account to place a bid.
+                    </p>
+                    <Link
+                      href={`/login?next=${encodeURIComponent(`/listing/${listing.id}`)}`}
+                      className="rounded-full bg-red-600 px-5 py-2 text-sm font-bold text-white transition hover:bg-red-700"
+                    >
+                      Sign in to bid
+                    </Link>
+                  </div>
+                )}
+
+                {!biddingBlocked && !isHost && isAuthenticated && (
                   <form
                     onSubmit={handleBidSubmit}
                     className="rounded-2xl border border-zinc-100 p-4 dark:border-zinc-800"
@@ -756,9 +704,10 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                       />
                       <button
                         type="submit"
-                        className="rounded-full bg-red-600 px-5 py-2 text-sm font-bold text-white transition hover:bg-red-700"
+                        disabled={bidSubmitting}
+                        className="rounded-full bg-red-600 px-5 py-2 text-sm font-bold text-white transition hover:bg-red-700 disabled:opacity-60"
                       >
-                        Place Bid
+                        {bidSubmitting ? "Placing…" : "Place Bid"}
                       </button>
                     </div>
                     {bidError && <p className="mt-2 text-xs text-rose-600">{bidError}</p>}

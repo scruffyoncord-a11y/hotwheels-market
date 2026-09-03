@@ -14,8 +14,6 @@ import {
   ShareIcon,
 } from "@/components/icons";
 
-const ME = "You";
-
 function MenuRow({
   icon,
   label,
@@ -209,7 +207,7 @@ export default function SettingsPage() {
   const [view, setView] = useState<"menu" | "profile">("menu");
 
   const myActiveAuctions = listings.filter(
-    (l) => l.seller.name === ME && l.type === "AUCTION" && l.status === "ACTIVE",
+    (l) => !!user.id && l.sellerId === user.id && l.type === "AUCTION" && l.status === "ACTIVE",
   );
 
   function toggleAway(away: boolean) {

@@ -2,9 +2,11 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { useListings } from "@/lib/listings-store";
 import { useInventory } from "@/lib/inventory-store";
+import { useAuth } from "@/lib/auth-store";
 import { placeholderImage } from "@/lib/placeholder";
 import { readFileAsDataUrl } from "@/lib/files";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -84,6 +86,7 @@ function SellForm() {
   const searchParams = useSearchParams();
   const { addListing } = useListings();
   const { getItem } = useInventory();
+  const { user, isAuthenticated } = useAuth();
   const inventoryId = searchParams.get("inventoryId");
 
   const [type, setType] = useState<ListingType>(
@@ -130,8 +133,13 @@ function SellForm() {
     setter(await readFileAsDataUrl(file));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    if (!isAuthenticated || !user.id) {
+      setError("Sign in with a real account to publish a listing.");
+      return;
+    }
 
     const missing = [
       !title.trim() && "title",
@@ -163,8 +171,8 @@ function SellForm() {
       }
     }
 
-    const id = `u-${Date.now()}`;
-    addListing({
+    const id = crypto.randomUUID();
+    const { error: submitError } = await addListing({
       id,
       type,
       title: title.trim(),
@@ -184,9 +192,15 @@ function SellForm() {
       city: city.trim(),
       status: "ACTIVE",
       images: [frontPhoto, backPhoto, ...extraPhotos],
-      seller: { name: "You", city: city.trim() || "—", rating: 5.0, dealsCompleted: 0 },
+      sellerId: user.id,
+      seller: { name: user.displayName, city: city.trim() || "—", rating: 5.0, dealsCompleted: 0 },
       createdAt: new Date().toISOString(),
     });
+
+    if (submitError) {
+      setError(submitError);
+      return;
+    }
 
     router.push(`/listing/${id}`);
   }
@@ -197,6 +211,15 @@ function SellForm() {
         title="List a car"
         subtitle="Trades and pickup/shipping are arranged directly with the other collector through in-app chat."
       />
+
+      {!isAuthenticated && (
+        <p className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-xs font-medium text-red-700 dark:bg-red-950 dark:text-red-300">
+          Sign in with a real account to publish a listing.
+          <Link href="/login?next=%2Fsell" className="font-bold underline">
+            Sign in
+          </Link>
+        </p>
+      )}
 
       {prefilledFromInventory && (
         <p className="mt-3 rounded-xl bg-orange-50 px-3 py-2 text-xs font-medium text-orange-700 dark:bg-orange-950 dark:text-orange-300">

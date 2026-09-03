@@ -16,17 +16,21 @@ export interface AuthUser {
   avatarUrl?: string;
   provider: AuthProvider;
   awayMode?: boolean;
-  // Every trade/bid/listing in this demo is owned by the fixed "You"
-  // identity so existing marketplace data keeps matching correctly —
-  // signing in only changes what's *shown*, not who "you" are internally.
-  // (Listings/bids still live in localStorage, not Supabase, so this stays
-  // fixed until that data layer is migrated too.)
+  // Real Supabase auth.uid() for a signed-in Google user, null otherwise.
+  // Listings and bids are owned by this id — it's the only thing an
+  // "is this actually my listing / my bid" check should ever compare
+  // against, since it's real and shared across every visitor's account.
+  id: string | null;
+  // Trade proposals/favorites/inventory still live in localStorage (not
+  // migrated yet), so they keep matching against this fixed sentinel
+  // rather than `id` — signing in only changes what's *shown* for those.
   readonly ownerKey: "You";
 }
 
 const GUEST_USER: AuthUser = {
   displayName: "You",
   provider: "guest",
+  id: null,
   ownerKey: "You",
 };
 
@@ -34,7 +38,7 @@ interface AuthContextValue {
   user: AuthUser;
   isAuthenticated: boolean;
   googleBusy: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: (next?: string) => Promise<void>;
   signInWithPhone: (phone: string) => void;
   updateProfile: (patch: Partial<Pick<AuthUser, "displayName" | "phone">>) => void;
   setAwayMode: (away: boolean) => void;
@@ -50,6 +54,7 @@ function fromSupabaseUser(supaUser: User): AuthUser {
     email: supaUser.email ?? undefined,
     avatarUrl: meta.avatar_url ?? meta.picture ?? undefined,
     provider: "google",
+    id: supaUser.id,
     ownerKey: "You",
   };
 }
@@ -105,11 +110,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       isAuthenticated: user.provider !== "guest",
       googleBusy,
-      signInWithGoogle: async () => {
+      signInWithGoogle: async (next = "/profile") => {
         setGoogleBusy(true);
         const { error } = await supabase.auth.signInWithOAuth({
           provider: "google",
-          options: { redirectTo: `${window.location.origin}/auth/callback` },
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+          },
         });
         if (error) setGoogleBusy(false);
         // On success the browser navigates to Google, so no further action here.
@@ -121,6 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           phone,
           avatarUrl: prev.avatarUrl,
           provider: "phone",
+          id: null,
           ownerKey: "You",
         }));
       },
