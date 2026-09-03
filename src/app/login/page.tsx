@@ -32,8 +32,7 @@ function GoogleGIcon({ className = "h-5 w-5" }: { className?: string }) {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { signInWithGoogle, signInWithPhone } = useAuth();
-  const [googleBusy, setGoogleBusy] = useState(false);
+  const { signInWithGoogle, signInWithPhone, googleBusy } = useAuth();
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -41,11 +40,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
 
   function handleGoogle() {
-    setGoogleBusy(true);
-    setTimeout(() => {
-      signInWithGoogle();
-      router.push("/profile");
-    }, 700);
+    void signInWithGoogle();
   }
 
   function sendOtp(e: React.FormEvent) {
@@ -166,7 +161,7 @@ export default function LoginPage() {
         </div>
 
         <p className="mt-4 text-center text-xs text-zinc-600">
-          Demo mode — no real Google account or SMS is sent yet. Any 6-digit code works.
+          Phone sign-in is demo mode — no real SMS is sent yet. Any 6-digit code works.
         </p>
         <p className="mt-2 text-center text-sm">
           <Link href="/" className="font-semibold text-zinc-400 hover:text-orange-400">

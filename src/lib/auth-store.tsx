@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import type { User } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
 
 const STORAGE_KEY = "hotwheels-market:auth:v1";
 
@@ -17,6 +19,8 @@ export interface AuthUser {
   // Every trade/bid/listing in this demo is owned by the fixed "You"
   // identity so existing marketplace data keeps matching correctly —
   // signing in only changes what's *shown*, not who "you" are internally.
+  // (Listings/bids still live in localStorage, not Supabase, so this stays
+  // fixed until that data layer is migrated too.)
   readonly ownerKey: "You";
 }
 
@@ -29,31 +33,41 @@ const GUEST_USER: AuthUser = {
 interface AuthContextValue {
   user: AuthUser;
   isAuthenticated: boolean;
-  signInWithGoogle: () => void;
+  googleBusy: boolean;
+  signInWithGoogle: () => Promise<void>;
   signInWithPhone: (phone: string) => void;
   updateProfile: (patch: Partial<Pick<AuthUser, "displayName" | "phone">>) => void;
   setAwayMode: (away: boolean) => void;
-  signOut: () => void;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-// A few demo identities so "Continue with Google" feels real without a
-// real OAuth app behind it yet.
-const DEMO_GOOGLE_IDENTITIES = [
-  { displayName: "Rahul Menon", email: "rahul.menon@gmail.com" },
-  { displayName: "Ananya Iyer", email: "ananya.iyer@gmail.com" },
-  { displayName: "Kabir Shah", email: "kabir.shah@gmail.com" },
-];
+function fromSupabaseUser(supaUser: User): AuthUser {
+  const meta = supaUser.user_metadata ?? {};
+  return {
+    displayName: meta.full_name ?? meta.name ?? supaUser.email ?? "You",
+    email: supaUser.email ?? undefined,
+    avatarUrl: meta.avatar_url ?? meta.picture ?? undefined,
+    provider: "google",
+    ownerKey: "You",
+  };
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser>(GUEST_USER);
   const [loaded, setLoaded] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
+  const supabase = useMemo(() => createClient(), []);
 
+  // Local (non-Supabase) session: guest or fake-phone, kept in localStorage.
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) setUser({ ...GUEST_USER, ...JSON.parse(raw) });
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.provider !== "google") setUser({ ...GUEST_USER, ...parsed });
+      }
     } catch {
       // localStorage unavailable or corrupt — fall back to guest
     }
@@ -61,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!loaded) return;
+    if (!loaded || user.provider === "google") return;
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
     } catch {
@@ -69,20 +83,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, loaded]);
 
+  // Real Supabase session: source of truth for Google sign-in.
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session?.user) setUser(fromSupabaseUser(data.session.user));
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUser(fromSupabaseUser(session.user));
+      } else if (event === "SIGNED_OUT") {
+        setUser(GUEST_USER);
+      }
+    });
+
+    return () => listener.subscription.unsubscribe();
+  }, [supabase]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
       isAuthenticated: user.provider !== "guest",
-      signInWithGoogle: () => {
-        const identity =
-          DEMO_GOOGLE_IDENTITIES[Math.floor(Math.random() * DEMO_GOOGLE_IDENTITIES.length)];
-        setUser({
-          displayName: identity.displayName,
-          email: identity.email,
-          avatarUrl: undefined,
+      googleBusy,
+      signInWithGoogle: async () => {
+        setGoogleBusy(true);
+        const { error } = await supabase.auth.signInWithOAuth({
           provider: "google",
-          ownerKey: "You",
+          options: { redirectTo: `${window.location.origin}/auth/callback` },
         });
+        if (error) setGoogleBusy(false);
+        // On success the browser navigates to Google, so no further action here.
       },
       signInWithPhone: (phone) => {
         setUser((prev) => ({
@@ -96,9 +126,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       updateProfile: (patch) => setUser((prev) => ({ ...prev, ...patch })),
       setAwayMode: (away) => setUser((prev) => ({ ...prev, awayMode: away })),
-      signOut: () => setUser(GUEST_USER),
+      signOut: async () => {
+        if (user.provider === "google") await supabase.auth.signOut();
+        setUser(GUEST_USER);
+      },
     }),
-    [user],
+    [user, googleBusy, supabase],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

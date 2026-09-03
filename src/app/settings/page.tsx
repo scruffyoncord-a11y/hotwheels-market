@@ -217,8 +217,8 @@ export default function SettingsPage() {
     myActiveAuctions.forEach((l) => updateListing(l.id, { biddingPaused: away }));
   }
 
-  function handleSignOut() {
-    signOut();
+  async function handleSignOut() {
+    await signOut();
     router.push("/");
   }
 
