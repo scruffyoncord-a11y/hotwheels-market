@@ -157,7 +157,7 @@ function SellForm() {
       setError("Add at least 2 photos — front and back of the car.");
       return;
     }
-    if (isTrade && !wantsInExchange.trim()) {
+    if (isTrade && !lockedToTrade && !wantsInExchange.trim()) {
       setError("Let others know what you're looking for in exchange.");
       return;
     }
@@ -183,7 +183,7 @@ function SellForm() {
       castingName: castingName.trim() || undefined,
       series: series.trim() || undefined,
       condition,
-      wantsInExchange: isTrade ? wantsInExchange.trim() : undefined,
+      wantsInExchange: isTrade ? wantsInExchange.trim() || undefined : undefined,
       startingBidInr: isAuction ? startingBidInr : undefined,
       bidIncrementInr: isAuction ? Number(bidIncrement) || 100 : undefined,
       buyNowInr: isAuction ? buyNowInr : undefined,
@@ -369,7 +369,7 @@ function SellForm() {
             )}
           </div>
 
-          {isTrade ? (
+          {isTrade && !lockedToTrade ? (
             <Field label="What are you looking for in exchange?">
               <input
                 value={wantsInExchange}
@@ -378,7 +378,7 @@ function SellForm() {
                 className="input"
               />
             </Field>
-          ) : (
+          ) : isTrade ? null : (
             <Field label="City">
               <input
                 value={city}
