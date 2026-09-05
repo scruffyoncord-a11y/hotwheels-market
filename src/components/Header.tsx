@@ -19,9 +19,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
     <Link
       href={href}
       className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${
-        active
-          ? "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300"
-          : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+        active ? "bg-black/15 text-white" : "text-white/85 hover:bg-black/10 hover:text-white"
       }`}
     >
       {children}
@@ -52,15 +50,15 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/95">
+    <header className="sticky top-0 z-20 border-b border-orange-800/40 bg-orange-600">
       <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-1">
           <Image
-            src="/logo-icon.png"
+            src="/logo-icon-black.png"
             alt="LotClub"
             width={32}
             height={32}
-            className="h-8 w-8 rounded-xl"
+            className="h-8 w-8"
             priority
           />
           <Image
@@ -68,7 +66,7 @@ export function Header() {
             alt="LotClub"
             width={216}
             height={72}
-            className="hidden h-7 w-auto sm:inline-block"
+            className="hidden h-7 w-auto brightness-0 sm:inline-block"
             priority
           />
         </Link>
@@ -87,7 +85,7 @@ export function Header() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search castings, series, sellers, or @username..."
               disabled={searching}
-              className="w-full rounded-full border border-zinc-200 bg-zinc-50 py-2 pl-8 pr-4 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-full border border-transparent bg-white/95 py-2 pl-8 pr-4 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus:border-zinc-900/20 focus:ring-2 focus:ring-black/10"
             />
           </div>
         </form>
@@ -95,7 +93,7 @@ export function Header() {
         <nav className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <Link
             href="/sell"
-            className="rounded-full bg-orange-600 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 sm:px-4"
+            className="rounded-full bg-zinc-900 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-black sm:px-4"
           >
             <span className="sm:hidden">+</span>
             <span className="hidden sm:inline">+ List a car</span>
@@ -106,12 +104,12 @@ export function Header() {
           </div>
           <Link
             href="/wishlist"
-            className="relative flex h-9 w-9 items-center justify-center rounded-full text-lg text-zinc-500 transition hover:bg-zinc-100 hover:text-orange-600 dark:hover:bg-zinc-800"
+            className="relative flex h-9 w-9 items-center justify-center rounded-full text-lg text-white/85 transition hover:bg-black/10 hover:text-white"
             title="Your wishlist"
           >
             <HeartIcon className="h-4.5 w-4.5" filled={favoriteIds.length > 0} />
             {favoriteIds.length > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-orange-600 px-1 text-[10px] font-bold text-white">
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-zinc-900 px-1 text-[10px] font-bold text-white">
                 {favoriteIds.length}
               </span>
             )}
@@ -123,14 +121,14 @@ export function Header() {
           ) : (
             <Link
               href="/login"
-              className="rounded-full border border-zinc-300 px-3.5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-300"
+              className="rounded-full border border-white/70 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-orange-600"
             >
               Sign in
             </Link>
           )}
         </nav>
       </div>
-      <nav className="flex items-center gap-1 overflow-x-auto border-t border-zinc-100 px-4 py-1.5 sm:hidden dark:border-zinc-900">
+      <nav className="flex items-center gap-1 overflow-x-auto border-t border-orange-800/40 px-4 py-1.5 sm:hidden">
         <NavLink href="/">For Trade</NavLink>
         <NavLink href="/auctions">Auctions</NavLink>
         <NavLink href="/inventory">Collection</NavLink>
