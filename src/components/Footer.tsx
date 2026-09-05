@@ -4,7 +4,7 @@ import Image from "next/image";
 export function Footer() {
   return (
     <footer className="mt-auto bg-zinc-950 text-zinc-300">
-      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-6 px-4 py-6 sm:grid-cols-3 sm:px-6">
+      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-6 border-t border-zinc-900 px-4 py-6 sm:grid-cols-3 sm:px-6">
         <div>
           <div className="flex items-center gap-2">
             <Image
@@ -55,10 +55,6 @@ export function Footer() {
             <li>Negotiate and confirm details in chat first</li>
           </ul>
         </div>
-      </div>
-      <div className="border-t border-zinc-900 px-4 py-2.5 text-center text-[11px] text-zinc-500 sm:px-6">
-        LotClub is a peer-to-peer listing board — payments and shipping are arranged directly
-        between collectors.
       </div>
 
       {/* Checkered-flag finish line, tilted for a subtle 3D racing feel. */}
