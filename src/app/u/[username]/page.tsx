@@ -8,6 +8,7 @@ import { ConditionBadge } from "@/components/ConditionBadge";
 import { Avatar } from "@/components/Avatar";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CarIcon, LockIcon } from "@/components/icons";
+import { ReportButton } from "@/components/ReportButton";
 import { useListings } from "@/lib/listings-store";
 import { createClient } from "@/lib/supabase/client";
 import { getProfileByUsername, type Profile } from "@/lib/profile";
@@ -96,6 +97,7 @@ export default function PublicProfilePage({
               {profile.city ? ` · ${profile.city}` : ""}
             </p>
           </div>
+          <ReportButton targetType="user" targetId={profile.id} className="ml-auto self-start" />
         </div>
       </div>
 

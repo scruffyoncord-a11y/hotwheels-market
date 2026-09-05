@@ -9,6 +9,7 @@ import { ListingCard } from "@/components/ListingCard";
 import { AuctionTimer, AuctionTimerBig, isAuctionEnded } from "@/components/AuctionTimer";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { AiInsights } from "@/components/AiInsights";
+import { ReportButton } from "@/components/ReportButton";
 import {
   CheckIcon,
   ChevronLeftIcon,
@@ -820,6 +821,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                   {listing.seller.city}
                 </p>
               </div>
+              <ReportButton targetType="listing" targetId={listing.id} />
             </div>
 
             <AiInsights listing={listing} />

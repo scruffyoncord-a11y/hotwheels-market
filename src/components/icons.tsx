@@ -244,3 +244,31 @@ export function DotIcon({ className = "h-2 w-2" }: IconProps) {
     </svg>
   );
 }
+
+export function FlagIcon({ className = "h-4 w-4" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={base} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 21V4.5c0-.3.2-.5.5-.7 2-1 5-1 7 .3 2 1.3 5 1.3 7 .3.3-.1.5.1.5.4v9c0 .3-.2.5-.5.7-2 1-5 1-7-.3-2-1.3-5-1.3-7-.3" />
+    </svg>
+  );
+}
+
+export function ShieldIcon({ className = "h-4 w-4" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={base} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3.5 5 6v5.5c0 4.5 3 7.7 7 9 4-1.3 7-4.5 7-9V6l-7-2.5Z" />
+      <path d="m9 12 2 2 4-4.5" />
+    </svg>
+  );
+}
+
+export function UsersIcon({ className = "h-4 w-4" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={base} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="8" r="3.2" />
+      <path d="M3.5 19.5c0-3.2 2.5-5.5 5.5-5.5s5.5 2.3 5.5 5.5" />
+      <path d="M15.2 5.3a3.2 3.2 0 0 1 0 6" />
+      <path d="M17.5 14.3c2.4.5 3.9 2.4 4 5.2" />
+    </svg>
+  );
+}
