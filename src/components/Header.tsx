@@ -76,21 +76,21 @@ export function Header() {
   return (
     <header className="sticky top-0 z-20 border-b border-zinc-800 bg-zinc-900/95 backdrop-blur">
       <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-1">
+        <Link href="/" className="flex shrink-0 items-center">
           <Image
             src="/logo-icon.png"
             alt="LotClub"
             width={32}
             height={32}
-            className="h-8 w-8 rounded-xl"
+            className="h-8 w-8 rounded-xl sm:hidden"
             priority
           />
           <Image
-            src="/logo-wordmark.png"
+            src="/logo-lockup-crop.png"
             alt="LotClub"
-            width={216}
-            height={72}
-            className="hidden h-7 w-auto sm:inline-block"
+            width={1431}
+            height={355}
+            className="hidden h-8 w-auto sm:inline-block"
             priority
           />
         </Link>
