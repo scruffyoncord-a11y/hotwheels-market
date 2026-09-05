@@ -88,9 +88,12 @@ function SellForm() {
   const { getItem } = useInventory();
   const { user, isAuthenticated } = useAuth();
   const inventoryId = searchParams.get("inventoryId");
+  // Arriving here to finish a trade proposal (?next=...) — this listing has
+  // to be a trade, so don't offer the auction toggle at all.
+  const lockedToTrade = !!searchParams.get("next");
 
   const [type, setType] = useState<ListingType>(
-    searchParams.get("type") === "AUCTION" ? "AUCTION" : "TRADE",
+    lockedToTrade || searchParams.get("type") !== "AUCTION" ? "TRADE" : "AUCTION",
   );
   const [title, setTitle] = useState("");
   const [castingName, setCastingName] = useState("");
@@ -228,28 +231,34 @@ function SellForm() {
         </p>
       )}
 
-      <div className="mt-4 inline-flex rounded-full border border-zinc-300 bg-white p-1 dark:border-zinc-700 dark:bg-zinc-900">
-        <button
-          type="button"
-          onClick={() => setType("TRADE")}
-          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
-            isTrade
-              ? "bg-violet-600 text-white"
-              : "text-zinc-600 dark:text-zinc-300"
-          }`}
-        >
+      {lockedToTrade ? (
+        <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-violet-600 px-4 py-1.5 text-sm font-semibold text-white">
           Trade for another car
-        </button>
-        <button
-          type="button"
-          onClick={() => setType("AUCTION")}
-          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
-            isAuction ? "bg-red-600 text-white" : "text-zinc-600 dark:text-zinc-300"
-          }`}
-        >
-          Start an auction
-        </button>
-      </div>
+        </span>
+      ) : (
+        <div className="mt-4 inline-flex rounded-full border border-zinc-300 bg-white p-1 dark:border-zinc-700 dark:bg-zinc-900">
+          <button
+            type="button"
+            onClick={() => setType("TRADE")}
+            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+              isTrade
+                ? "bg-violet-600 text-white"
+                : "text-zinc-600 dark:text-zinc-300"
+            }`}
+          >
+            Trade for another car
+          </button>
+          <button
+            type="button"
+            onClick={() => setType("AUCTION")}
+            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+              isAuction ? "bg-red-600 text-white" : "text-zinc-600 dark:text-zinc-300"
+            }`}
+          >
+            Start an auction
+          </button>
+        </div>
+      )}
 
       <div className="mt-6 grid grid-cols-1 items-start gap-8 md:grid-cols-[1fr_260px]">
         <SectionCard title="Car details">
