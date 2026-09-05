@@ -6,7 +6,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ConditionBadge } from "@/components/ConditionBadge";
 import { ListingCard } from "@/components/ListingCard";
-import { TradeProposalModal } from "@/components/TradeProposalModal";
 import { AuctionTimer, AuctionTimerBig, isAuctionEnded } from "@/components/AuctionTimer";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { AiInsights } from "@/components/AiInsights";
@@ -55,7 +54,6 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
 
   const [activeImage, setActiveImage] = useState(0);
   const [chatOpen, setChatOpen] = useState(false);
-  const [tradeModalOpen, setTradeModalOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [bidAmount, setBidAmount] = useState("");
@@ -733,13 +731,21 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
               </div>
             ) : (
               <div className="flex gap-3">
-                <button
-                  disabled={disabled}
-                  onClick={() => setTradeModalOpen(true)}
-                  className="flex-1 rounded-full bg-violet-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:shadow-none dark:disabled:bg-zinc-700"
-                >
-                  {disabled ? "No longer available" : "Propose a Trade"}
-                </button>
+                {disabled ? (
+                  <button
+                    disabled
+                    className="flex-1 cursor-not-allowed rounded-full bg-zinc-300 px-5 py-3 text-sm font-bold text-white shadow-none dark:bg-zinc-700"
+                  >
+                    No longer available
+                  </button>
+                ) : (
+                  <Link
+                    href={`/listing/${listing.id}/propose`}
+                    className="flex-1 rounded-full bg-violet-600 px-5 py-3 text-center text-sm font-bold text-white shadow-sm transition hover:bg-violet-700"
+                  >
+                    Propose a Trade
+                  </Link>
+                )}
                 {!disabled && (
                   <button
                     onClick={() => setChatOpen((v) => !v)}
@@ -859,13 +865,6 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
         </>
       )}
 
-      {isTrade && (
-        <TradeProposalModal
-          listing={listing}
-          open={tradeModalOpen}
-          onClose={() => setTradeModalOpen(false)}
-        />
-      )}
 
       <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
         {liveFlash && (
