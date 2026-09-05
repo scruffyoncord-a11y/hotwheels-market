@@ -6,25 +6,42 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useFavorites } from "@/lib/favorites-store";
 import { useAuth } from "@/lib/auth-store";
+import { useListings } from "@/lib/listings-store";
 import { createClient } from "@/lib/supabase/client";
 import { getProfileByUsername } from "@/lib/profile";
+import { isAuctionEnded } from "./AuctionTimer";
 import { Avatar } from "./Avatar";
-import { HeartIcon, SearchIcon } from "./icons";
+import { HammerIcon, HeartIcon, SearchIcon, SwapIcon } from "./icons";
 
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLink({
+  href,
+  icon,
+  badge,
+  children,
+}: {
+  href: string;
+  icon?: React.ReactNode;
+  badge?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const path = href.split("?")[0];
   const active = path === "/" ? pathname === "/" : pathname.startsWith(path);
   return (
     <Link
       href={href}
-      className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${
+      className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${
         active
-          ? "bg-orange-950 text-orange-300"
+          ? "bg-orange-600 text-white"
           : "text-zinc-300 hover:bg-zinc-800 hover:text-zinc-50"
       }`}
     >
+      {icon}
       {children}
+      {badge}
+      {active && !badge && icon && (
+        <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
+      )}
     </Link>
   );
 }
@@ -33,8 +50,13 @@ export function Header() {
   const router = useRouter();
   const { favoriteIds } = useFavorites();
   const { user, isAuthenticated } = useAuth();
+  const { listings } = useListings();
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
+
+  const hasLiveAuction = listings.some(
+    (l) => l.type === "AUCTION" && l.status === "ACTIVE" && !(l.endsAt && isAuctionEnded(l.endsAt)),
+  );
 
   async function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -74,8 +96,22 @@ export function Header() {
         </Link>
 
         <nav className="hidden shrink-0 items-center gap-1 sm:flex">
-          <NavLink href="/">For Trade</NavLink>
-          <NavLink href="/auctions">Auctions</NavLink>
+          <NavLink href="/" icon={<SwapIcon className="h-3.5 w-3.5" />}>
+            For Trade
+          </NavLink>
+          <NavLink
+            href="/auctions"
+            icon={<HammerIcon className="h-3.5 w-3.5" />}
+            badge={
+              hasLiveAuction && (
+                <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white">
+                  LIVE
+                </span>
+              )
+            }
+          >
+            Auctions
+          </NavLink>
         </nav>
 
         <form onSubmit={handleSearchSubmit} className="flex-1">
@@ -131,8 +167,22 @@ export function Header() {
         </nav>
       </div>
       <nav className="flex items-center gap-1 overflow-x-auto border-t border-zinc-800 px-4 py-1.5 sm:hidden">
-        <NavLink href="/">For Trade</NavLink>
-        <NavLink href="/auctions">Auctions</NavLink>
+        <NavLink href="/" icon={<SwapIcon className="h-3.5 w-3.5" />}>
+          For Trade
+        </NavLink>
+        <NavLink
+          href="/auctions"
+          icon={<HammerIcon className="h-3.5 w-3.5" />}
+          badge={
+            hasLiveAuction && (
+              <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white">
+                LIVE
+              </span>
+            )
+          }
+        >
+          Auctions
+        </NavLink>
         <NavLink href="/inventory">Collection</NavLink>
         <NavLink href="/wishlist">Wishlist</NavLink>
         <NavLink href="/profile">Profile</NavLink>
