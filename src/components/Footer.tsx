@@ -3,7 +3,21 @@ import Image from "next/image";
 
 export function Footer() {
   return (
-    <footer className="mt-auto border-t border-zinc-800 bg-zinc-950 text-zinc-300">
+    <footer className="mt-auto bg-zinc-950 text-zinc-300">
+      {/* Checkered-flag finish line, tilted for a subtle 3D racing feel. */}
+      <div
+        className="h-2.5 w-full origin-top"
+        style={{
+          transform: "perspective(40px) rotateX(25deg) scaleY(1.4)",
+          backgroundImage:
+            "linear-gradient(45deg, #0a0a0a 25%, transparent 25%, transparent 75%, #0a0a0a 75%, #0a0a0a), " +
+            "linear-gradient(45deg, #0a0a0a 25%, #f4f4f5 25%, #f4f4f5 75%, #0a0a0a 75%, #0a0a0a)",
+          backgroundSize: "11px 11px",
+          backgroundPosition: "0 0, 5.5px 5.5px",
+          boxShadow:
+            "inset 0 1.5px 0 rgba(255,255,255,0.55), inset 0 -1.5px 0 rgba(0,0,0,0.55), 0 3px 6px rgba(0,0,0,0.35)",
+        }}
+      />
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-8 px-4 py-10 sm:grid-cols-3 sm:px-6">
         <div>
           <div className="flex items-center gap-2">
