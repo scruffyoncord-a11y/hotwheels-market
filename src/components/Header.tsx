@@ -19,7 +19,9 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
     <Link
       href={href}
       className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${
-        active ? "bg-black/15 text-white" : "text-white/85 hover:bg-black/10 hover:text-white"
+        active
+          ? "bg-orange-950 text-orange-300"
+          : "text-zinc-300 hover:bg-zinc-800 hover:text-zinc-50"
       }`}
     >
       {children}
@@ -50,15 +52,15 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-20 bg-orange-600">
+    <header className="sticky top-0 z-20 border-b border-zinc-800 bg-zinc-900/95 backdrop-blur">
       <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-1">
           <Image
-            src="/logo-icon-black.png"
+            src="/logo-icon.png"
             alt="LotClub"
             width={32}
             height={32}
-            className="h-8 w-8"
+            className="h-8 w-8 rounded-xl"
             priority
           />
           <Image
@@ -66,7 +68,7 @@ export function Header() {
             alt="LotClub"
             width={216}
             height={72}
-            className="hidden h-7 w-auto brightness-0 sm:inline-block"
+            className="hidden h-7 w-auto sm:inline-block"
             priority
           />
         </Link>
@@ -78,14 +80,14 @@ export function Header() {
 
         <form onSubmit={handleSearchSubmit} className="flex-1">
           <div className="relative">
-            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search castings, series, sellers, or @username..."
               disabled={searching}
-              className="w-full rounded-full border border-transparent bg-white/95 py-2 pl-8 pr-4 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus:border-zinc-900/20 focus:ring-2 focus:ring-black/10"
+              className="w-full rounded-full border border-zinc-700 bg-zinc-800/80 py-2 pl-8 pr-4 text-sm text-zinc-100 outline-none placeholder:text-zinc-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
             />
           </div>
         </form>
@@ -93,7 +95,7 @@ export function Header() {
         <nav className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <Link
             href="/sell"
-            className="rounded-full bg-zinc-900 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-black sm:px-4"
+            className="rounded-full bg-orange-600 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 sm:px-4"
           >
             <span className="sm:hidden">+</span>
             <span className="hidden sm:inline">+ List a car</span>
@@ -104,12 +106,12 @@ export function Header() {
           </div>
           <Link
             href="/wishlist"
-            className="relative flex h-9 w-9 items-center justify-center rounded-full text-lg text-white/85 transition hover:bg-black/10 hover:text-white"
+            className="relative flex h-9 w-9 items-center justify-center rounded-full text-lg text-zinc-400 transition hover:bg-zinc-800 hover:text-orange-400"
             title="Your wishlist"
           >
             <HeartIcon className="h-4.5 w-4.5" filled={favoriteIds.length > 0} />
             {favoriteIds.length > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-zinc-900 px-1 text-[10px] font-bold text-white">
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-orange-600 px-1 text-[10px] font-bold text-white">
                 {favoriteIds.length}
               </span>
             )}
@@ -121,14 +123,14 @@ export function Header() {
           ) : (
             <Link
               href="/login"
-              className="rounded-full border border-white/70 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-orange-600"
+              className="rounded-full border border-zinc-700 px-3.5 py-2 text-sm font-semibold text-zinc-300 transition hover:border-orange-400 hover:text-orange-400"
             >
               Sign in
             </Link>
           )}
         </nav>
       </div>
-      <nav className="flex items-center gap-1 overflow-x-auto border-t border-orange-800/40 px-4 py-1.5 sm:hidden">
+      <nav className="flex items-center gap-1 overflow-x-auto border-t border-zinc-800 px-4 py-1.5 sm:hidden">
         <NavLink href="/">For Trade</NavLink>
         <NavLink href="/auctions">Auctions</NavLink>
         <NavLink href="/inventory">Collection</NavLink>
