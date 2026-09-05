@@ -50,7 +50,7 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-20 border-b border-orange-800/40 bg-orange-600">
+    <header className="sticky top-0 z-20 bg-orange-600">
       <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-1">
           <Image
@@ -135,6 +135,21 @@ export function Header() {
         <NavLink href="/wishlist">Wishlist</NavLink>
         <NavLink href="/profile">Profile</NavLink>
       </nav>
+
+      {/* Checkered-flag finish line, tilted for a subtle 3D racing feel. */}
+      <div
+        className="h-2.5 w-full origin-top"
+        style={{
+          transform: "perspective(40px) rotateX(25deg) scaleY(1.4)",
+          backgroundImage:
+            "linear-gradient(45deg, #0a0a0a 25%, transparent 25%, transparent 75%, #0a0a0a 75%, #0a0a0a), " +
+            "linear-gradient(45deg, #0a0a0a 25%, #f4f4f5 25%, #f4f4f5 75%, #0a0a0a 75%, #0a0a0a)",
+          backgroundSize: "11px 11px",
+          backgroundPosition: "0 0, 5.5px 5.5px",
+          boxShadow:
+            "inset 0 1.5px 0 rgba(255,255,255,0.55), inset 0 -1.5px 0 rgba(0,0,0,0.55), 0 3px 6px rgba(0,0,0,0.35)",
+        }}
+      />
     </header>
   );
 }
