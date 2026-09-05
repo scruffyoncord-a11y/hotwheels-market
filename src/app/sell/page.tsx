@@ -202,7 +202,8 @@ function SellForm() {
       return;
     }
 
-    router.push(`/listing/${id}`);
+    const next = searchParams.get("next");
+    router.push(next || `/listing/${id}`);
   }
 
   return (

@@ -64,6 +64,7 @@ function OfferSide({
   selectedIds,
   onToggle,
   emptyHint,
+  emptyActions,
   cash,
   onCashChange,
   cashEnabled,
@@ -75,6 +76,7 @@ function OfferSide({
   selectedIds: string[];
   onToggle: (id: string) => void;
   emptyHint?: string;
+  emptyActions?: React.ReactNode;
   cash?: number;
   onCashChange?: (v: number) => void;
   cashEnabled?: boolean;
@@ -98,9 +100,10 @@ function OfferSide({
     >
       <div className="p-4">
         {options.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-zinc-800 px-4 py-8 text-center text-sm text-zinc-500">
-            {emptyHint ?? "Nothing available."}
-          </p>
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-zinc-800 px-4 py-8 text-center">
+            <p className="text-sm text-zinc-500">{emptyHint ?? "Nothing available."}</p>
+            {emptyActions}
+          </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {options.map((l) => (
@@ -322,6 +325,22 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
                 )
               }
               emptyHint="List a car to trade it — or just offer cash below."
+              emptyActions={
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <Link
+                    href={`/sell?type=TRADE&next=${encodeURIComponent(`/listing/${listing.id}/propose`)}`}
+                    className="rounded-full bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-orange-700"
+                  >
+                    + List a car
+                  </Link>
+                  <Link
+                    href="/inventory"
+                    className="rounded-full border border-zinc-700 px-4 py-2 text-xs font-semibold text-zinc-300 transition hover:border-orange-400 hover:text-orange-400"
+                  >
+                    Pick from your collection
+                  </Link>
+                </div>
+              }
               cash={myCash}
               onCashChange={setMyCash}
               cashEnabled={myCashEnabled}
