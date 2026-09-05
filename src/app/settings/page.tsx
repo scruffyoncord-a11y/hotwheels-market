@@ -11,13 +11,16 @@ import { uploadAvatar, lookupPincode } from "@/lib/avatar";
 import { claimUsername, isValidUsername } from "@/lib/profile";
 import { useMyProfile } from "@/lib/use-my-profile";
 import { Avatar } from "@/components/Avatar";
+import { useTheme } from "@/lib/theme-store";
 import {
   CameraIcon,
   CheckIcon,
   ChevronRightIcon,
   ClockIcon,
   HeartIcon,
+  MoonIcon,
   ShareIcon,
+  SunIcon,
 } from "@/components/icons";
 
 function MenuRow({
@@ -34,24 +37,24 @@ function MenuRow({
   trailing?: React.ReactNode;
 }) {
   const content = (
-    <div className="flex items-center gap-3 border-b border-zinc-800 px-4 py-4 last:border-b-0">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-800 text-orange-400">
+    <div className="flex items-center gap-3 border-b border-zinc-100 px-4 py-4 last:border-b-0 dark:border-zinc-800">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-orange-600 dark:bg-zinc-800 dark:text-orange-400">
         {icon}
       </span>
-      <span className="flex-1 text-sm font-semibold text-zinc-100">{label}</span>
-      {trailing ?? <ChevronRightIcon className="h-4 w-4 text-zinc-600" />}
+      <span className="flex-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">{label}</span>
+      {trailing ?? <ChevronRightIcon className="h-4 w-4 text-zinc-400 dark:text-zinc-600" />}
     </div>
   );
   if (href) {
     return (
-      <Link href={href} className="block transition hover:bg-zinc-900/60">
+      <Link href={href} className="block transition hover:bg-zinc-50 dark:hover:bg-zinc-900/60">
         {content}
       </Link>
     );
   }
   if (onClick) {
     return (
-      <button onClick={onClick} className="block w-full text-left transition hover:bg-zinc-900/60">
+      <button onClick={onClick} className="block w-full text-left transition hover:bg-zinc-50 dark:hover:bg-zinc-900/60">
         {content}
       </button>
     );
@@ -68,7 +71,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       type="button"
       onClick={() => onChange(!checked)}
       className={`relative h-6 w-11 shrink-0 rounded-full transition ${
-        checked ? "bg-orange-600" : "bg-zinc-700"
+        checked ? "bg-orange-600" : "bg-zinc-300 dark:bg-zinc-700"
       }`}
     >
       <span
@@ -191,11 +194,11 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
     <div>
       <button
         onClick={onBack}
-        className="mb-4 text-sm font-semibold text-zinc-400 hover:text-orange-400"
+        className="mb-4 text-sm font-semibold text-zinc-500 hover:text-orange-500 dark:text-zinc-400 dark:hover:text-orange-400"
       >
         ← Back to settings
       </button>
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+      <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mb-5 flex flex-col items-center gap-2">
           <input
             ref={fileInputRef}
@@ -211,7 +214,7 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zinc-700 bg-zinc-800 text-zinc-500 transition hover:border-orange-500 hover:text-orange-400"
+            className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zinc-300 bg-zinc-100 text-zinc-400 transition hover:border-orange-500 hover:text-orange-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:text-orange-400"
           >
             {avatarPreview ? (
               <Image src={avatarPreview} alt="" fill unoptimized className="object-cover" />
@@ -222,14 +225,14 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="text-xs font-semibold text-orange-400 hover:underline"
+            className="text-xs font-semibold text-orange-600 hover:underline dark:text-orange-400"
           >
             {avatarPreview ? "Change photo" : "Add a profile photo"}
           </button>
         </div>
 
         <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-zinc-300">Display Name</span>
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Display Name</span>
           <input
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
@@ -238,7 +241,7 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
         </label>
 
         <label className="mt-4 flex flex-col gap-1">
-          <span className="text-sm font-medium text-zinc-300">Username</span>
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Username</span>
           <div className="flex items-center gap-1">
             <span className="text-sm text-zinc-500">@</span>
             <input
@@ -258,7 +261,7 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
         </label>
 
         <label className="mt-4 flex flex-col gap-1">
-          <span className="text-sm font-medium text-zinc-300">Pincode</span>
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Pincode</span>
           <input
             value={pincode}
             onChange={(e) => void handlePincodeChange(e.target.value)}
@@ -268,23 +271,23 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
           />
           {lookingUp && <span className="text-xs text-zinc-500">Looking up…</span>}
           {locationLabel && (
-            <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400">
+            <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
               <CheckIcon className="h-3.5 w-3.5" /> {locationLabel}
             </span>
           )}
         </label>
 
         <label className="mt-4 flex flex-col gap-1">
-          <span className="text-sm font-medium text-zinc-300">Phone Number</span>
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Phone Number</span>
           {!editingPhone ? (
             <div className="flex gap-2">
-              <div className="input flex-1 text-zinc-400">
+              <div className="input flex-1 text-zinc-500 dark:text-zinc-400">
                 {user.phone ? `+91 ${user.phone}` : "Not linked yet"}
               </div>
               <button
                 type="button"
                 onClick={() => setEditingPhone(true)}
-                className="shrink-0 rounded-xl border border-zinc-700 px-3 text-sm font-semibold text-zinc-300 transition hover:border-orange-500"
+                className="shrink-0 rounded-xl border border-zinc-300 px-3 text-sm font-semibold text-zinc-700 transition hover:border-orange-500 dark:border-zinc-700 dark:text-zinc-300"
               >
                 Update
               </button>
@@ -305,14 +308,14 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
               <button
                 type="button"
                 onClick={sendOtp}
-                className="self-start rounded-full bg-zinc-800 px-4 py-1.5 text-xs font-semibold text-zinc-200 transition hover:bg-zinc-700"
+                className="self-start rounded-full bg-zinc-200 px-4 py-1.5 text-xs font-semibold text-zinc-800 transition hover:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
               >
                 Send OTP
               </button>
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              <p className="flex items-center gap-1.5 text-xs text-emerald-400">
+              <p className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
                 <CheckIcon className="h-3.5 w-3.5" /> OTP sent to +91 {phone}
               </p>
               <input
@@ -337,12 +340,12 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
           </span>
         </label>
 
-        {error && <p className="mt-4 text-xs text-rose-400">{error}</p>}
+        {error && <p className="mt-4 text-xs text-rose-600 dark:text-rose-400">{error}</p>}
 
         <button
           onClick={save}
           disabled={saving}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-800 py-3 text-sm font-bold text-white transition hover:bg-zinc-700 disabled:opacity-60"
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 py-3 text-sm font-bold text-white transition hover:bg-zinc-800 disabled:opacity-60 dark:bg-zinc-800 dark:hover:bg-zinc-700"
         >
           {saving ? (
             "Saving…"
@@ -363,6 +366,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const { user, isAuthenticated, setAwayMode, signOut } = useAuth();
   const { listings, updateListing } = useListings();
+  const { theme, toggleTheme } = useTheme();
   const [view, setView] = useState<"menu" | "profile">("menu");
 
   const myActiveAuctions = listings.filter(
@@ -381,27 +385,34 @@ export default function SettingsPage() {
 
   return (
     <main className="flex-1">
-      <div className="bg-gradient-to-b from-zinc-900 to-zinc-950 px-4 pb-10 pt-8 sm:px-6">
+      <div className="bg-gradient-to-b from-zinc-100 to-white px-4 pb-10 pt-8 dark:from-zinc-900 dark:to-zinc-950 sm:px-6">
         <div className="mx-auto w-full max-w-2xl">
-          <Link href="/profile" className="mb-4 inline-block text-sm text-zinc-400 hover:text-orange-400">
+          <Link
+            href="/profile"
+            className="mb-4 inline-block text-sm text-zinc-500 hover:text-orange-500 dark:text-zinc-400 dark:hover:text-orange-400"
+          >
             ← Back to profile
           </Link>
-          <h1 className="text-2xl font-extrabold text-zinc-50">Account Settings</h1>
-          <p className="mt-1 text-sm text-zinc-400">Manage your profile information and preferences</p>
+          <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-50">Account Settings</h1>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Manage your profile information and preferences
+          </p>
         </div>
       </div>
 
-      <div className="-mt-6 rounded-t-3xl bg-zinc-950 px-4 pb-10 pt-6 sm:px-6">
+      <div className="-mt-6 rounded-t-3xl bg-white px-4 pb-10 pt-6 dark:bg-zinc-950 sm:px-6">
         <div className="mx-auto w-full max-w-2xl">
           {view === "profile" ? (
             <EditProfileView onBack={() => setView("menu")} />
           ) : (
             <div className="flex flex-col gap-6">
-              <div className="flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
+              <div className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
                 <Avatar name={user.displayName} url={user.avatarUrl} size={48} />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-zinc-50">{user.displayName}</p>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+                    {user.displayName}
+                  </p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-500">
                     {isAuthenticated
                       ? user.email ?? (user.phone ? `+91 ${user.phone}` : "Signed in")
                       : "Not signed in — using guest session"}
@@ -417,9 +428,14 @@ export default function SettingsPage() {
                 )}
               </div>
 
-              <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
+              <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
                 <MenuRow icon={<ShareIcon className="h-4 w-4" />} label="Edit Profile" onClick={() => setView("profile")} />
                 <MenuRow icon={<HeartIcon className="h-4 w-4" />} label="Wishlist" href="/wishlist" />
+                <MenuRow
+                  icon={theme === "dark" ? <MoonIcon className="h-4 w-4" /> : <SunIcon className="h-4 w-4" />}
+                  label="Dark Mode"
+                  trailing={<Toggle checked={theme === "dark"} onChange={toggleTheme} />}
+                />
                 <MenuRow
                   icon={<ClockIcon className="h-4 w-4" />}
                   label="Away Mode"
@@ -427,7 +443,7 @@ export default function SettingsPage() {
                 />
               </div>
               {user.awayMode && (
-                <p className="-mt-3 text-xs text-amber-400">
+                <p className="-mt-3 text-xs text-amber-600 dark:text-amber-400">
                   Away Mode is on — bidding is paused on your active auctions until you turn it off.
                 </p>
               )}
@@ -435,7 +451,7 @@ export default function SettingsPage() {
               {isAuthenticated && (
                 <button
                   onClick={handleSignOut}
-                  className="rounded-full border border-rose-800 px-5 py-3 text-center text-sm font-bold text-rose-400 transition hover:bg-rose-950"
+                  className="rounded-full border border-rose-300 px-5 py-3 text-center text-sm font-bold text-rose-600 transition hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-950"
                 >
                   Sign Out
                 </button>

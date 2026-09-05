@@ -10,6 +10,7 @@ import { FavoritesProvider } from "@/lib/favorites-store";
 import { InventoryProvider } from "@/lib/inventory-store";
 import { AuthProvider } from "@/lib/auth-store";
 import { AccessProvider } from "@/lib/access-store";
+import { ThemeProvider, ThemeInitScript } from "@/lib/theme-store";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -31,25 +32,31 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`dark ${inter.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-zinc-950">
-        <AuthProvider>
-          <ListingsProvider>
-            <ProposalsProvider>
-              <BidsProvider>
-                <FavoritesProvider>
-                  <InventoryProvider>
-                    <AccessProvider>
-                      <Header />
-                      {children}
-                      <Footer />
-                    </AccessProvider>
-                  </InventoryProvider>
-                </FavoritesProvider>
-              </BidsProvider>
-            </ProposalsProvider>
-          </ListingsProvider>
-        </AuthProvider>
+      <head>
+        <ThemeInitScript />
+      </head>
+      <body className="min-h-full flex flex-col bg-background text-foreground">
+        <ThemeProvider>
+          <AuthProvider>
+            <ListingsProvider>
+              <ProposalsProvider>
+                <BidsProvider>
+                  <FavoritesProvider>
+                    <InventoryProvider>
+                      <AccessProvider>
+                        <Header />
+                        {children}
+                        <Footer />
+                      </AccessProvider>
+                    </InventoryProvider>
+                  </FavoritesProvider>
+                </BidsProvider>
+              </ProposalsProvider>
+            </ListingsProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

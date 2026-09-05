@@ -3,8 +3,21 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  --background: #ffffff;
+  --foreground: #09090b;
+  --input-bg: #f4f4f5;
+  --input-border: #d4d4d8;
+  --input-text: #18181b;
+  --input-placeholder: #71717a;
+}
+
+.dark {
   --background: #09090b;
   --foreground: #f4f4f5;
+  --input-bg: #18181b;
+  --input-border: #3f3f46;
+  --input-text: #fafafa;
+  --input-placeholder: #71717a;
 }
 
 @theme inline {
@@ -30,9 +43,9 @@ body {
 
 .input {
   border-radius: 0.85rem;
-  border: 1px solid #3f3f46;
-  background: #18181b;
-  color: #fafafa;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--input-text);
   padding: 0.55rem 0.85rem;
   font-size: 0.875rem;
   outline: none;
@@ -43,5 +56,5 @@ body {
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
 .input::placeholder {
-  color: #71717a;
+  color: var(--input-placeholder);
 }

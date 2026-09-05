@@ -33,7 +33,7 @@ function NavLink({
       className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${
         active
           ? "bg-orange-600 text-white"
-          : "text-zinc-300 hover:bg-zinc-800 hover:text-zinc-50"
+          : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
       }`}
     >
       {icon}
@@ -74,7 +74,7 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-20 border-b border-zinc-800 bg-zinc-900/95 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/95 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/95">
       <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center">
           <Image
@@ -90,7 +90,7 @@ export function Header() {
             alt="LotClub"
             width={1431}
             height={355}
-            className="hidden h-8 w-auto sm:inline-block"
+            className="hidden h-8 w-auto brightness-0 dark:brightness-100 sm:inline-block"
             priority
           />
         </Link>
@@ -123,7 +123,7 @@ export function Header() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search castings, series, sellers, or @username..."
               disabled={searching}
-              className="w-full rounded-full border border-zinc-700 bg-zinc-800/80 py-2 pl-8 pr-4 text-sm text-zinc-100 outline-none placeholder:text-zinc-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+              className="w-full rounded-full border border-zinc-300 bg-zinc-100 py-2 pl-8 pr-4 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-zinc-100"
             />
           </div>
         </form>
@@ -142,7 +142,7 @@ export function Header() {
           </div>
           <Link
             href="/wishlist"
-            className="relative flex h-9 w-9 items-center justify-center rounded-full text-lg text-zinc-400 transition hover:bg-zinc-800 hover:text-orange-400"
+            className="relative flex h-9 w-9 items-center justify-center rounded-full text-lg text-zinc-500 transition hover:bg-zinc-100 hover:text-orange-600 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-orange-400"
             title="Your wishlist"
           >
             <HeartIcon className="h-4.5 w-4.5" filled={favoriteIds.length > 0} />
@@ -159,14 +159,14 @@ export function Header() {
           ) : (
             <Link
               href="/login"
-              className="rounded-full border border-zinc-700 px-3.5 py-2 text-sm font-semibold text-zinc-300 transition hover:border-orange-400 hover:text-orange-400"
+              className="rounded-full border border-zinc-300 px-3.5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-300 dark:hover:text-orange-400"
             >
               Sign in
             </Link>
           )}
         </nav>
       </div>
-      <nav className="flex items-center gap-1 overflow-x-auto border-t border-zinc-800 px-4 py-1.5 sm:hidden">
+      <nav className="flex items-center gap-1 overflow-x-auto border-t border-zinc-200 px-4 py-1.5 dark:border-zinc-800 sm:hidden">
         <NavLink href="/" icon={<SwapIcon className="h-3.5 w-3.5" />}>
           For Trade
         </NavLink>

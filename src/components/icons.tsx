@@ -12,6 +12,23 @@ export function HeartIcon({ className = "h-4 w-4", filled = false }: IconProps &
   );
 }
 
+export function MoonIcon({ className = "h-4 w-4" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={base} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z" />
+    </svg>
+  );
+}
+
+export function SunIcon({ className = "h-4 w-4" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={base} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="4.2" />
+      <path d="M12 2.5v2.3M12 19.2v2.3M4.4 4.4l1.6 1.6M18 18l1.6 1.6M2.5 12h2.3M19.2 12h2.3M4.4 19.6 6 18M18 6l1.6-1.6" />
+    </svg>
+  );
+}
+
 export function LockIcon({ className = "h-4 w-4" }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={base} strokeLinecap="round" strokeLinejoin="round">
