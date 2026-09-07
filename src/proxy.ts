@@ -16,10 +16,15 @@ export async function proxy(request: NextRequest) {
     ? NextResponse.rewrite(rewrittenUrl, { request })
     : NextResponse.next({ request });
 
+  // Shares the session cookie across lotclub.in and admin.lotclub.in — see
+  // the matching comment in lib/supabase/client.ts.
+  const cookieOptions = process.env.NODE_ENV === "production" ? { domain: ".lotclub.in" } : undefined;
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions,
       cookies: {
         getAll: () => request.cookies.getAll(),
         setAll: (cookiesToSet) => {
