@@ -23,7 +23,10 @@ export async function requireAdmin() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!isAdminEmail(user?.email)) redirect("/");
+  // Always an absolute URL to the main site, never "/" — a relative
+  // redirect on the admin.lotclub.in subdomain would land back on "/",
+  // which proxy.ts rewrites straight back into /admin, looping forever.
+  if (!isAdminEmail(user?.email)) redirect("https://lotclub.in");
 
   return user!;
 }
