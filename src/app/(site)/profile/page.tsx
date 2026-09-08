@@ -8,25 +8,13 @@ import { useListings } from "@/lib/listings-store";
 import { useProposals } from "@/lib/proposals-store";
 import { useBids } from "@/lib/bids-store";
 import { useAuth } from "@/lib/auth-store";
-import {
-  ListingItemChips,
-  OfferedItemChips,
-  ProposalStatusBadge,
-} from "@/components/ProposalChips";
 import { AuctionTimer, isAuctionEnded } from "@/components/AuctionTimer";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Avatar } from "@/components/Avatar";
-import {
-  CarIcon,
-  CheckIcon,
-  HammerIcon,
-  HandshakeIcon,
-  SwapIcon,
-  XIcon,
-} from "@/components/icons";
+import { CarIcon, HammerIcon, HandshakeIcon } from "@/components/icons";
 import { formatInr, timeAgo } from "@/lib/format";
 import { CONDITION_LABELS } from "@/lib/types";
-import type { Listing, ListingStatus, TradeProposal } from "@/lib/types";
+import type { Listing, ListingStatus } from "@/lib/types";
 
 function StatusBadge({ status }: { status: ListingStatus }) {
   const styles: Record<ListingStatus, string> = {
@@ -43,174 +31,6 @@ function StatusBadge({ status }: { status: ListingStatus }) {
     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${styles[status]}`}>
       {labels[status]}
     </span>
-  );
-}
-
-function ProposalCard({ proposal, direction }: { proposal: TradeProposal; direction: "received" | "sent" }) {
-  const { listings, updateListingStatus } = useListings();
-  const { updateProposalStatus } = useProposals();
-  const { user } = useAuth();
-  const listing = listings.find((l) => l.id === proposal.listingId);
-  const counterparty = direction === "received" ? proposal.proposerName : proposal.sellerName;
-  const isSeller = proposal.sellerId === user.id;
-  const failedOutcome = proposal.sellerOutcome === "FAILED" || proposal.proposerOutcome === "FAILED";
-  const needsResolution = isSeller && failedOutcome && listing?.status === "RESERVED";
-
-  function accept() {
-    updateProposalStatus(proposal.id, "ACCEPTED");
-    updateListingStatus(proposal.listingId, "RESERVED");
-  }
-  function decline() {
-    updateProposalStatus(proposal.id, "DECLINED");
-  }
-
-  return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-start gap-3">
-          <Link
-            href={`/listing/${proposal.listingId}`}
-            className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-zinc-800"
-          >
-            {listing && (
-              <Image src={listing.images[0]} alt="" fill unoptimized className="object-cover" />
-            )}
-            <span className="absolute inset-x-0 bottom-0 bg-black/70 py-0.5 text-center text-[8px] font-bold uppercase tracking-wide text-white">
-              View
-            </span>
-          </Link>
-          <div>
-            <Link
-              href={`/listing/${proposal.listingId}`}
-              className="text-sm font-semibold text-zinc-50 hover:text-orange-400"
-            >
-              {proposal.listingTitle}
-            </Link>
-            <p className="mt-0.5 text-xs text-zinc-500">
-              {direction === "received" ? "From" : "To"}{" "}
-              <span className="font-medium text-zinc-300">{counterparty}</span>
-            </p>
-          </div>
-        </div>
-        <div className="shrink-0 text-right">
-          <ProposalStatusBadge status={proposal.status} />
-          <p className="mt-1 text-[10px] text-zinc-500">{timeAgo(proposal.createdAt)}</p>
-        </div>
-      </div>
-
-      <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="flex-1">
-          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-            {direction === "received" ? `${proposal.proposerName} offers` : "You offer"}
-          </p>
-          <OfferedItemChips ids={proposal.myItemIds} cash={proposal.myCash} />
-        </div>
-        <div className="hidden text-zinc-700 sm:block">
-          <SwapIcon className="h-5 w-5" />
-        </div>
-        <div className="flex-1">
-          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-            For {direction === "received" ? "your" : `${proposal.sellerName}'s`}
-          </p>
-          <ListingItemChips ids={proposal.theirItemIds} cash={0} />
-        </div>
-      </div>
-
-      {proposal.note && (
-        <p className="mt-3 rounded-md bg-zinc-800/60 px-3 py-2 text-xs italic text-zinc-400">
-          &ldquo;{proposal.note}&rdquo;
-        </p>
-      )}
-
-      <div className="mt-3 border-t border-zinc-800 pt-3">
-        {proposal.status === "ACCEPTED" && (
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="flex items-center gap-2 text-xs font-medium text-emerald-400">
-              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/20">
-                <CheckIcon className="h-2.5 w-2.5" />
-              </span>
-              Trade confirmed! Coordinate the handover with {counterparty} in chat.
-            </p>
-            <Link
-              href={`/trade/${proposal.id}`}
-              className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-700"
-            >
-              Confirm trade →
-            </Link>
-          </div>
-        )}
-        {proposal.status === "COMPLETED" && (
-          <p className="flex items-center gap-2 text-xs font-medium text-emerald-400">
-            <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/20">
-              <CheckIcon className="h-2.5 w-2.5" />
-            </span>
-            Trade completed with {counterparty}.
-          </p>
-        )}
-        {proposal.status === "DECLINED" && (
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="flex items-center gap-2 text-xs font-medium text-rose-400">
-              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-rose-500/20">
-                <XIcon className="h-2.5 w-2.5" />
-              </span>
-              {failedOutcome
-                ? "This trade didn't go through."
-                : direction === "received"
-                  ? "You declined this offer."
-                  : "Offer declined by the seller."}
-            </p>
-            {needsResolution ? (
-              <Link
-                href={`/trade/${proposal.id}`}
-                className="rounded-full bg-orange-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-orange-700"
-              >
-                Resolve listing →
-              </Link>
-            ) : (
-              direction === "sent" &&
-              listing && (
-                <Link
-                  href={`/listing/${proposal.listingId}`}
-                  className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:border-orange-500 hover:text-orange-400"
-                >
-                  Make Another Offer
-                </Link>
-              )
-            )}
-          </div>
-        )}
-        {proposal.status === "PENDING" && (
-          <div className="flex gap-2">
-            {direction === "received" ? (
-              <>
-                <button
-                  onClick={accept}
-                  className="flex-1 rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700"
-                >
-                  Accept
-                </button>
-                <button
-                  onClick={decline}
-                  className="flex-1 rounded-full border border-rose-800 px-4 py-1.5 text-xs font-semibold text-rose-400 transition hover:bg-rose-950"
-                >
-                  Decline
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={decline}
-                className="rounded-full border border-zinc-700 px-4 py-1.5 text-xs font-semibold text-zinc-400 transition hover:border-rose-800 hover:text-rose-400"
-              >
-                Withdraw proposal
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-      {!listing && (
-        <p className="mt-2 text-[10px] text-zinc-500">This listing is no longer available.</p>
-      )}
-    </div>
   );
 }
 
@@ -371,9 +191,8 @@ function ProfileContent() {
   const { proposals } = useProposals();
   const { bids } = useBids();
   const { user } = useAuth();
-  const initialTab = searchParams.get("tab") === "listings" ? "listings" : "proposals";
-  const [tab, setTab] = useState<"listings" | "proposals" | "bids">(initialTab);
-  const [proposalTab, setProposalTab] = useState<"received" | "sent">("received");
+  const initialTab = searchParams.get("tab") === "bids" ? "bids" : "listings";
+  const [tab, setTab] = useState<"listings" | "bids">(initialTab);
 
   const myListings = useMemo(
     () =>
@@ -382,21 +201,12 @@ function ProfileContent() {
         .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)),
     [listings, user.id],
   );
-  const received = useMemo(
-    () =>
-      proposals
-        .filter((p) => p.sellerId === user.id)
-        .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)),
-    [proposals, user.id],
-  );
+  // Only needed for joinedLabel below — the full received/sent proposal
+  // list now lives on its own page at /offers.
   const sent = useMemo(
-    () =>
-      proposals
-        .filter((p) => p.proposerId === user.id)
-        .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)),
+    () => proposals.filter((p) => p.proposerId === user.id),
     [proposals, user.id],
   );
-  const pendingReceivedCount = received.filter((p) => p.status === "PENDING").length;
   const dealsCompleted = proposals.filter((p) => p.status === "COMPLETED").length;
 
   const myBidListings = useMemo(() => {
@@ -420,7 +230,6 @@ function ProfileContent() {
 
   const segments = [
     { key: "listings" as const, label: "Listings", count: myListings.length },
-    { key: "proposals" as const, label: "Offers", count: pendingReceivedCount || undefined },
     { key: "bids" as const, label: "Bids", count: myBidListings.length },
   ];
 
@@ -472,7 +281,7 @@ function ProfileContent() {
       {/* Content sheet */}
       <div className="-mt-6 rounded-t-3xl bg-zinc-950 px-4 pb-10 pt-6 sm:px-6">
         <div className="mx-auto w-full max-w-4xl">
-          <div className="grid grid-cols-3 gap-2 rounded-2xl border border-zinc-800 bg-zinc-900 p-1.5">
+          <div className="grid grid-cols-2 gap-2 rounded-2xl border border-zinc-800 bg-zinc-900 p-1.5">
             {segments.map((s) => (
               <button
                 key={s.key}
@@ -509,7 +318,7 @@ function ProfileContent() {
                 myListings.map((l) => <MyListingRow key={l.id} listing={l} />)
               )}
             </div>
-          ) : tab === "bids" ? (
+          ) : (
             <div className="mt-5 flex flex-col gap-3">
               {myBidListings.length === 0 ? (
                 <EmptyState
@@ -524,41 +333,6 @@ function ProfileContent() {
               ) : (
                 myBidListings.map((l) => <MyBidRow key={l.id} listing={l} />)
               )}
-            </div>
-          ) : (
-            <div className="mt-5">
-              <div className="mb-4 inline-flex gap-1.5 rounded-full border border-zinc-800 bg-zinc-900 p-1">
-                <button
-                  onClick={() => setProposalTab("received")}
-                  className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
-                    proposalTab === "received"
-                      ? "bg-zinc-50 text-zinc-900"
-                      : "text-zinc-400 hover:text-zinc-200"
-                  }`}
-                >
-                  Received ({received.length})
-                </button>
-                <button
-                  onClick={() => setProposalTab("sent")}
-                  className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
-                    proposalTab === "sent"
-                      ? "bg-zinc-50 text-zinc-900"
-                      : "text-zinc-400 hover:text-zinc-200"
-                  }`}
-                >
-                  Sent ({sent.length})
-                </button>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                {(proposalTab === "received" ? received : sent).length === 0 ? (
-                  <EmptyState icon={<SwapIcon className="h-8 w-8" />} title={`No ${proposalTab} proposals yet.`} />
-                ) : (
-                  (proposalTab === "received" ? received : sent).map((p) => (
-                    <ProposalCard key={p.id} proposal={p} direction={proposalTab} />
-                  ))
-                )}
-              </div>
             </div>
           )}
         </div>

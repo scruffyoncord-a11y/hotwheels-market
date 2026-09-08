@@ -7,11 +7,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { useFavorites } from "@/lib/favorites-store";
 import { useAuth } from "@/lib/auth-store";
 import { useListings } from "@/lib/listings-store";
+import { useProposals } from "@/lib/proposals-store";
 import { createClient } from "@/lib/supabase/client";
 import { getProfileByUsername } from "@/lib/profile";
 import { isAuctionEnded } from "./AuctionTimer";
 import { Avatar } from "./Avatar";
-import { HammerIcon, HeartIcon, SearchIcon, SwapIcon } from "./icons";
+import { HammerIcon, HandshakeIcon, HeartIcon, SearchIcon, SwapIcon } from "./icons";
 
 function NavLink({
   href,
@@ -51,12 +52,16 @@ export function Header() {
   const { favoriteIds } = useFavorites();
   const { user, isAuthenticated } = useAuth();
   const { listings } = useListings();
+  const { proposals } = useProposals();
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
 
   const hasLiveAuction = listings.some(
     (l) => l.type === "AUCTION" && l.status === "ACTIVE" && !(l.endsAt && isAuctionEnded(l.endsAt)),
   );
+  const pendingOffersCount = proposals.filter(
+    (p) => p.sellerId === user.id && p.status === "PENDING",
+  ).length;
 
   async function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -139,6 +144,19 @@ export function Header() {
           <div className="hidden items-center gap-1 sm:flex">
             <NavLink href="/inventory">My Collection</NavLink>
             <NavLink href="/profile?tab=listings">My Listings</NavLink>
+            <NavLink
+              href="/offers"
+              icon={<HandshakeIcon className="h-3.5 w-3.5" />}
+              badge={
+                pendingOffersCount > 0 && (
+                  <span className="rounded-full bg-orange-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                    {pendingOffersCount}
+                  </span>
+                )
+              }
+            >
+              Offers
+            </NavLink>
           </div>
           <Link
             href="/wishlist"
@@ -184,6 +202,18 @@ export function Header() {
           Auctions
         </NavLink>
         <NavLink href="/inventory">Collection</NavLink>
+        <NavLink
+          href="/offers"
+          badge={
+            pendingOffersCount > 0 && (
+              <span className="rounded-full bg-orange-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                {pendingOffersCount}
+              </span>
+            )
+          }
+        >
+          Offers
+        </NavLink>
         <NavLink href="/wishlist">Wishlist</NavLink>
         <NavLink href="/profile">Profile</NavLink>
       </nav>
