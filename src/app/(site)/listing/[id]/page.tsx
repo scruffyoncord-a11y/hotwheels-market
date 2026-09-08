@@ -154,7 +154,8 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const isPopular = (listing.views ?? 0) > 400 || offerCount >= 2 || listingBids.length >= 3;
   const biddingPaused = !!listing.biddingPaused;
   const biddingBlocked = disabled || biddingPaused;
-  const isHost = isAuction && !!user.id && listing.sellerId === user.id;
+  const isOwnListing = !!user.id && listing.sellerId === user.id;
+  const isHost = isAuction && isOwnListing;
   const increment = listing.bidIncrementInr ?? 100;
 
   const hasAccessGranted = isHost || !isPrivateAuction || hasAccess(listing.id, viewerName);
@@ -732,7 +733,11 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
               </div>
             ) : (
               <div className="flex gap-3">
-                {disabled ? (
+                {isOwnListing ? (
+                  <p className="flex-1 rounded-full bg-zinc-50 px-5 py-3 text-center text-sm font-medium text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
+                    This is your listing — you can&apos;t propose a trade on it.
+                  </p>
+                ) : disabled ? (
                   <button
                     disabled
                     className="flex-1 cursor-not-allowed rounded-full bg-zinc-300 px-5 py-3 text-sm font-bold text-white shadow-none dark:bg-zinc-700"
@@ -747,7 +752,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                     Propose a Trade
                   </Link>
                 )}
-                {!disabled && (
+                {!disabled && !isOwnListing && (
                   <button
                     onClick={() => setChatOpen((v) => !v)}
                     className="flex items-center justify-center rounded-full border border-zinc-300 px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:border-violet-400 dark:border-zinc-700 dark:text-zinc-300"
