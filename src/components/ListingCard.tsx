@@ -128,19 +128,26 @@ export function ListingCard({ listing }: { listing: Listing }) {
             )}
           </div>
         ) : (
-          <div className="mt-1 flex items-start gap-1.5 rounded-xl bg-violet-50 px-2 py-1.5 dark:bg-violet-950/60">
-            <span className="mt-0.5 shrink-0 text-violet-500 dark:text-violet-400" aria-hidden>
-              <SwapIcon className="h-3.5 w-3.5" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-violet-500 dark:text-violet-400">
-                Wants
-              </p>
-              <p className="line-clamp-2 text-xs font-semibold leading-snug text-violet-800 dark:text-violet-300">
-                {listing.wantsInExchange}
-              </p>
+          <>
+            <div className="mt-1 flex items-start gap-1.5 rounded-xl bg-violet-50 px-2 py-1.5 dark:bg-violet-950/60">
+              <span className="mt-0.5 shrink-0 text-violet-500 dark:text-violet-400" aria-hidden>
+                <SwapIcon className="h-3.5 w-3.5" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-violet-500 dark:text-violet-400">
+                  Wants
+                </p>
+                <p className="line-clamp-2 text-xs font-semibold leading-snug text-violet-800 dark:text-violet-300">
+                  {listing.wantsInExchange}
+                </p>
+              </div>
             </div>
-          </div>
+            {!!listing.pendingOffersCount && (
+              <p className="mt-1 text-xs font-semibold text-orange-600 dark:text-orange-400">
+                {listing.pendingOffersCount} {listing.pendingOffersCount === 1 ? "offer" : "offers"}
+              </p>
+            )}
+          </>
         )}
         <div className="mt-auto flex items-center justify-between pt-2 text-xs text-zinc-500 dark:text-zinc-400">
           <span>{listing.city}</span>

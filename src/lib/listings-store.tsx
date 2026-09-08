@@ -27,6 +27,7 @@ interface ListingRow {
   images: string[];
   views: number;
   likes: number;
+  pending_offers_count: number | null;
   seller_id: string;
   seller_name: string;
   seller_city: string;
@@ -59,6 +60,7 @@ function rowToListing(r: ListingRow): Listing {
     images: r.images,
     views: r.views,
     likes: r.likes,
+    pendingOffersCount: r.pending_offers_count ?? 0,
     sellerId: r.seller_id,
     seller: {
       name: r.seller_name,

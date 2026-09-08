@@ -42,6 +42,10 @@ export interface Listing {
   images: string[];
   views?: number;
   likes?: number;
+  // Publicly-visible count of currently-pending trade proposals on this
+  // listing — the proposals themselves are private (only the two people
+  // on one can see it), this is just a number kept in sync by a trigger.
+  pendingOffersCount?: number;
   // The real, authenticated Supabase account that owns this listing —
   // this is the only thing "am I the seller" should ever be checked
   // against. `seller` below is a display-only snapshot.
