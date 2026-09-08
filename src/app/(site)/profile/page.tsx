@@ -23,8 +23,6 @@ import { formatInr, timeAgo } from "@/lib/format";
 import { CONDITION_LABELS } from "@/lib/types";
 import type { Listing, ListingStatus, TradeProposal } from "@/lib/types";
 
-const ME = "You";
-
 function StatusBadge({ status }: { status: ListingStatus }) {
   const styles: Record<ListingStatus, string> = {
     ACTIVE: "bg-emerald-500/15 text-emerald-400",
@@ -405,21 +403,19 @@ function ProfileContent() {
   const received = useMemo(
     () =>
       proposals
-        .filter((p) => p.sellerName === ME)
+        .filter((p) => p.sellerId === user.id)
         .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)),
-    [proposals],
+    [proposals, user.id],
   );
   const sent = useMemo(
     () =>
       proposals
-        .filter((p) => p.proposerName === ME)
+        .filter((p) => p.proposerId === user.id)
         .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)),
-    [proposals],
+    [proposals, user.id],
   );
   const pendingReceivedCount = received.filter((p) => p.status === "PENDING").length;
-  const dealsCompleted = proposals.filter(
-    (p) => p.status === "ACCEPTED" && (p.sellerName === ME || p.proposerName === ME),
-  ).length;
+  const dealsCompleted = proposals.filter((p) => p.status === "ACCEPTED").length;
 
   const myBidListings = useMemo(() => {
     const listingIds = Array.from(

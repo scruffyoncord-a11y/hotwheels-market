@@ -1,55 +1,145 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { MOCK_PROPOSALS } from "./mock-proposals";
+import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/lib/auth-store";
 import type { ProposalStatus, TradeProposal } from "./types";
 
-const STORAGE_KEY = "hotwheels-market:proposals:v1";
+interface ProposalRow {
+  id: string;
+  listing_id: string;
+  listing_title: string;
+  seller_id: string;
+  seller_name: string;
+  proposer_id: string;
+  proposer_name: string;
+  my_item_ids: string[];
+  my_cash_inr: number;
+  their_item_ids: string[];
+  note: string | null;
+  status: ProposalStatus;
+  created_at: string;
+}
+
+function rowToProposal(r: ProposalRow): TradeProposal {
+  return {
+    id: r.id,
+    listingId: r.listing_id,
+    listingTitle: r.listing_title,
+    sellerId: r.seller_id,
+    sellerName: r.seller_name,
+    proposerId: r.proposer_id,
+    proposerName: r.proposer_name,
+    myItemIds: r.my_item_ids ?? [],
+    myCash: r.my_cash_inr,
+    theirItemIds: r.their_item_ids ?? [],
+    note: r.note ?? undefined,
+    status: r.status,
+    createdAt: r.created_at,
+  };
+}
 
 interface ProposalsContextValue {
   proposals: TradeProposal[];
-  addProposal: (proposal: TradeProposal) => void;
-  updateProposalStatus: (id: string, status: ProposalStatus) => void;
+  loading: boolean;
+  addProposal: (proposal: Omit<TradeProposal, "id" | "createdAt">) => Promise<{ error?: string }>;
+  updateProposalStatus: (id: string, status: ProposalStatus) => Promise<void>;
 }
 
 const ProposalsContext = createContext<ProposalsContextValue | null>(null);
 
 export function ProposalsProvider({ children }: { children: React.ReactNode }) {
-  const [proposals, setProposals] = useState<TradeProposal[]>(MOCK_PROPOSALS);
-  const [loaded, setLoaded] = useState(false);
+  const [proposals, setProposals] = useState<TradeProposal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      const stored: TradeProposal[] = raw ? JSON.parse(raw) : [];
-      const storedIds = new Set(stored.map((p) => p.id));
-      // Keep any stored proposal as-is (preserves status changes on mock
-      // seeds too), and append newly-added mock proposals not seen yet.
-      const newMockProposals = MOCK_PROPOSALS.filter((m) => !storedIds.has(m.id));
-      setProposals([...stored, ...newMockProposals]);
-    } catch {
-      // localStorage unavailable or corrupt — fall back to mock data only
+    // Guests and phone-only sessions have no real account, so there's
+    // nothing to fetch — RLS would return nothing anyway.
+    if (!user.id) {
+      setProposals([]);
+      setLoading(false);
+      return;
     }
-    setLoaded(true);
-  }, []);
 
-  useEffect(() => {
-    if (!loaded) return;
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(proposals));
-    } catch {
-      // ignore quota/availability errors
-    }
-  }, [proposals, loaded]);
+    let cancelled = false;
+
+    supabase
+      .from("proposals")
+      .select("*")
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (!error && data) setProposals((data as ProposalRow[]).map(rowToProposal));
+        setLoading(false);
+      });
+
+    const channel = supabase
+      .channel("proposals-changes")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "proposals" },
+        (payload) => {
+          const next = rowToProposal(payload.new as ProposalRow);
+          setProposals((prev) => (prev.some((p) => p.id === next.id) ? prev : [next, ...prev]));
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "proposals" },
+        (payload) => {
+          const next = rowToProposal(payload.new as ProposalRow);
+          setProposals((prev) => prev.map((p) => (p.id === next.id ? next : p)));
+        },
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, user.id]);
 
   const value = useMemo<ProposalsContextValue>(
     () => ({
       proposals,
-      addProposal: (proposal) => setProposals((prev) => [proposal, ...prev]),
-      updateProposalStatus: (id, status) =>
-        setProposals((prev) => prev.map((p) => (p.id === id ? { ...p, status } : p))),
+      loading,
+      addProposal: async (proposal) => {
+        const { data, error } = await supabase
+          .from("proposals")
+          .insert({
+            listing_id: proposal.listingId,
+            listing_title: proposal.listingTitle,
+            seller_id: proposal.sellerId,
+            seller_name: proposal.sellerName,
+            proposer_id: proposal.proposerId,
+            proposer_name: proposal.proposerName,
+            my_item_ids: proposal.myItemIds,
+            my_cash_inr: proposal.myCash,
+            their_item_ids: proposal.theirItemIds,
+            note: proposal.note ?? null,
+            status: proposal.status,
+          })
+          .select()
+          .single();
+        if (error) return { error: error.message };
+        setProposals((prev) => [rowToProposal(data as ProposalRow), ...prev]);
+        return {};
+      },
+      updateProposalStatus: async (id, status) => {
+        const { data, error } = await supabase
+          .from("proposals")
+          .update({ status })
+          .eq("id", id)
+          .select()
+          .single();
+        if (!error && data) {
+          const next = rowToProposal(data as ProposalRow);
+          setProposals((prev) => prev.map((p) => (p.id === next.id ? next : p)));
+        }
+      },
     }),
-    [proposals],
+    [proposals, loading, supabase],
   );
 
   return <ProposalsContext.Provider value={value}>{children}</ProposalsContext.Provider>;

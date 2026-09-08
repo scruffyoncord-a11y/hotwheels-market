@@ -187,6 +187,8 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
   const [myCashEnabled, setMyCashEnabled] = useState(false);
   const [note, setNote] = useState("");
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const myListings = useMemo(
     () =>
@@ -230,22 +232,26 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
   const theirTotalCount = theirOfferIds.length;
   const canSend = myTotalCount > 0 && theirTotalCount > 0;
 
-  function sendProposal() {
-    if (!listing) return;
-    addProposal({
-      id: `p-${Date.now()}`,
+  async function sendProposal() {
+    if (!listing || !user.id) return;
+    setSending(true);
+    setSendError(null);
+    const { error } = await addProposal({
       listingId: listing.id,
       listingTitle: listing.title,
+      sellerId: listing.sellerId,
       sellerName: listing.seller.name,
-      proposerName: "You",
+      proposerId: user.id,
+      proposerName: user.displayName,
       myItemIds: myOfferIds,
       myCash: myCashEnabled ? myCash : 0,
       theirItemIds: theirOfferIds,
       note: note.trim() || undefined,
       status: "PENDING",
-      createdAt: new Date().toISOString(),
     });
-    setSent(true);
+    setSending(false);
+    if (error) setSendError(error);
+    else setSent(true);
   }
 
   if (sent) {
@@ -390,12 +396,15 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
               </div>
               <button
                 onClick={sendProposal}
-                disabled={!canSend}
+                disabled={!canSend || sending}
                 className="w-full rounded-full bg-orange-600 py-3 text-base font-extrabold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-500"
               >
-                Send Proposal
+                {sending ? "Sending…" : "Send Proposal"}
               </button>
-              {!canSend && (
+              {sendError && (
+                <p className="mt-2 text-center text-xs text-rose-500">{sendError}</p>
+              )}
+              {!canSend && !sendError && (
                 <p className="mt-2 text-center text-xs text-zinc-500">
                   Add at least one item (plus cash, optionally) on your side, and at least one
                   item from {listing.seller.name}.

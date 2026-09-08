@@ -61,8 +61,10 @@ export interface TradeProposal {
   id: string;
   listingId: string; // the trade listing this proposal was made on
   listingTitle: string;
-  sellerName: string; // owner of the listing (who receives the proposal)
-  proposerName: string; // who sent the proposal
+  sellerId: string; // real Supabase account of the listing owner (who receives the proposal)
+  sellerName: string;
+  proposerId: string; // real Supabase account of who sent the proposal
+  proposerName: string;
   myItemIds: string[]; // listing ids the proposer is offering
   myCash: number;
   theirItemIds: string[]; // listing ids being requested from the seller
