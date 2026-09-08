@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { SiteChrome } from "@/components/SiteChrome";
 import { ListingsProvider } from "@/lib/listings-store";
 import { ProposalsProvider } from "@/lib/proposals-store";
 import { BidsProvider } from "@/lib/bids-store";
@@ -46,9 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   <FavoritesProvider>
                     <InventoryProvider>
                       <AccessProvider>
-                        <Header />
-                        {children}
-                        <Footer />
+                        <SiteChrome>{children}</SiteChrome>
                       </AccessProvider>
                     </InventoryProvider>
                   </FavoritesProvider>
