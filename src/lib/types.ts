@@ -55,7 +55,13 @@ export interface Listing {
   createdAt: string;
 }
 
-export type ProposalStatus = "PENDING" | "ACCEPTED" | "DECLINED";
+export type ProposalStatus = "PENDING" | "ACCEPTED" | "DECLINED" | "COMPLETED";
+
+// Whether one side has confirmed the handover actually happened, once a
+// proposal is ACCEPTED. Both COMPLETED finalizes the trade; either FAILED
+// declines it and leaves the listing awaiting the seller's call on what
+// to do next (relist or remove).
+export type TradeOutcome = "PENDING" | "COMPLETED" | "FAILED";
 
 export interface TradeProposal {
   id: string;
@@ -70,6 +76,8 @@ export interface TradeProposal {
   theirItemIds: string[]; // listing ids being requested from the seller
   note?: string;
   status: ProposalStatus;
+  sellerOutcome: TradeOutcome;
+  proposerOutcome: TradeOutcome;
   createdAt: string;
 }
 

@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/auth-store";
-import type { ProposalStatus, TradeProposal } from "./types";
+import type { ProposalStatus, TradeOutcome, TradeProposal } from "./types";
 
 interface ProposalRow {
   id: string;
@@ -18,6 +18,8 @@ interface ProposalRow {
   their_item_ids: string[];
   note: string | null;
   status: ProposalStatus;
+  seller_outcome: TradeOutcome;
+  proposer_outcome: TradeOutcome;
   created_at: string;
 }
 
@@ -35,6 +37,8 @@ function rowToProposal(r: ProposalRow): TradeProposal {
     theirItemIds: r.their_item_ids ?? [],
     note: r.note ?? undefined,
     status: r.status,
+    sellerOutcome: r.seller_outcome,
+    proposerOutcome: r.proposer_outcome,
     createdAt: r.created_at,
   };
 }
@@ -42,8 +46,15 @@ function rowToProposal(r: ProposalRow): TradeProposal {
 interface ProposalsContextValue {
   proposals: TradeProposal[];
   loading: boolean;
-  addProposal: (proposal: Omit<TradeProposal, "id" | "createdAt">) => Promise<{ error?: string }>;
+  addProposal: (proposal: Omit<TradeProposal, "id" | "createdAt" | "sellerOutcome" | "proposerOutcome">) => Promise<{ error?: string }>;
   updateProposalStatus: (id: string, status: ProposalStatus) => Promise<void>;
+  // Reports whether the handover actually happened, once a proposal is
+  // ACCEPTED. The server (confirm_trade_outcome RPC) is the only thing
+  // that ever finalizes a trade or marks a listing SOLD from this.
+  confirmTradeOutcome: (proposalId: string, completed: boolean) => Promise<{ error?: string }>;
+  // Only the seller can call this, only once a FAILED outcome has left
+  // their listing stuck at RESERVED with nothing decided yet.
+  resolveFailedTrade: (proposalId: string, relist: boolean) => Promise<{ error?: string }>;
 }
 
 const ProposalsContext = createContext<ProposalsContextValue | null>(null);
@@ -137,6 +148,20 @@ export function ProposalsProvider({ children }: { children: React.ReactNode }) {
           const next = rowToProposal(data as ProposalRow);
           setProposals((prev) => prev.map((p) => (p.id === next.id ? next : p)));
         }
+      },
+      confirmTradeOutcome: async (proposalId, completed) => {
+        const { error } = await supabase.rpc("confirm_trade_outcome", {
+          p_proposal_id: proposalId,
+          p_completed: completed,
+        });
+        return error ? { error: error.message } : {};
+      },
+      resolveFailedTrade: async (proposalId, relist) => {
+        const { error } = await supabase.rpc("resolve_failed_trade", {
+          p_proposal_id: proposalId,
+          p_relist: relist,
+        });
+        return error ? { error: error.message } : {};
       },
     }),
     [proposals, loading, supabase],

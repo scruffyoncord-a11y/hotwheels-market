@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,7 +8,11 @@ import { useListings } from "@/lib/listings-store";
 import { useProposals } from "@/lib/proposals-store";
 import { useBids } from "@/lib/bids-store";
 import { useAuth } from "@/lib/auth-store";
-import { createClient } from "@/lib/supabase/client";
+import {
+  ListingItemChips,
+  OfferedItemChips,
+  ProposalStatusBadge,
+} from "@/components/ProposalChips";
 import { AuctionTimer, isAuctionEnded } from "@/components/AuctionTimer";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Avatar } from "@/components/Avatar";
@@ -42,140 +46,15 @@ function StatusBadge({ status }: { status: ListingStatus }) {
   );
 }
 
-function ProposalStatusBadge({ status }: { status: TradeProposal["status"] }) {
-  const styles = {
-    PENDING: "bg-amber-500/15 text-amber-400",
-    ACCEPTED: "bg-emerald-500/15 text-emerald-400",
-    DECLINED: "bg-rose-500/15 text-rose-400",
-  } as const;
-  const labels = { PENDING: "Offer Pending", ACCEPTED: "Offer Accepted", DECLINED: "Offer Declined" } as const;
-  return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${styles[status]}`}>
-      {labels[status]}
-    </span>
-  );
-}
-
-function ItemChip({ listing }: { listing: Listing | undefined }) {
-  if (!listing) {
-    return (
-      <div className="flex w-20 shrink-0 items-center justify-center rounded-md border border-dashed border-zinc-700 p-2 text-center text-[10px] text-zinc-500">
-        Unavailable
-      </div>
-    );
-  }
-  return (
-    <Link
-      href={`/listing/${listing.id}`}
-      className="flex w-20 shrink-0 flex-col gap-1 rounded-md border border-zinc-700 bg-zinc-800 p-1.5 transition hover:border-orange-500"
-    >
-      <div className="relative h-12 w-full overflow-hidden rounded bg-zinc-900">
-        <Image src={listing.images[0]} alt={listing.title} fill unoptimized className="object-cover" />
-      </div>
-      <p className="line-clamp-2 text-[10px] font-medium leading-tight text-zinc-300">
-        {listing.castingName ?? listing.title}
-      </p>
-    </Link>
-  );
-}
-
-function CashChip({ amount }: { amount: number }) {
-  return (
-    <div className="flex w-20 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md border border-emerald-800 bg-emerald-950 p-1.5 text-center">
-      <span className="text-sm font-bold text-emerald-400">{formatInr(amount)}</span>
-      <span className="text-[10px] text-emerald-500">cash</span>
-    </div>
-  );
-}
-
-// The proposer's side of the offer — real inventory items straight from
-// their private collection, not a public listing (see migration 0005's
-// comment). Fetched by id directly rather than through useInventory(),
-// since that hook only ever loads the *current* viewer's own inventory —
-// the seller reading a received proposal needs the proposer's items
-// instead, which migration 0006's RLS policy specifically allows.
-function OfferedItemChips({ ids, cash }: { ids: string[]; cash: number }) {
-  const [items, setItems] = useState<Record<string, { title: string; image: string }>>({});
-
-  useEffect(() => {
-    if (ids.length === 0) return;
-    let cancelled = false;
-    createClient()
-      .from("inventory")
-      .select("id, title, casting_name, image")
-      .in("id", ids)
-      .then(({ data }) => {
-        if (cancelled || !data) return;
-        const map: Record<string, { title: string; image: string }> = {};
-        for (const row of data as {
-          id: string;
-          title: string;
-          casting_name: string | null;
-          image: string;
-        }[]) {
-          map[row.id] = { title: row.casting_name ?? row.title, image: row.image };
-        }
-        setItems(map);
-      });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ids.join("|")]);
-
-  if (ids.length === 0 && cash <= 0) {
-    return <p className="text-xs text-zinc-500">Nothing offered</p>;
-  }
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {ids.map((id) => {
-        const item = items[id];
-        return item ? (
-          <div
-            key={id}
-            className="flex w-20 shrink-0 flex-col gap-1 rounded-md border border-zinc-700 bg-zinc-800 p-1.5"
-          >
-            <div className="relative h-12 w-full overflow-hidden rounded bg-zinc-900">
-              <Image src={item.image} alt={item.title} fill unoptimized className="object-cover" />
-            </div>
-            <p className="line-clamp-2 text-[10px] font-medium leading-tight text-zinc-300">
-              {item.title}
-            </p>
-          </div>
-        ) : (
-          <div
-            key={id}
-            className="flex w-20 shrink-0 items-center justify-center rounded-md border border-dashed border-zinc-700 p-2 text-center text-[10px] text-zinc-500"
-          >
-            Unavailable
-          </div>
-        );
-      })}
-      {cash > 0 && <CashChip amount={cash} />}
-    </div>
-  );
-}
-
-function ItemChips({ ids, cash }: { ids: string[]; cash: number }) {
-  const { listings } = useListings();
-  if (ids.length === 0 && cash <= 0) {
-    return <p className="text-xs text-zinc-500">Nothing offered</p>;
-  }
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {ids.map((id) => (
-        <ItemChip key={id} listing={listings.find((l) => l.id === id)} />
-      ))}
-      {cash > 0 && <CashChip amount={cash} />}
-    </div>
-  );
-}
-
 function ProposalCard({ proposal, direction }: { proposal: TradeProposal; direction: "received" | "sent" }) {
   const { listings, updateListingStatus } = useListings();
   const { updateProposalStatus } = useProposals();
+  const { user } = useAuth();
   const listing = listings.find((l) => l.id === proposal.listingId);
   const counterparty = direction === "received" ? proposal.proposerName : proposal.sellerName;
+  const isSeller = proposal.sellerId === user.id;
+  const failedOutcome = proposal.sellerOutcome === "FAILED" || proposal.proposerOutcome === "FAILED";
+  const needsResolution = isSeller && failedOutcome && listing?.status === "RESERVED";
 
   function accept() {
     updateProposalStatus(proposal.id, "ACCEPTED");
@@ -233,7 +112,7 @@ function ProposalCard({ proposal, direction }: { proposal: TradeProposal; direct
           <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
             For {direction === "received" ? "your" : `${proposal.sellerName}'s`}
           </p>
-          <ItemChips ids={proposal.theirItemIds} cash={0} />
+          <ListingItemChips ids={proposal.theirItemIds} cash={0} />
         </div>
       </div>
 
@@ -245,11 +124,27 @@ function ProposalCard({ proposal, direction }: { proposal: TradeProposal; direct
 
       <div className="mt-3 border-t border-zinc-800 pt-3">
         {proposal.status === "ACCEPTED" && (
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="flex items-center gap-2 text-xs font-medium text-emerald-400">
+              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/20">
+                <CheckIcon className="h-2.5 w-2.5" />
+              </span>
+              Trade confirmed! Coordinate the handover with {counterparty} in chat.
+            </p>
+            <Link
+              href={`/trade/${proposal.id}`}
+              className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-700"
+            >
+              Confirm trade →
+            </Link>
+          </div>
+        )}
+        {proposal.status === "COMPLETED" && (
           <p className="flex items-center gap-2 text-xs font-medium text-emerald-400">
             <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/20">
               <CheckIcon className="h-2.5 w-2.5" />
             </span>
-            Trade confirmed! Coordinate the handover with {counterparty} in chat.
+            Trade completed with {counterparty}.
           </p>
         )}
         {proposal.status === "DECLINED" && (
@@ -258,15 +153,29 @@ function ProposalCard({ proposal, direction }: { proposal: TradeProposal; direct
               <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-rose-500/20">
                 <XIcon className="h-2.5 w-2.5" />
               </span>
-              {direction === "received" ? "You declined this offer." : "Offer declined by the seller."}
+              {failedOutcome
+                ? "This trade didn't go through."
+                : direction === "received"
+                  ? "You declined this offer."
+                  : "Offer declined by the seller."}
             </p>
-            {direction === "sent" && listing && (
+            {needsResolution ? (
               <Link
-                href={`/listing/${proposal.listingId}`}
-                className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:border-orange-500 hover:text-orange-400"
+                href={`/trade/${proposal.id}`}
+                className="rounded-full bg-orange-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-orange-700"
               >
-                Make Another Offer
+                Resolve listing →
               </Link>
+            ) : (
+              direction === "sent" &&
+              listing && (
+                <Link
+                  href={`/listing/${proposal.listingId}`}
+                  className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:border-orange-500 hover:text-orange-400"
+                >
+                  Make Another Offer
+                </Link>
+              )
             )}
           </div>
         )}
@@ -488,7 +397,7 @@ function ProfileContent() {
     [proposals, user.id],
   );
   const pendingReceivedCount = received.filter((p) => p.status === "PENDING").length;
-  const dealsCompleted = proposals.filter((p) => p.status === "ACCEPTED").length;
+  const dealsCompleted = proposals.filter((p) => p.status === "COMPLETED").length;
 
   const myBidListings = useMemo(() => {
     const listingIds = Array.from(
