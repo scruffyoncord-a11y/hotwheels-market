@@ -3,7 +3,9 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { useInventory } from "@/lib/inventory-store";
-import { readFileAsDataUrl } from "@/lib/files";
+import { useAuth } from "@/lib/auth-store";
+import { createClient } from "@/lib/supabase/client";
+import { uploadCarPhoto } from "@/lib/car-photos";
 import { placeholderImage } from "@/lib/placeholder";
 import { CameraIcon, XIcon } from "@/components/icons";
 import { CONDITION_LABELS, type ListingCondition } from "@/lib/types";
@@ -12,6 +14,7 @@ const CONDITIONS = Object.keys(CONDITION_LABELS) as ListingCondition[];
 
 export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { addItem } = useInventory();
+  const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
@@ -20,6 +23,8 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
   const [condition, setCondition] = useState<ListingCondition>("MINT");
   const [notes, setNotes] = useState("");
   const [photo, setPhoto] = useState<string | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
   if (!open) return null;
@@ -31,13 +36,32 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
     setCondition("MINT");
     setNotes("");
     setPhoto(null);
+    setPhotoPreview(null);
     setError("");
+  }
+
+  async function handlePhotoChange(file: File) {
+    if (!user.id) return;
+    setPhotoPreview(URL.createObjectURL(file));
+    setUploading(true);
+    setError("");
+    const { url, error: uploadError } = await uploadCarPhoto(createClient(), user.id, file);
+    setUploading(false);
+    if (uploadError || !url) {
+      setError(uploadError ?? "Couldn't upload that photo — try again.");
+      return;
+    }
+    setPhoto(url);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) {
       setError("Give it a title so you can find it later.");
+      return;
+    }
+    if (uploading) {
+      setError("Still uploading the photo — one sec.");
       return;
     }
     const { error: submitError } = await addItem({
@@ -83,9 +107,9 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={async (e) => {
+            onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) setPhoto(await readFileAsDataUrl(file));
+              if (file) handlePhotoChange(file);
               e.target.value = "";
             }}
           />
@@ -94,8 +118,15 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
             onClick={() => inputRef.current?.click()}
             className="relative flex aspect-4/3 w-full items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-zinc-300 text-zinc-400 transition hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700"
           >
-            {photo ? (
-              <Image src={photo} alt="" fill unoptimized className="object-cover" />
+            {photoPreview ? (
+              <>
+                <Image src={photoPreview} alt="" fill unoptimized className="object-cover" />
+                {uploading && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/40 text-xs font-semibold text-white">
+                    Uploading…
+                  </span>
+                )}
+              </>
             ) : (
               <span className="flex flex-col items-center gap-1 text-sm font-medium">
                 <CameraIcon className="h-5 w-5" />
@@ -165,9 +196,10 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
 
           <button
             type="submit"
-            className="mt-1 rounded-full bg-orange-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700"
+            disabled={uploading}
+            className="mt-1 rounded-full bg-orange-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:opacity-60"
           >
-            Add to collection
+            {uploading ? "Uploading photo…" : "Add to collection"}
           </button>
         </form>
       </div>

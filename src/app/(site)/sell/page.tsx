@@ -7,8 +7,9 @@ import Image from "next/image";
 import { useListings } from "@/lib/listings-store";
 import { useInventory } from "@/lib/inventory-store";
 import { useAuth } from "@/lib/auth-store";
+import { createClient } from "@/lib/supabase/client";
+import { uploadCarPhoto } from "@/lib/car-photos";
 import { placeholderImage } from "@/lib/placeholder";
-import { readFileAsDataUrl } from "@/lib/files";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { CameraIcon, XIcon } from "@/components/icons";
@@ -112,6 +113,7 @@ function SellForm() {
   const [isPrivate, setIsPrivate] = useState(false);
   const [error, setError] = useState("");
   const [prefilledFromInventory, setPrefilledFromInventory] = useState(false);
+  const [uploadingCount, setUploadingCount] = useState(0);
 
   useEffect(() => {
     if (!inventoryId) return;
@@ -133,7 +135,16 @@ function SellForm() {
   const isAuction = type === "AUCTION";
 
   async function handleSlotChange(file: File, setter: (url: string) => void) {
-    setter(await readFileAsDataUrl(file));
+    if (!user.id) return;
+    setter(URL.createObjectURL(file)); // instant local preview while it uploads
+    setUploadingCount((c) => c + 1);
+    const { url, error: uploadError } = await uploadCarPhoto(createClient(), user.id, file);
+    setUploadingCount((c) => c - 1);
+    if (uploadError || !url) {
+      setError(uploadError ?? "Couldn't upload that photo — try again.");
+      return;
+    }
+    setter(url);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -141,6 +152,10 @@ function SellForm() {
 
     if (!isAuthenticated || !user.id) {
       setError("Sign in with a real account to publish a listing.");
+      return;
+    }
+    if (uploadingCount > 0) {
+      setError("Still uploading photos — one sec.");
       return;
     }
 
@@ -455,11 +470,16 @@ function SellForm() {
 
           <button
             type="submit"
-            className={`mt-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition ${
+            disabled={uploadingCount > 0}
+            className={`mt-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60 ${
               isTrade ? "bg-violet-600 hover:bg-violet-700" : "bg-red-600 hover:bg-red-700"
             }`}
           >
-            {isTrade ? "Publish trade listing" : "Start auction"}
+            {uploadingCount > 0
+              ? "Uploading photos…"
+              : isTrade
+                ? "Publish trade listing"
+                : "Start auction"}
           </button>
         </form>
         </SectionCard>
