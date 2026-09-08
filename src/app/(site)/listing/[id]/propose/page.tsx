@@ -357,13 +357,21 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
               }
               emptyHint="Add a car from your collection to trade it — or just offer cash below."
               emptyActions={
-                <button
-                  type="button"
-                  onClick={() => setAddCarOpen(true)}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-orange-700"
-                >
-                  <PlusIcon className="h-3.5 w-3.5" /> Add a car
-                </button>
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setAddCarOpen(true)}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-orange-700"
+                  >
+                    <PlusIcon className="h-3.5 w-3.5" /> Add a car
+                  </button>
+                  <Link
+                    href="/inventory"
+                    className="rounded-full border border-zinc-700 px-4 py-2 text-xs font-semibold text-zinc-300 transition hover:border-orange-400 hover:text-orange-400"
+                  >
+                    Pick from your collection
+                  </Link>
+                </div>
               }
               cash={myCash}
               onCashChange={setMyCash}
