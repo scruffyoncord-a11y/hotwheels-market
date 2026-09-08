@@ -105,16 +105,22 @@ function OfferSide({
             {emptyActions}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {options.map((l) => (
-              <PickerCard
-                key={l.id}
-                listing={l}
-                selected={selectedIds.includes(l.id)}
-                onToggle={() => onToggle(l.id)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {options.map((l) => (
+                <PickerCard
+                  key={l.id}
+                  listing={l}
+                  selected={selectedIds.includes(l.id)}
+                  onToggle={() => onToggle(l.id)}
+                />
+              ))}
+            </div>
+            {/* Still reachable once you already have items listed — this used
+                to only render on a fully-empty list, so there was no way to
+                list or pick another car for the offer afterward. */}
+            {emptyActions && <div className="mt-3">{emptyActions}</div>}
+          </>
         )}
 
         {hasCash && (
@@ -340,7 +346,7 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
                     + List a car
                   </Link>
                   <Link
-                    href="/inventory"
+                    href={`/inventory?next=${encodeURIComponent(`/listing/${listing.id}/propose`)}`}
                     className="rounded-full border border-zinc-700 px-4 py-2 text-xs font-semibold text-zinc-300 transition hover:border-orange-400 hover:text-orange-400"
                   >
                     Pick from your collection

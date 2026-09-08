@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { Suspense, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -234,10 +235,15 @@ function CollectionPrivacyCard() {
   );
 }
 
-export default function InventoryPage() {
+function InventoryContent() {
   const { items, removeItem } = useInventory();
   const { isAuthenticated } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
+  const searchParams = useSearchParams();
+  // Set when arriving here mid-trade-proposal ("Pick from your collection")
+  // — forwarded into the "List for Trade" link so /sell can lock to Trade
+  // and send the user back here to finish the proposal once it's listed.
+  const returnTo = searchParams.get("next");
 
   return (
     <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-6 sm:px-6">
@@ -315,7 +321,7 @@ export default function InventoryPage() {
                 <div className="mt-2 flex flex-col gap-1.5">
                   <div className="flex gap-1.5">
                     <Link
-                      href={`/sell?type=TRADE&inventoryId=${item.id}`}
+                      href={`/sell?type=TRADE&inventoryId=${item.id}${returnTo ? `&next=${encodeURIComponent(returnTo)}` : ""}`}
                       className="flex-1 rounded-full bg-violet-600 px-2 py-1.5 text-center text-xs font-semibold text-white transition hover:bg-violet-700"
                     >
                       List for Trade
@@ -342,5 +348,13 @@ export default function InventoryPage() {
 
       <AddCarModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </main>
+  );
+}
+
+export default function InventoryPage() {
+  return (
+    <Suspense>
+      <InventoryContent />
+    </Suspense>
   );
 }
