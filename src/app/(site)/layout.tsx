@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
-import "./globals.css";
-import { SiteChrome } from "@/components/SiteChrome";
+import "../globals.css";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { ListingsProvider } from "@/lib/listings-store";
 import { ProposalsProvider } from "@/lib/proposals-store";
 import { BidsProvider } from "@/lib/bids-store";
@@ -26,7 +27,12 @@ export const metadata: Metadata = {
   description: "Trade and auction Hot Wheels and diecast cars with collectors near you.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+// This is a root layout (route-group root, per Next's "multiple root
+// layouts" pattern) — it owns its own <html>/<body> so the marketplace
+// chrome (Header/Footer, fonts, all the client Providers) never has to
+// render for the separate admin.lotclub.in panel, which has its own
+// minimal root layout at src/app/admin/layout.tsx.
+export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
@@ -45,7 +51,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   <FavoritesProvider>
                     <InventoryProvider>
                       <AccessProvider>
-                        <SiteChrome>{children}</SiteChrome>
+                        <Header />
+                        {children}
+                        <Footer />
                       </AccessProvider>
                     </InventoryProvider>
                   </FavoritesProvider>
