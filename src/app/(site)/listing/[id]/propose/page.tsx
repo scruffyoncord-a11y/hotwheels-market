@@ -5,20 +5,32 @@ import Link from "next/link";
 import Image from "next/image";
 import { useListings } from "@/lib/listings-store";
 import { useProposals } from "@/lib/proposals-store";
+import { useInventory } from "@/lib/inventory-store";
 import { useAuth } from "@/lib/auth-store";
+import { AddCarModal } from "@/components/AddCarModal";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { CheckIcon, SwapIcon } from "@/components/icons";
+import { CheckIcon, PlusIcon, SwapIcon } from "@/components/icons";
 import { CONDITION_LABELS } from "@/lib/types";
-import type { Listing } from "@/lib/types";
+import type { ListingCondition } from "@/lib/types";
 
 const MY_WALLET_INR = 5000; // demo-only cap for the "Max" cash button
 
+// The common shape both a listing (what the seller has for trade) and an
+// inventory item (what the proposer can offer, straight from their private
+// collection — no separate public listing required) reduce to for the picker.
+interface PickableItem {
+  id: string;
+  image: string;
+  title: string;
+  condition: ListingCondition;
+}
+
 function PickerCard({
-  listing,
+  item,
   selected,
   onToggle,
 }: {
-  listing: Listing;
+  item: PickableItem;
   selected: boolean;
   onToggle: () => void;
 }) {
@@ -33,7 +45,7 @@ function PickerCard({
       }`}
     >
       <div className="relative aspect-4/3 bg-zinc-800">
-        <Image src={listing.images[0]} alt={listing.title} fill unoptimized className="object-cover" />
+        <Image src={item.image} alt={item.title} fill unoptimized className="object-cover" />
         <div
           className={`absolute inset-0 transition ${selected ? "bg-orange-600/20" : "bg-black/0 group-hover:bg-black/10"}`}
         />
@@ -46,11 +58,9 @@ function PickerCard({
         </span>
       </div>
       <div className="bg-zinc-900 p-2">
-        <p className="line-clamp-1 text-xs font-semibold text-zinc-100">
-          {listing.castingName ?? listing.title}
-        </p>
+        <p className="line-clamp-1 text-xs font-semibold text-zinc-100">{item.title}</p>
         <p className="mt-0.5 text-[10px] font-medium text-zinc-500">
-          {CONDITION_LABELS[listing.condition]}
+          {CONDITION_LABELS[item.condition]}
         </p>
       </div>
     </button>
@@ -72,7 +82,7 @@ function OfferSide({
 }: {
   heading: string;
   subheading: string;
-  options: Listing[];
+  options: PickableItem[];
   selectedIds: string[];
   onToggle: (id: string) => void;
   emptyHint?: string;
@@ -107,18 +117,18 @@ function OfferSide({
         ) : (
           <>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {options.map((l) => (
+              {options.map((item) => (
                 <PickerCard
-                  key={l.id}
-                  listing={l}
-                  selected={selectedIds.includes(l.id)}
-                  onToggle={() => onToggle(l.id)}
+                  key={item.id}
+                  item={item}
+                  selected={selectedIds.includes(item.id)}
+                  onToggle={() => onToggle(item.id)}
                 />
               ))}
             </div>
-            {/* Still reachable once you already have items listed — this used
-                to only render on a fully-empty list, so there was no way to
-                list or pick another car for the offer afterward. */}
+            {/* Stays reachable once you already have items to offer — this
+                used to only render on a fully-empty list, so there was no
+                way to add a second car to the offer afterward. */}
             {emptyActions && <div className="mt-3">{emptyActions}</div>}
           </>
         )}
@@ -183,6 +193,7 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
   const { id } = use(params);
   const { listings, getListing, loading: listingsLoading } = useListings();
   const { addProposal } = useProposals();
+  const { items: myInventory } = useInventory();
   const { user, isAuthenticated } = useAuth();
 
   const listing = getListing(id);
@@ -195,23 +206,31 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [addCarOpen, setAddCarOpen] = useState(false);
 
-  const myListings = useMemo(
+  const myOfferOptions = useMemo<PickableItem[]>(
     () =>
-      listing
-        ? listings.filter(
-            (l) => !!user.id && l.sellerId === user.id && l.status === "ACTIVE" && l.id !== listing.id,
-          )
-        : [],
-    [listings, listing, user.id],
+      myInventory.map((item) => ({
+        id: item.id,
+        image: item.image,
+        title: item.castingName ?? item.title,
+        condition: item.condition,
+      })),
+    [myInventory],
   );
-  const theirListings = useMemo(
+  const theirOfferOptions = useMemo<PickableItem[]>(
     () =>
-      listing
+      (listing
         ? listings.filter(
             (l) => l.sellerId === listing.sellerId && l.type === "TRADE" && l.status === "ACTIVE",
           )
-        : [],
+        : []
+      ).map((l) => ({
+        id: l.id,
+        image: l.images[0],
+        title: l.castingName ?? l.title,
+        condition: l.condition,
+      })),
     [listings, listing],
   );
 
@@ -329,29 +348,22 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
             <OfferSide
               heading="Your Offer"
               subheading="What you're giving up"
-              options={myListings}
+              options={myOfferOptions}
               selectedIds={myOfferIds}
               onToggle={(itemId) =>
                 setMyOfferIds((prev) =>
                   prev.includes(itemId) ? prev.filter((x) => x !== itemId) : [...prev, itemId],
                 )
               }
-              emptyHint="List a car to trade it — or just offer cash below."
+              emptyHint="Add a car from your collection to trade it — or just offer cash below."
               emptyActions={
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  <Link
-                    href={`/sell?type=TRADE&next=${encodeURIComponent(`/listing/${listing.id}/propose`)}`}
-                    className="rounded-full bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-orange-700"
-                  >
-                    + List a car
-                  </Link>
-                  <Link
-                    href={`/inventory?next=${encodeURIComponent(`/listing/${listing.id}/propose`)}`}
-                    className="rounded-full border border-zinc-700 px-4 py-2 text-xs font-semibold text-zinc-300 transition hover:border-orange-400 hover:text-orange-400"
-                  >
-                    Pick from your collection
-                  </Link>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setAddCarOpen(true)}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-orange-700"
+                >
+                  <PlusIcon className="h-3.5 w-3.5" /> Add a car
+                </button>
               }
               cash={myCash}
               onCashChange={setMyCash}
@@ -362,7 +374,7 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
             <OfferSide
               heading={`${listing.seller.name}'s items`}
               subheading="What you'll receive"
-              options={theirListings}
+              options={theirOfferOptions}
               selectedIds={theirOfferIds}
               onToggle={(itemId) =>
                 setTheirOfferIds((prev) =>
@@ -420,6 +432,8 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
           </div>
         </>
       )}
+
+      <AddCarModal open={addCarOpen} onClose={() => setAddCarOpen(false)} />
     </main>
   );
 }

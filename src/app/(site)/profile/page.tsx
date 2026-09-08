@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,6 +8,7 @@ import { useListings } from "@/lib/listings-store";
 import { useProposals } from "@/lib/proposals-store";
 import { useBids } from "@/lib/bids-store";
 import { useAuth } from "@/lib/auth-store";
+import { createClient } from "@/lib/supabase/client";
 import { AuctionTimer, isAuctionEnded } from "@/components/AuctionTimer";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Avatar } from "@/components/Avatar";
@@ -78,6 +79,83 @@ function ItemChip({ listing }: { listing: Listing | undefined }) {
   );
 }
 
+function CashChip({ amount }: { amount: number }) {
+  return (
+    <div className="flex w-20 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md border border-emerald-800 bg-emerald-950 p-1.5 text-center">
+      <span className="text-sm font-bold text-emerald-400">{formatInr(amount)}</span>
+      <span className="text-[10px] text-emerald-500">cash</span>
+    </div>
+  );
+}
+
+// The proposer's side of the offer — real inventory items straight from
+// their private collection, not a public listing (see migration 0005's
+// comment). Fetched by id directly rather than through useInventory(),
+// since that hook only ever loads the *current* viewer's own inventory —
+// the seller reading a received proposal needs the proposer's items
+// instead, which migration 0006's RLS policy specifically allows.
+function OfferedItemChips({ ids, cash }: { ids: string[]; cash: number }) {
+  const [items, setItems] = useState<Record<string, { title: string; image: string }>>({});
+
+  useEffect(() => {
+    if (ids.length === 0) return;
+    let cancelled = false;
+    createClient()
+      .from("inventory")
+      .select("id, title, casting_name, image")
+      .in("id", ids)
+      .then(({ data }) => {
+        if (cancelled || !data) return;
+        const map: Record<string, { title: string; image: string }> = {};
+        for (const row of data as {
+          id: string;
+          title: string;
+          casting_name: string | null;
+          image: string;
+        }[]) {
+          map[row.id] = { title: row.casting_name ?? row.title, image: row.image };
+        }
+        setItems(map);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ids.join("|")]);
+
+  if (ids.length === 0 && cash <= 0) {
+    return <p className="text-xs text-zinc-500">Nothing offered</p>;
+  }
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {ids.map((id) => {
+        const item = items[id];
+        return item ? (
+          <div
+            key={id}
+            className="flex w-20 shrink-0 flex-col gap-1 rounded-md border border-zinc-700 bg-zinc-800 p-1.5"
+          >
+            <div className="relative h-12 w-full overflow-hidden rounded bg-zinc-900">
+              <Image src={item.image} alt={item.title} fill unoptimized className="object-cover" />
+            </div>
+            <p className="line-clamp-2 text-[10px] font-medium leading-tight text-zinc-300">
+              {item.title}
+            </p>
+          </div>
+        ) : (
+          <div
+            key={id}
+            className="flex w-20 shrink-0 items-center justify-center rounded-md border border-dashed border-zinc-700 p-2 text-center text-[10px] text-zinc-500"
+          >
+            Unavailable
+          </div>
+        );
+      })}
+      {cash > 0 && <CashChip amount={cash} />}
+    </div>
+  );
+}
+
 function ItemChips({ ids, cash }: { ids: string[]; cash: number }) {
   const { listings } = useListings();
   if (ids.length === 0 && cash <= 0) {
@@ -88,12 +166,7 @@ function ItemChips({ ids, cash }: { ids: string[]; cash: number }) {
       {ids.map((id) => (
         <ItemChip key={id} listing={listings.find((l) => l.id === id)} />
       ))}
-      {cash > 0 && (
-        <div className="flex w-20 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md border border-emerald-800 bg-emerald-950 p-1.5 text-center">
-          <span className="text-sm font-bold text-emerald-400">{formatInr(cash)}</span>
-          <span className="text-[10px] text-emerald-500">cash</span>
-        </div>
-      )}
+      {cash > 0 && <CashChip amount={cash} />}
     </div>
   );
 }
@@ -151,7 +224,7 @@ function ProposalCard({ proposal, direction }: { proposal: TradeProposal; direct
           <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
             {direction === "received" ? `${proposal.proposerName} offers` : "You offer"}
           </p>
-          <ItemChips ids={proposal.myItemIds} cash={proposal.myCash} />
+          <OfferedItemChips ids={proposal.myItemIds} cash={proposal.myCash} />
         </div>
         <div className="hidden text-zinc-700 sm:block">
           <SwapIcon className="h-5 w-5" />
