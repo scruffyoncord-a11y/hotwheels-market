@@ -22,8 +22,12 @@ export function Footer() {
               className="h-4 w-auto brightness-0 dark:brightness-100"
             />
           </div>
-          <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-            Trade and auction Hot Wheels and diecast cars with collectors near you.
+          <p className="mt-2 text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+            Built by collectors, for collectors — not scalpers.
+          </p>
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+            Every listing here is a genuine trade or auction between real collectors — no
+            scalping, no bots, no inflated flips.
           </p>
         </div>
 
@@ -56,6 +60,7 @@ export function Footer() {
         <div>
           <p className="text-xs font-semibold text-zinc-900 dark:text-white">Trading safely</p>
           <ul className="mt-2 flex flex-col gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+            <li>No scalping — every listing is a genuine trade or auction</li>
             <li>Meet in a public place or use tracked shipping</li>
             <li>Inspect the item before paying</li>
             <li>Negotiate and confirm details in chat first</li>
