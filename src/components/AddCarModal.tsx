@@ -6,7 +6,7 @@ import { useInventory } from "@/lib/inventory-store";
 import { useAuth } from "@/lib/auth-store";
 import { createClient } from "@/lib/supabase/client";
 import { uploadCarPhoto } from "@/lib/car-photos";
-import { placeholderImage } from "@/lib/placeholder";
+import { PLACEHOLDER_IMAGE } from "@/lib/placeholder";
 import { CameraIcon, XIcon } from "@/components/icons";
 import { CONDITION_LABELS, type ListingCondition } from "@/lib/types";
 
@@ -70,7 +70,7 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
       series: series.trim() || undefined,
       condition,
       notes: notes.trim() || undefined,
-      image: photo ?? placeholderImage(title, castingName || title),
+      image: photo ?? PLACEHOLDER_IMAGE,
     });
     if (submitError) {
       setError(submitError);

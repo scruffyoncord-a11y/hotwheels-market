@@ -8,7 +8,6 @@ import { ConditionBadge } from "@/components/ConditionBadge";
 import { ListingCard } from "@/components/ListingCard";
 import { AuctionTimer, AuctionTimerBig, isAuctionEnded } from "@/components/AuctionTimer";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { AiInsights } from "@/components/AiInsights";
 import { ReportButton } from "@/components/ReportButton";
 import {
   CheckIcon,
@@ -828,8 +827,6 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
               </div>
               <ReportButton targetType="listing" targetId={listing.id} />
             </div>
-
-            <AiInsights listing={listing} />
           </div>
         </div>
       </div>

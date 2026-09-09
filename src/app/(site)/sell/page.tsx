@@ -9,7 +9,7 @@ import { useInventory } from "@/lib/inventory-store";
 import { useAuth } from "@/lib/auth-store";
 import { createClient } from "@/lib/supabase/client";
 import { uploadCarPhoto } from "@/lib/car-photos";
-import { placeholderImage } from "@/lib/placeholder";
+import { PLACEHOLDER_IMAGE } from "@/lib/placeholder";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { CameraIcon, XIcon } from "@/components/icons";
@@ -128,9 +128,7 @@ function SellForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inventoryId]);
 
-  const previewSeed = title || "New Listing";
-  const fallbackPreview = placeholderImage(previewSeed + "-preview", castingName || title || "Preview");
-  const previewImage = frontPhoto ?? fallbackPreview;
+  const previewImage = frontPhoto ?? PLACEHOLDER_IMAGE;
   const isTrade = type === "TRADE";
   const isAuction = type === "AUCTION";
 

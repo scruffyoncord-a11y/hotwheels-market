@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450" viewBox="0 0 600 450">
+  <rect width="600" height="450" fill="#e4e4e7" />
+  <g transform="translate(150,190)" opacity="0.6">
+    <rect x="0" y="40" width="300" height="55" rx="14" fill="#a1a1aa" />
+    <path d="M20 40 L70 -10 L230 -10 L280 40 Z" fill="#a1a1aa" />
+    <circle cx="70" cy="100" r="32" fill="#71717a" />
+    <circle cx="70" cy="100" r="14" fill="#d4d4d8" />
+    <circle cx="230" cy="100" r="32" fill="#71717a" />
+    <circle cx="230" cy="100" r="14" fill="#d4d4d8" />
+  </g>
+  <text x="300" y="410" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#71717a" text-anchor="middle">No photo yet</text>
+</svg>
