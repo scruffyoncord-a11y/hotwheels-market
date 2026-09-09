@@ -68,6 +68,15 @@ export function Footer() {
         </div>
       </div>
 
+      <div className="border-t border-zinc-200 px-4 py-3 dark:border-zinc-900 sm:px-6">
+        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-400 dark:text-zinc-600">
+          <span>© {new Date().getFullYear()} LotClub. All rights reserved.</span>
+          <Link href="/terms" className="hover:text-orange-500 dark:hover:text-orange-400">
+            Terms &amp; Conditions
+          </Link>
+        </div>
+      </div>
+
       {/* Checkered-flag finish line, tilted for a subtle 3D racing feel. */}
       <div
         className="h-2.5 w-full origin-top"
