@@ -201,8 +201,8 @@ export default function TermsPage() {
       <Section title="15. Contact">
         <p>
           Questions about these Terms can be sent to{" "}
-          <a href="mailto:hello@lotclub.in" className="text-orange-600 hover:underline dark:text-orange-400">
-            hello@lotclub.in
+          <a href="mailto:lotclub.in@gmail.com" className="text-orange-600 hover:underline dark:text-orange-400">
+            lotclub.in@gmail.com
           </a>
           .
         </p>
