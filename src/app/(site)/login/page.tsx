@@ -40,14 +40,20 @@ function LoginForm() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpBusy, setOtpBusy] = useState(false);
   const [error, setError] = useState("");
+  const [agreed, setAgreed] = useState(false);
 
   function handleGoogle() {
+    if (!agreed) return;
     void signInWithGoogle(next);
   }
 
   function sendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    if (!agreed) {
+      setError("Please agree to the Terms & Conditions first.");
+      return;
+    }
     if (!/^\d{10}$/.test(phone.trim())) {
       setError("Enter a valid 10-digit mobile number.");
       return;
@@ -86,10 +92,27 @@ function LoginForm() {
         </div>
 
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 shadow-sm">
+          <label className="mb-4 flex items-start gap-2 text-xs text-zinc-400">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-zinc-600 bg-zinc-800 text-orange-500 focus:ring-orange-500"
+            />
+            <span>
+              I agree to LotClub&apos;s{" "}
+              <Link href="/terms" target="_blank" className="font-semibold text-orange-400 hover:underline">
+                Terms &amp; Conditions
+              </Link>
+              .
+            </span>
+          </label>
+
           <button
             onClick={handleGoogle}
-            disabled={googleBusy}
-            className="flex w-full items-center justify-center gap-2.5 rounded-full border border-zinc-700 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-100 disabled:opacity-60"
+            disabled={googleBusy || !agreed}
+            title={!agreed ? "Agree to the Terms & Conditions first" : undefined}
+            className="flex w-full items-center justify-center gap-2.5 rounded-full border border-zinc-700 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <GoogleGIcon />
             {googleBusy ? "Signing in..." : "Continue with Google"}
@@ -119,7 +142,9 @@ function LoginForm() {
               {error && <p className="text-xs text-rose-400">{error}</p>}
               <button
                 type="submit"
-                className="mt-1 rounded-full bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700"
+                disabled={!agreed}
+                title={!agreed ? "Agree to the Terms & Conditions first" : undefined}
+                className="mt-1 rounded-full bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Send OTP
               </button>
