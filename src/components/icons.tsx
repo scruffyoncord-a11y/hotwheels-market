@@ -212,10 +212,8 @@ export function SparkleIcon({ className = "h-4 w-4" }: IconProps) {
 export function HandshakeIcon({ className = "h-4 w-4" }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={base} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 11l4-3 4 2 2-1.5" />
-      <path d="M22 11l-4-3-4 2-2.5 2 2 2a1.4 1.4 0 0 0 2-2" />
-      <path d="M11.5 12l2 2a1.4 1.4 0 0 0 2-2l-2.3-2" />
-      <path d="M2 11l3 5 2 1M22 11l-3 5-3.5 2" />
+      <path d="M2.5 12v4M21.5 12v4" />
+      <path d="M2.5 12 5 9.5 7.5 12 10 9.5 12 12 14 9.5 16.5 12 19 9.5 21.5 12" />
     </svg>
   );
 }
