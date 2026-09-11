@@ -18,11 +18,15 @@ function NavLink({
   href,
   icon,
   badge,
+  glow,
   children,
 }: {
   href: string;
   icon?: React.ReactNode;
   badge?: React.ReactNode;
+  // Pulses a soft glow around the link — used to draw the eye to a new
+  // alert (e.g. a pending offer) without a jarring flicker.
+  glow?: boolean;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -35,7 +39,7 @@ function NavLink({
         active
           ? "bg-orange-600 text-white"
           : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
-      }`}
+      } ${glow ? "animate-bloom" : ""}`}
     >
       {icon}
       {children}
@@ -147,6 +151,7 @@ export function Header() {
             <NavLink
               href="/offers"
               icon={<HandshakeIcon className="h-3.5 w-3.5" />}
+              glow={pendingOffersCount > 0}
               badge={
                 pendingOffersCount > 0 && (
                   <span className="rounded-full bg-orange-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
@@ -204,6 +209,7 @@ export function Header() {
         <NavLink href="/inventory">Collection</NavLink>
         <NavLink
           href="/offers"
+          glow={pendingOffersCount > 0}
           badge={
             pendingOffersCount > 0 && (
               <span className="rounded-full bg-orange-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
