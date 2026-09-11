@@ -46,6 +46,9 @@ export interface Listing {
   // listing — the proposals themselves are private (only the two people
   // on one can see it), this is just a number kept in sync by a trigger.
   pendingOffersCount?: number;
+  // Set (in the future) while a paid boost is active — pins the listing
+  // to the top of the board. Paid via Razorpay, see src/lib/pricing.ts.
+  boostedUntil?: string;
   // The real, authenticated Supabase account that owns this listing —
   // this is the only thing "am I the seller" should ever be checked
   // against. `seller` below is a display-only snapshot.

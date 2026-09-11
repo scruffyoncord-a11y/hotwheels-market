@@ -11,6 +11,8 @@ import { AuctionTimerBig, isAuctionEnded } from "@/components/AuctionTimer";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { CheckIcon, DotIcon, HammerIcon, PauseIcon } from "@/components/icons";
 import { formatInr, timeAgo } from "@/lib/format";
+import { useRazorpayPayment } from "@/lib/use-razorpay";
+import { AUCTION_FEE_RATE } from "@/lib/pricing";
 
 const CALL_STEPS = [
   { label: "Accepting Bids", color: "bg-emerald-600 hover:bg-emerald-700" },
@@ -27,6 +29,7 @@ export default function HostAuctionPage({ params }: { params: Promise<{ id: stri
   const { user } = useAuth();
   const listing = getListing(id);
   const [callStage, setCallStage] = useState(0);
+  const { pay, busy, error } = useRazorpayPayment();
 
   const bids = listing ? bidsForListing(listing.id) : [];
   const topBid = listing ? highestBid(listing.id) : undefined;
@@ -70,9 +73,13 @@ export default function HostAuctionPage({ params }: { params: Promise<{ id: stri
     }
   }
 
-  function hammer() {
-    updateListing(listing!.id, { status: "SOLD", biddingPaused: true });
-    setCallStage(0);
+  async function hammer() {
+    const ok = await pay({
+      purpose: "auction_fee",
+      listingId: listing!.id,
+      description: `${(AUCTION_FEE_RATE * 100).toFixed(0)}% fee on "${listing!.title}"`,
+    });
+    if (ok) setCallStage(0);
   }
 
   function cancelAuction() {
@@ -189,16 +196,26 @@ export default function HostAuctionPage({ params }: { params: Promise<{ id: stri
               </div>
               <button
                 onClick={hammer}
-                disabled={callStage < CALL_STEPS.length - 1}
+                disabled={callStage < CALL_STEPS.length - 1 || busy}
                 className="mt-1 flex items-center justify-center gap-2 rounded-lg bg-zinc-900 px-5 py-4 text-lg font-black text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-30 dark:bg-zinc-50 dark:text-zinc-900"
               >
-                <HammerIcon className="h-5 w-5" /> SOLD!
+                <HammerIcon className="h-5 w-5" />
+                {busy
+                  ? "Processing payment…"
+                  : `SOLD! (pay ${(AUCTION_FEE_RATE * 100).toFixed(0)}% fee)`}
               </button>
               {callStage < CALL_STEPS.length - 1 && (
                 <p className="text-center text-xs text-zinc-400">
                   Call through all three warnings before the hammer.
                 </p>
               )}
+              {callStage === CALL_STEPS.length - 1 && !busy && (
+                <p className="text-center text-xs text-zinc-400">
+                  You&apos;ll pay a {(AUCTION_FEE_RATE * 100).toFixed(0)}% fee on the winning bid (
+                  {formatInr(Math.max(1, Math.round(currentBid * AUCTION_FEE_RATE)))}) via Razorpay before this closes.
+                </p>
+              )}
+              {error && <p className="text-center text-xs font-semibold text-rose-500">{error}</p>}
             </div>
           )}
 

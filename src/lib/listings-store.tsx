@@ -28,6 +28,7 @@ interface ListingRow {
   views: number;
   likes: number;
   pending_offers_count: number | null;
+  boosted_until: string | null;
   seller_id: string;
   seller_name: string;
   seller_city: string;
@@ -61,6 +62,7 @@ function rowToListing(r: ListingRow): Listing {
     views: r.views,
     likes: r.likes,
     pendingOffersCount: r.pending_offers_count ?? 0,
+    boostedUntil: r.boosted_until ?? undefined,
     sellerId: r.seller_id,
     seller: {
       name: r.seller_name,

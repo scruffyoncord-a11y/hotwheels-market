@@ -11,10 +11,12 @@ import { useAuth } from "@/lib/auth-store";
 import { AuctionTimer, isAuctionEnded } from "@/components/AuctionTimer";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Avatar } from "@/components/Avatar";
-import { CarIcon, HammerIcon, HandshakeIcon } from "@/components/icons";
+import { CarIcon, HammerIcon, HandshakeIcon, ZapIcon } from "@/components/icons";
 import { formatInr, timeAgo } from "@/lib/format";
 import { CONDITION_LABELS } from "@/lib/types";
 import type { Listing, ListingStatus } from "@/lib/types";
+import { useRazorpayPayment } from "@/lib/use-razorpay";
+import { BOOST_PRICE_INR } from "@/lib/pricing";
 
 function StatusBadge({ status }: { status: ListingStatus }) {
   const styles: Record<ListingStatus, string> = {
@@ -37,14 +39,20 @@ function StatusBadge({ status }: { status: ListingStatus }) {
 function MyListingRow({ listing }: { listing: Listing }) {
   const { updateListingStatus, removeListing } = useListings();
   const { highestBid } = useBids();
+  const { pay, busy, error } = useRazorpayPayment();
   const isTrade = listing.type === "TRADE";
   const isAuction = listing.type === "AUCTION";
   const topBid = isAuction ? highestBid(listing.id) : undefined;
+  const isBoosted = !!listing.boostedUntil && new Date(listing.boostedUntil).getTime() > Date.now();
 
   function remove() {
     if (window.confirm(`Remove "${listing.title}"? This can't be undone.`)) {
       removeListing(listing.id);
     }
+  }
+
+  async function boost() {
+    await pay({ purpose: "boost", listingId: listing.id, description: `Boost "${listing.title}" for 6 hours` });
   }
 
   return (
@@ -86,6 +94,15 @@ function MyListingRow({ listing }: { listing: Listing }) {
             <HammerIcon className="h-3.5 w-3.5" /> Host
           </Link>
         )}
+        {listing.status === "ACTIVE" && !isBoosted && (
+          <button
+            onClick={boost}
+            disabled={busy}
+            className="flex items-center justify-center gap-1.5 rounded-full border border-orange-800 px-3 py-1 text-xs font-semibold text-orange-400 transition hover:bg-orange-950 disabled:opacity-50"
+          >
+            <ZapIcon className="h-3.5 w-3.5" /> {busy ? "Processing…" : `Boost (₹${BOOST_PRICE_INR})`}
+          </button>
+        )}
         {listing.status === "ACTIVE" && (
           <button
             onClick={() => updateListingStatus(listing.id, "RESERVED")}
@@ -94,13 +111,21 @@ function MyListingRow({ listing }: { listing: Listing }) {
             Mark Reserved
           </button>
         )}
-        {listing.status !== "SOLD" && (
+        {listing.status !== "SOLD" && !isAuction && (
           <button
             onClick={() => updateListingStatus(listing.id, "SOLD")}
             className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-800"
           >
             Mark {isTrade ? "Traded" : "Sold"}
           </button>
+        )}
+        {listing.status !== "SOLD" && isAuction && (
+          <Link
+            href={`/listing/${listing.id}/host`}
+            className="rounded-full border border-zinc-700 px-3 py-1 text-center text-xs font-semibold text-zinc-300 transition hover:bg-zinc-800"
+          >
+            Close via Host
+          </Link>
         )}
         {listing.status !== "ACTIVE" && (
           <button
@@ -116,6 +141,7 @@ function MyListingRow({ listing }: { listing: Listing }) {
         >
           Remove
         </button>
+        {error && <p className="max-w-40 text-right text-xs text-rose-400">{error}</p>}
       </div>
     </div>
   );

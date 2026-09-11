@@ -9,7 +9,7 @@ import { useFavorites } from "@/lib/favorites-store";
 import { useAccess } from "@/lib/access-store";
 import { useAuth } from "@/lib/auth-store";
 import { formatInr, timeAgo } from "@/lib/format";
-import { HammerIcon, HeartIcon, LockIcon, PauseIcon, SwapIcon } from "./icons";
+import { HammerIcon, HeartIcon, LockIcon, PauseIcon, SwapIcon, ZapIcon } from "./icons";
 import type { Listing } from "@/lib/types";
 
 export function ListingCard({ listing }: { listing: Listing }) {
@@ -30,6 +30,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
   const bidCount = isAuction ? bidsForListing(listing.id).length : 0;
   const currentBid = isAuction ? (topBid?.amountInr ?? listing.startingBidInr ?? 0) : 0;
   const auctionOver = isAuction && listing.endsAt ? new Date(listing.endsAt).getTime() <= Date.now() : false;
+  const isBoosted = !!listing.boostedUntil && new Date(listing.boostedUntil).getTime() > Date.now();
 
   return (
     <Link
@@ -66,6 +67,11 @@ export function ListingCard({ listing }: { listing: Listing }) {
           {isPrivateAuction && (
             <span className="inline-flex items-center gap-1 rounded-full bg-zinc-900 px-2 py-0.5 text-[10px] font-bold text-white">
               <LockIcon className="h-2.5 w-2.5" /> Private
+            </span>
+          )}
+          {isBoosted && !sold && !reserved && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2 py-0.5 text-[10px] font-bold text-white">
+              <ZapIcon className="h-2.5 w-2.5" /> Boosted
             </span>
           )}
         </div>

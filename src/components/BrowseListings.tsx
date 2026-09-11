@@ -99,7 +99,13 @@ export function BrowseListings({
       return true;
     });
 
+    const isBoosted = (l: (typeof result)[number]) =>
+      !!l.boostedUntil && new Date(l.boostedUntil).getTime() > Date.now();
+
     result = [...result].sort((a, b) => {
+      const boostedA = isBoosted(a);
+      const boostedB = isBoosted(b);
+      if (boostedA !== boostedB) return boostedA ? -1 : 1;
       if (isAuction && sort === "ending-soon") {
         return new Date(a.endsAt ?? 0).getTime() - new Date(b.endsAt ?? 0).getTime();
       }
