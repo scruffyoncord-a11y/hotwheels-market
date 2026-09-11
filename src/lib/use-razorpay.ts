@@ -5,7 +5,10 @@ import { useAuth } from "@/lib/auth-store";
 
 declare global {
   interface Window {
-    Razorpay: new (options: RazorpayOptions) => { open: () => void };
+    Razorpay: new (options: RazorpayOptions) => {
+      open: () => void;
+      on: (event: "payment.failed", handler: (response: { error: { description: string } }) => void) => void;
+    };
   }
 }
 
@@ -98,6 +101,10 @@ export function useRazorpayPayment() {
           modal: {
             ondismiss: () => resolve(false),
           },
+        });
+        razorpay.on("payment.failed", (response) => {
+          setError(response.error.description || "Payment failed.");
+          resolve(false);
         });
         razorpay.open();
       });
