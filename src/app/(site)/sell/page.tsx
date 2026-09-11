@@ -12,6 +12,7 @@ import { uploadCarPhoto } from "@/lib/car-photos";
 import { PLACEHOLDER_IMAGE } from "@/lib/placeholder";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
+import { WatchAdModal } from "@/components/WatchAdModal";
 import { CameraIcon, XIcon } from "@/components/icons";
 import { CONDITION_LABELS, type ListingCondition, type ListingType } from "@/lib/types";
 
@@ -113,6 +114,7 @@ function SellForm() {
   const [isPrivate, setIsPrivate] = useState(false);
   const [error, setError] = useState("");
   const [prefilledFromInventory, setPrefilledFromInventory] = useState(false);
+  const [adOpen, setAdOpen] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
 
   useEffect(() => {
@@ -145,7 +147,7 @@ function SellForm() {
     setter(url);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!isAuthenticated || !user.id) {
@@ -187,6 +189,19 @@ function SellForm() {
       }
     }
 
+    // Trade listings watch an ad before publishing; auctions publish
+    // straight away.
+    if (isTrade) {
+      setAdOpen(true);
+      return;
+    }
+    void submitListing();
+  }
+
+  async function submitListing() {
+    if (!user.id || !frontPhoto || !backPhoto) return;
+    const startingBidInr = Number(startingBid);
+    const buyNowInr = buyNowPrice ? Number(buyNowPrice) : undefined;
     const id = crypto.randomUUID();
     const { error: submitError } = await addListing({
       id,
@@ -513,6 +528,16 @@ function SellForm() {
           </div>
         </SectionCard>
       </div>
+
+      {adOpen && (
+        <WatchAdModal
+          onClose={() => setAdOpen(false)}
+          onComplete={() => {
+            setAdOpen(false);
+            void submitListing();
+          }}
+        />
+      )}
     </main>
   );
 }

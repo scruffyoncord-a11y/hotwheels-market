@@ -8,6 +8,7 @@ import { useProposals } from "@/lib/proposals-store";
 import { useInventory } from "@/lib/inventory-store";
 import { useAuth } from "@/lib/auth-store";
 import { AddCarModal } from "@/components/AddCarModal";
+import { WatchAdModal } from "@/components/WatchAdModal";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { CheckIcon, PlusIcon, SwapIcon } from "@/components/icons";
 import { CONDITION_LABELS } from "@/lib/types";
@@ -207,6 +208,7 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [addCarOpen, setAddCarOpen] = useState(false);
+  const [adOpen, setAdOpen] = useState(false);
 
   const myOfferOptions = useMemo<PickableItem[]>(
     () =>
@@ -421,7 +423,7 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
                 </span>
               </div>
               <button
-                onClick={sendProposal}
+                onClick={() => setAdOpen(true)}
                 disabled={!canSend || sending}
                 className="w-full rounded-full bg-orange-600 py-3 text-base font-extrabold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-500"
               >
@@ -442,6 +444,15 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
       )}
 
       <AddCarModal open={addCarOpen} onClose={() => setAddCarOpen(false)} />
+      {adOpen && (
+        <WatchAdModal
+          onClose={() => setAdOpen(false)}
+          onComplete={() => {
+            setAdOpen(false);
+            void sendProposal();
+          }}
+        />
+      )}
     </main>
   );
 }
