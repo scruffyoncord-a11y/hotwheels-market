@@ -100,8 +100,17 @@ export function LandingPage({ onContinue }: { onContinue: () => void }) {
   return (
     <main className="flex-1">
       {/* Hero */}
-      <div className="border-b border-zinc-200 bg-gradient-to-b from-zinc-50 to-white dark:border-zinc-900 dark:from-zinc-950 dark:to-zinc-950">
-        <div className="mx-auto flex w-full max-w-4xl flex-col items-center px-4 py-16 text-center sm:px-6 sm:py-24">
+      <div className="relative overflow-hidden border-b border-zinc-200 bg-gradient-to-b from-zinc-50 to-white dark:border-zinc-900 dark:from-zinc-950 dark:to-zinc-950">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 hidden dark:block"
+          style={{
+            background:
+              "radial-gradient(600px circle at 30% 20%, rgba(249,115,22,0.16), transparent 60%), " +
+              "radial-gradient(500px circle at 75% 60%, rgba(139,92,246,0.14), transparent 60%)",
+          }}
+        />
+        <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center px-4 py-16 text-center sm:px-6 sm:py-24">
           <Image
             src="/logo-lockup-crop.png"
             alt="LotClub"
@@ -123,14 +132,14 @@ export function LandingPage({ onContinue }: { onContinue: () => void }) {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <button
               onClick={onContinue}
-              className="rounded-full bg-orange-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-orange-700"
+              className="rounded-full bg-orange-600 px-6 py-3 text-sm font-bold text-white shadow-[0_0_28px_rgba(249,115,22,0.35)] transition hover:bg-orange-700 hover:shadow-[0_0_36px_rgba(249,115,22,0.55)]"
             >
               Browse trades
             </button>
             <Link
               href="/auctions"
               onClick={onContinue}
-              className="rounded-full border border-zinc-300 px-6 py-3 text-sm font-bold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-300"
+              className="rounded-full border border-zinc-300 px-6 py-3 text-sm font-bold text-zinc-700 shadow-[0_0_20px_rgba(244,244,245,0.08)] transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-300 dark:hover:shadow-[0_0_24px_rgba(249,115,22,0.25)]"
             >
               See live auctions
             </Link>
@@ -238,7 +247,7 @@ export function LandingPage({ onContinue }: { onContinue: () => void }) {
           </h2>
           <button
             onClick={onContinue}
-            className="mt-6 rounded-full bg-orange-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-orange-700"
+            className="mt-6 rounded-full bg-orange-600 px-6 py-3 text-sm font-bold text-white shadow-[0_0_28px_rgba(249,115,22,0.4)] transition hover:bg-orange-700 hover:shadow-[0_0_36px_rgba(249,115,22,0.6)]"
           >
             Browse trades
           </button>
