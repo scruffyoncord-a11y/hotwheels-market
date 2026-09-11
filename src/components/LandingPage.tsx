@@ -237,14 +237,18 @@ export function LandingPage({ onContinue }: { onContinue: () => void }) {
       )}
 
       {/* Closing CTA */}
-      <div className="bg-zinc-900 dark:bg-black">
-        <div className="mx-auto flex w-full max-w-2xl flex-col items-center px-4 py-14 text-center sm:px-6">
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-orange-600 text-white">
+      <div className="bg-zinc-100 px-4 py-14 dark:bg-black sm:px-6">
+        <div className="mx-auto flex w-full max-w-2xl flex-col items-center rounded-3xl border border-zinc-200 bg-white px-4 py-12 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:px-6">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-600 text-white shadow-[0_0_24px_rgba(249,115,22,0.5)]">
             <CheckIcon className="h-5 w-5" />
           </span>
-          <h2 className="mt-4 text-2xl font-extrabold text-white">
+          <h2 className="mt-4 text-2xl font-extrabold text-zinc-900 dark:text-white">
             Ready to find your next trade?
           </h2>
+          <p className="mt-2 max-w-md text-sm text-zinc-500 dark:text-zinc-400">
+            Join real Hot Wheels collectors near you. List a car in under two minutes — every
+            listing is between genuine collectors, never a scalper.
+          </p>
           <button
             onClick={onContinue}
             className="mt-6 rounded-full bg-orange-600 px-6 py-3 text-sm font-bold text-white shadow-[0_0_28px_rgba(249,115,22,0.4)] transition hover:bg-orange-700 hover:shadow-[0_0_36px_rgba(249,115,22,0.6)]"
