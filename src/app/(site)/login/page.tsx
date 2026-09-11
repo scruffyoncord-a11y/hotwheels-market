@@ -38,16 +38,19 @@ function LoginForm() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [sendBusy, setSendBusy] = useState(false);
   const [otpBusy, setOtpBusy] = useState(false);
   const [error, setError] = useState("");
   const [agreed, setAgreed] = useState(false);
+
+  const phoneE164 = `+91${phone.trim()}`;
 
   function handleGoogle() {
     if (!agreed) return;
     void signInWithGoogle(next);
   }
 
-  function sendOtp(e: React.FormEvent) {
+  async function sendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     if (!agreed) {
@@ -58,10 +61,27 @@ function LoginForm() {
       setError("Enter a valid 10-digit mobile number.");
       return;
     }
-    setOtpSent(true);
+    setSendBusy(true);
+    try {
+      const res = await fetch("/api/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: phoneE164 }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Couldn't send the code.");
+        return;
+      }
+      setOtpSent(true);
+    } catch {
+      setError("Couldn't send the code — try again.");
+    } finally {
+      setSendBusy(false);
+    }
   }
 
-  function verifyOtp(e: React.FormEvent) {
+  async function verifyOtp(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     if (!/^\d{6}$/.test(otp.trim())) {
@@ -69,10 +89,24 @@ function LoginForm() {
       return;
     }
     setOtpBusy(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: phoneE164, code: otp.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Couldn't verify that code.");
+        return;
+      }
       signInWithPhone(phone.trim());
       router.push(next);
-    }, 500);
+    } catch {
+      setError("Couldn't verify that code — try again.");
+    } finally {
+      setOtpBusy(false);
+    }
   }
 
   return (
@@ -142,11 +176,11 @@ function LoginForm() {
               {error && <p className="text-xs text-rose-400">{error}</p>}
               <button
                 type="submit"
-                disabled={!agreed}
+                disabled={!agreed || sendBusy}
                 title={!agreed ? "Agree to the Terms & Conditions first" : undefined}
                 className="mt-1 rounded-full bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Send OTP
+                {sendBusy ? "Sending…" : "Send OTP"}
               </button>
             </form>
           ) : (
@@ -187,9 +221,6 @@ function LoginForm() {
           )}
         </div>
 
-        <p className="mt-4 text-center text-xs text-zinc-600">
-          Phone sign-in is demo mode — no real SMS is sent yet. Any 6-digit code works.
-        </p>
         <p className="mt-2 text-center text-sm">
           <Link href="/" className="font-semibold text-zinc-400 hover:text-orange-400">
             Continue as guest →
