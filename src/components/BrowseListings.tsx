@@ -5,10 +5,73 @@ import { useSearchParams } from "next/navigation";
 import { ListingCard } from "./ListingCard";
 import { EmptyState } from "./ui/EmptyState";
 import { PageHeader } from "./ui/PageHeader";
-import { SearchIcon } from "./icons";
+import { SearchIcon, ShieldIcon } from "./icons";
 import { useListings } from "@/lib/listings-store";
 import { useBids } from "@/lib/bids-store";
+import { formatInr, timeAgo } from "@/lib/format";
 import { CONDITION_LABELS, type ListingCondition, type ListingType } from "@/lib/types";
+
+function TrustCard() {
+  return (
+    <div className="rounded-2xl border border-emerald-800/60 bg-emerald-950/40 p-4">
+      <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-emerald-400">
+        <ShieldIcon className="h-3.5 w-3.5" /> Anti-Scalp Promise
+      </div>
+      <p className="mt-1.5 text-xs leading-relaxed text-emerald-200/80">
+        Every listing here is a real trade or auction between collectors — meet safely, inspect
+        before you commit, and confirm everything in chat.
+      </p>
+    </div>
+  );
+}
+
+// Built from real, publicly-readable activity (new listings and new
+// bids) — no fabricated "trade agreed" events, since proposals are
+// private between the two parties on one.
+function ActivityFeed() {
+  const { listings } = useListings();
+  const { bids } = useBids();
+
+  const events = useMemo(() => {
+    const listingEvents = listings.map((l) => ({
+      key: `l-${l.id}`,
+      label: `Listed: ${l.title}`,
+      timestamp: l.createdAt,
+    }));
+    const bidEvents = bids.map((b) => {
+      const listing = listings.find((l) => l.id === b.listingId);
+      return {
+        key: `b-${b.id}`,
+        label: `New bid: ${listing?.title ?? "a listing"} (${formatInr(b.amountInr)})`,
+        timestamp: b.createdAt,
+      };
+    });
+    return [...listingEvents, ...bidEvents]
+      .sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1))
+      .slice(0, 5);
+  }, [listings, bids]);
+
+  if (events.length === 0) return null;
+
+  return (
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+          Collector Activity
+        </h3>
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+      </div>
+      <ul className="flex flex-col gap-1.5">
+        {events.map((e) => (
+          <li key={e.key} className="flex items-baseline justify-between gap-2 text-xs">
+            <span className="truncate text-zinc-300">{e.label}</span>
+            <span className="shrink-0 text-zinc-500">{timeAgo(e.timestamp)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 const CONDITIONS = Object.keys(CONDITION_LABELS) as ListingCondition[];
 type SortKey = "newest" | "price-asc" | "price-desc" | "ending-soon" | "bid-desc";
@@ -192,7 +255,11 @@ export function BrowseListings({
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <aside className={`w-full shrink-0 lg:block lg:w-56 ${filtersOpen ? "block" : "hidden"}`}>
-          <div className="lg:sticky lg:top-32">{filterPanel}</div>
+          <div className="flex flex-col gap-4 lg:sticky lg:top-32">
+            {filterPanel}
+            <TrustCard />
+            <ActivityFeed />
+          </div>
         </aside>
 
         <div className="flex-1">

@@ -1,10 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
+import { CheckIcon, ShieldIcon } from "./icons";
+
+const SAFETY_ITEMS = [
+  { title: "Public Meetup", body: "Meet the other collector in a public place." },
+  { title: "Tracked Shipping", body: "Use tracked shipping if you're not meeting in person." },
+  { title: "Condition Inspection", body: "Inspect the item before paying or handing anything over." },
+  { title: "Chat Confirmation", body: "Negotiate and confirm every detail in chat first." },
+];
 
 export function Footer() {
   return (
     <footer className="mt-auto bg-white text-zinc-600 dark:bg-zinc-950 dark:text-zinc-300">
-      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-6 border-t border-zinc-200 px-4 py-6 dark:border-zinc-900 sm:grid-cols-3 sm:px-6">
+      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-6 border-t border-zinc-200 px-4 py-6 dark:border-zinc-900 sm:grid-cols-2 sm:px-6 lg:grid-cols-[1fr_1fr_1.6fr]">
         <div>
           <div className="flex items-center gap-2">
             <Image
@@ -57,14 +65,32 @@ export function Footer() {
           </ul>
         </div>
 
-        <div>
-          <p className="text-xs font-semibold text-zinc-900 dark:text-white">Trading safely</p>
-          <ul className="mt-2 flex flex-col gap-1 text-xs text-zinc-500 dark:text-zinc-400">
-            <li>No scalping — every listing is a genuine trade or auction</li>
-            <li>Meet in a public place or use tracked shipping</li>
-            <li>Inspect the item before paying</li>
-            <li>Negotiate and confirm details in chat first</li>
-          </ul>
+        <div className="rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-semibold text-zinc-900 dark:text-white">
+              Trading Safety Checklist
+            </p>
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+              <ShieldIcon className="h-2.5 w-2.5" /> Anti-Scalp Protocol
+            </span>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {SAFETY_ITEMS.map((item) => (
+              <div key={item.title} className="flex items-start gap-2">
+                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
+                  <CheckIcon className="h-2.5 w-2.5" />
+                </span>
+                <div>
+                  <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
+                    {item.title}
+                  </p>
+                  <p className="text-[11px] leading-snug text-zinc-500 dark:text-zinc-400">
+                    {item.body}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

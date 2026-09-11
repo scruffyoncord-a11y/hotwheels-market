@@ -15,10 +15,12 @@ function TrustCard({
   icon,
   title,
   body,
+  tag,
 }: {
   icon: React.ReactNode;
   title: string;
   body: string;
+  tag: string;
 }) {
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
@@ -27,6 +29,9 @@ function TrustCard({
       </span>
       <p className="mt-3 text-sm font-bold text-zinc-900 dark:text-zinc-50">{title}</p>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{body}</p>
+      <p className="mt-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-orange-500 dark:text-orange-400">
+        <span className="h-1.5 w-1.5 rounded-full bg-orange-500 dark:bg-orange-400" /> {tag}
+      </p>
     </div>
   );
 }
@@ -37,19 +42,21 @@ function StepCard({
   title,
   steps,
   accent,
+  footnote,
 }: {
   icon: React.ReactNode;
   eyebrow: string;
   title: string;
   steps: string[];
   accent: "violet" | "red";
+  footnote: string;
 }) {
   const accentClasses =
     accent === "violet"
       ? "bg-violet-100 text-violet-600 dark:bg-violet-950 dark:text-violet-400"
       : "bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400";
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
       <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${accentClasses}`}>
         {icon}
       </span>
@@ -67,15 +74,28 @@ function StepCard({
           </li>
         ))}
       </ol>
+      <p className="mt-4 border-t border-zinc-100 pt-3 text-xs text-zinc-400 dark:border-zinc-800 dark:text-zinc-500">
+        {footnote}
+      </p>
+    </div>
+  );
+}
+
+function StatPill({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="flex flex-col items-center">
+      <p className="text-xl font-extrabold text-zinc-900 dark:text-zinc-50 sm:text-2xl">{value}</p>
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+        {label}
+      </p>
     </div>
   );
 }
 
 export function LandingPage({ onContinue }: { onContinue: () => void }) {
   const { listings } = useListings();
-  const previewListings = listings
-    .filter((l) => l.status === "ACTIVE")
-    .slice(0, 4);
+  const activeListings = listings.filter((l) => l.status === "ACTIVE");
+  const previewListings = activeListings.slice(0, 4);
 
   return (
     <main className="flex-1">
@@ -115,6 +135,11 @@ export function LandingPage({ onContinue }: { onContinue: () => void }) {
               See live auctions
             </Link>
           </div>
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+            <StatPill value={String(activeListings.length)} label="Active Listings" />
+            <StatPill value="0%" label="Scalper Markup" />
+            <StatPill value="100%" label="Google-Verified" />
+          </div>
         </div>
       </div>
 
@@ -134,16 +159,19 @@ export function LandingPage({ onContinue }: { onContinue: () => void }) {
             icon={<ShieldIcon className="h-5 w-5" />}
             title="No scalping, ever"
             body="Trades happen car-for-car, and auctions go to the highest genuine bid — nobody's marking up a restock to flip it."
+            tag="Fair Play Protocol"
           />
           <TrustCard
             icon={<UsersIcon className="h-5 w-5" />}
             title="Real accounts only"
             body="Every collector signs in with a real Google account and builds a public trading history — no anonymous flipping."
+            tag="1-Click Google Auth"
           />
           <TrustCard
             icon={<HandshakeIcon className="h-5 w-5" />}
             title="Confirmed both ways"
             body="A trade only closes once both sides confirm it actually happened — no one-sided disputes."
+            tag="Dual-Party Lock"
           />
         </div>
       </div>
@@ -165,6 +193,7 @@ export function LandingPage({ onContinue }: { onContinue: () => void }) {
                 "Other collectors propose trades using cars from their own collection",
                 "Accept an offer, coordinate the handover, and confirm the trade",
               ]}
+              footnote="Direct collector swap — no cash changes hands."
             />
             <StepCard
               icon={<HammerIcon className="h-5 w-5" />}
@@ -176,6 +205,7 @@ export function LandingPage({ onContinue }: { onContinue: () => void }) {
                 "Collectors place max bids — we only bid as much as needed to keep them ahead",
                 "A late bid extends the clock, so the real highest bidder always wins",
               ]}
+              footnote="Anti-snipe extension keeps the last few minutes fair."
             />
           </div>
         </div>
