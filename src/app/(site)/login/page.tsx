@@ -137,6 +137,10 @@ function LoginForm() {
               I agree to LotClub&apos;s{" "}
               <Link href="/terms" target="_blank" className="font-semibold text-orange-400 hover:underline">
                 Terms &amp; Conditions
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacy" target="_blank" className="font-semibold text-orange-400 hover:underline">
+                Privacy Policy
               </Link>
               .
             </span>

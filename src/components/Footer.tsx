@@ -71,9 +71,14 @@ export function Footer() {
       <div className="border-t border-zinc-200 px-4 py-3 dark:border-zinc-900 sm:px-6">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-400 dark:text-zinc-600">
           <span>© {new Date().getFullYear()} LotClub. All rights reserved.</span>
-          <Link href="/terms" className="hover:text-orange-500 dark:hover:text-orange-400">
-            Terms &amp; Conditions
-          </Link>
+          <span className="flex gap-3">
+            <Link href="/terms" className="hover:text-orange-500 dark:hover:text-orange-400">
+              Terms &amp; Conditions
+            </Link>
+            <Link href="/privacy" className="hover:text-orange-500 dark:hover:text-orange-400">
+              Privacy Policy
+            </Link>
+          </span>
         </div>
       </div>
 
