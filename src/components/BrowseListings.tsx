@@ -5,25 +5,11 @@ import { useSearchParams } from "next/navigation";
 import { ListingCard } from "./ListingCard";
 import { EmptyState } from "./ui/EmptyState";
 import { PageHeader } from "./ui/PageHeader";
-import { SearchIcon, ShieldIcon } from "./icons";
+import { SearchIcon } from "./icons";
 import { useListings } from "@/lib/listings-store";
 import { useBids } from "@/lib/bids-store";
 import { formatInr, timeAgo } from "@/lib/format";
 import { CONDITION_LABELS, type ListingCondition, type ListingType } from "@/lib/types";
-
-function TrustCard() {
-  return (
-    <div className="rounded-2xl border border-emerald-800/60 bg-emerald-950/40 p-4">
-      <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-emerald-400">
-        <ShieldIcon className="h-3.5 w-3.5" /> Anti-Scalp Promise
-      </div>
-      <p className="mt-1.5 text-xs leading-relaxed text-emerald-200/80">
-        Every listing here is a real trade or auction between collectors — meet safely, inspect
-        before you commit, and confirm everything in chat.
-      </p>
-    </div>
-  );
-}
 
 // Built from real, publicly-readable activity (new listings and new
 // bids) — no fabricated "trade agreed" events, since proposals are
@@ -257,7 +243,6 @@ export function BrowseListings({
         <aside className={`w-full shrink-0 lg:block lg:w-56 ${filtersOpen ? "block" : "hidden"}`}>
           <div className="flex flex-col gap-4 lg:sticky lg:top-32">
             {filterPanel}
-            <TrustCard />
             <ActivityFeed />
           </div>
         </aside>
