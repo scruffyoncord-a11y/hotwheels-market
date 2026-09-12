@@ -276,9 +276,9 @@ function ProfileContent() {
                   Settings
                 </Link>
               </div>
-              <p className="text-sm text-zinc-400">
-                ★ 5.0{(user.city ?? myListings[0]?.seller.city) ? ` · ${user.city ?? myListings[0]?.seller.city}` : ""}
-              </p>
+              {(user.city ?? myListings[0]?.seller.city) && (
+                <p className="text-sm text-zinc-400">{user.city ?? myListings[0]?.seller.city}</p>
+              )}
               <p className="text-xs italic text-zinc-500">Collector since {joinedLabel}</p>
             </div>
           </div>

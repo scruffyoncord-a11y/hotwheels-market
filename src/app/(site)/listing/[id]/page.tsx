@@ -820,10 +820,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                 <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
                   {listing.seller.name}
                 </p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  ★ {listing.seller.rating.toFixed(1)} · {listing.seller.dealsCompleted} deals ·{" "}
-                  {listing.seller.city}
-                </p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">{listing.seller.city}</p>
               </div>
               <ReportButton targetType="listing" targetId={listing.id} />
             </div>

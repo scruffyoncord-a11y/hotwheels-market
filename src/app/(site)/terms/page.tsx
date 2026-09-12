@@ -103,8 +103,18 @@ export default function TermsPage() {
 
       <Section title="6. Fees">
         <p>
-          LotClub does not currently charge fees to list, trade, or bid. We may introduce fees in
-          the future; if we do, we will provide reasonable notice before they apply to you.
+          Listing and trading is free. LotClub charges two optional, seller-paid fees: a fixed fee
+          to boost a listing&apos;s visibility for a set time, and a percentage fee on the winning
+          bid to close a completed auction. Current amounts are shown before you pay. These fees
+          are processed through Razorpay and are covered by our{" "}
+          <a
+            href="/refund-policy"
+            className="text-orange-600 hover:underline dark:text-orange-400"
+          >
+            Refund Policy
+          </a>
+          . We may introduce or change fees in the future; if we do, we will provide reasonable
+          notice before they apply to you.
         </p>
       </Section>
 
