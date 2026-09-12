@@ -32,6 +32,9 @@ import { useBids } from "@/lib/bids-store";
 import { useFavorites } from "@/lib/favorites-store";
 import { useAccess } from "@/lib/access-store";
 import { useAuth } from "@/lib/auth-store";
+import { createClient } from "@/lib/supabase/client";
+import { getProfileById, type Profile } from "@/lib/profile";
+import { StarRating } from "@/components/StarRating";
 import { formatInr, timeAgo } from "@/lib/format";
 import { CONDITION_LABELS } from "@/lib/types";
 
@@ -64,6 +67,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const [extendedFlash, setExtendedFlash] = useState(false);
   const [accessTokenParam, setAccessTokenParam] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [sellerProfile, setSellerProfile] = useState<Profile | null>(null);
   const similarRailRef = useRef<HTMLDivElement>(null);
   const prevTopBidIdRef = useRef<string | undefined>(undefined);
   const prevEndsAtRef = useRef<string | undefined>(undefined);
@@ -78,6 +82,17 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   useEffect(() => {
     setAccessTokenParam(new URLSearchParams(window.location.search).get("access"));
   }, []);
+
+  useEffect(() => {
+    if (!listing?.sellerId) return;
+    let cancelled = false;
+    getProfileById(createClient(), listing.sellerId).then((p) => {
+      if (!cancelled) setSellerProfile(p);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [listing?.sellerId]);
 
   useEffect(() => {
     if (!listing || !isPrivateAuction || !accessTokenParam) return;
@@ -820,7 +835,12 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                 <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
                   {listing.seller.name}
                 </p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">{listing.seller.city}</p>
+                <p className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                  {sellerProfile && (
+                    <StarRating sum={sellerProfile.ratingSum} count={sellerProfile.ratingCount} />
+                  )}
+                  <span>{listing.seller.city}</span>
+                </p>
               </div>
               <ReportButton targetType="listing" targetId={listing.id} />
             </div>

@@ -163,6 +163,8 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
         avatarUrl: profile?.avatarUrl ?? null,
         city: profile?.city ?? null,
         collectionPublic: profile?.collectionPublic ?? false,
+        ratingSum: profile?.ratingSum ?? 0,
+        ratingCount: profile?.ratingCount ?? 0,
       });
     }
 

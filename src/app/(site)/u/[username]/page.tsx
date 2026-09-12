@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ListingCard } from "@/components/ListingCard";
 import { ConditionBadge } from "@/components/ConditionBadge";
 import { Avatar } from "@/components/Avatar";
+import { StarRating } from "@/components/StarRating";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CarIcon, LockIcon } from "@/components/icons";
 import { ReportButton } from "@/components/ReportButton";
@@ -92,9 +93,12 @@ export default function PublicProfilePage({
           <Avatar name={name} url={profile.avatarUrl ?? undefined} size={64} className="text-2xl" />
           <div>
             <h1 className="text-xl font-bold text-zinc-50">{name}</h1>
-            <p className="text-sm text-zinc-400">
-              @{profile.username}
-              {profile.city ? ` · ${profile.city}` : ""}
+            <p className="flex flex-wrap items-center gap-1.5 text-sm text-zinc-400">
+              <span>
+                @{profile.username}
+                {profile.city ? ` · ${profile.city}` : ""}
+              </span>
+              <StarRating sum={profile.ratingSum} count={profile.ratingCount} />
             </p>
           </div>
           <ReportButton targetType="user" targetId={profile.id} className="ml-auto self-start" />

@@ -55,6 +55,9 @@ interface ProposalsContextValue {
   // Only the seller can call this, only once a FAILED outcome has left
   // their listing stuck at RESERVED with nothing decided yet.
   resolveFailedTrade: (proposalId: string, relist: boolean) => Promise<{ error?: string }>;
+  // Either side of a COMPLETED trade can rate the other, once (enforced
+  // server-side by submit_trade_rating(), see migration 0012).
+  submitRating: (proposalId: string, stars: number) => Promise<{ error?: string }>;
 }
 
 const ProposalsContext = createContext<ProposalsContextValue | null>(null);
@@ -160,6 +163,13 @@ export function ProposalsProvider({ children }: { children: React.ReactNode }) {
         const { error } = await supabase.rpc("resolve_failed_trade", {
           p_proposal_id: proposalId,
           p_relist: relist,
+        });
+        return error ? { error: error.message } : {};
+      },
+      submitRating: async (proposalId, stars) => {
+        const { error } = await supabase.rpc("submit_trade_rating", {
+          p_proposal_id: proposalId,
+          p_stars: stars,
         });
         return error ? { error: error.message } : {};
       },

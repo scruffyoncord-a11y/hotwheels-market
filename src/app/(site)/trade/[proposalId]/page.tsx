@@ -1,18 +1,20 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useProposals } from "@/lib/proposals-store";
 import { useListings } from "@/lib/listings-store";
 import { useAuth } from "@/lib/auth-store";
+import { createClient } from "@/lib/supabase/client";
 import { SectionCard } from "@/components/ui/SectionCard";
 import {
   ListingItemChips,
   OfferedItemChips,
   ProposalStatusBadge,
 } from "@/components/ProposalChips";
-import { CheckIcon, SwapIcon, XIcon } from "@/components/icons";
+import { StarPicker } from "@/components/StarPicker";
+import { CheckIcon, StarIcon, SwapIcon, XIcon } from "@/components/icons";
 
 export default function TradeConfirmationPage({
   params,
@@ -20,14 +22,50 @@ export default function TradeConfirmationPage({
   params: Promise<{ proposalId: string }>;
 }) {
   const { proposalId } = use(params);
-  const { proposals, loading, confirmTradeOutcome, resolveFailedTrade } = useProposals();
+  const { proposals, loading, confirmTradeOutcome, resolveFailedTrade, submitRating } =
+    useProposals();
   const { getListing } = useListings();
   const { user } = useAuth();
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [myRating, setMyRating] = useState<number | null>(null);
+  const [ratingLoaded, setRatingLoaded] = useState(false);
+  const [ratingError, setRatingError] = useState<string | null>(null);
 
   const proposal = proposals.find((p) => p.id === proposalId);
+
+  useEffect(() => {
+    if (!proposal || proposal.status !== "COMPLETED" || !user.id) return;
+    let cancelled = false;
+    createClient()
+      .from("ratings")
+      .select("stars")
+      .eq("proposal_id", proposal.id)
+      .eq("rater_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!cancelled) {
+          setMyRating(data?.stars ?? null);
+          setRatingLoaded(true);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [proposal, user.id]);
+
+  async function rate(stars: number) {
+    setBusy(true);
+    setRatingError(null);
+    const { error: err } = await submitRating(proposalId, stars);
+    setBusy(false);
+    if (err) {
+      setRatingError(err);
+      return;
+    }
+    setMyRating(stars);
+  }
 
   if (loading) {
     return (
@@ -178,6 +216,29 @@ export default function TradeConfirmationPage({
               Trade completed with {counterparty}!
             </p>
             <p className="mt-1 text-xs text-zinc-500">This listing has been marked sold.</p>
+
+            {ratingLoaded && (
+              <div className="mx-auto mt-5 max-w-xs border-t border-zinc-800 pt-5">
+                {myRating ? (
+                  <p className="flex items-center justify-center gap-1 text-sm font-medium text-zinc-300">
+                    You rated {counterparty}
+                    <span className="inline-flex items-center gap-0.5 text-amber-400">
+                      <StarIcon className="h-4 w-4" filled /> {myRating}
+                    </span>
+                  </p>
+                ) : (
+                  <>
+                    <p className="mb-2 text-sm font-semibold text-zinc-100">
+                      How was trading with {counterparty}?
+                    </p>
+                    <div className="flex justify-center">
+                      <StarPicker onSubmit={rate} busy={busy} />
+                    </div>
+                    {ratingError && <p className="mt-2 text-xs text-rose-500">{ratingError}</p>}
+                  </>
+                )}
+              </div>
+            )}
           </SectionCard>
         )}
 

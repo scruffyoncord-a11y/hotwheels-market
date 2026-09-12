@@ -7,6 +7,10 @@ export interface Profile {
   avatarUrl: string | null;
   city: string | null;
   collectionPublic: boolean;
+  // Rolled up by the submit_trade_rating() RPC each time someone rates a
+  // completed trade with this person — never written directly.
+  ratingSum: number;
+  ratingCount: number;
 }
 
 interface ProfileRow {
@@ -16,6 +20,8 @@ interface ProfileRow {
   avatar_url: string | null;
   city: string | null;
   collection_public: boolean;
+  rating_sum: number;
+  rating_count: number;
 }
 
 function rowToProfile(r: ProfileRow): Profile {
@@ -26,10 +32,20 @@ function rowToProfile(r: ProfileRow): Profile {
     avatarUrl: r.avatar_url,
     city: r.city,
     collectionPublic: r.collection_public,
+    ratingSum: r.rating_sum,
+    ratingCount: r.rating_count,
   };
 }
 
 export async function getMyProfile(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<Profile | null> {
+  const { data } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
+  return data ? rowToProfile(data as ProfileRow) : null;
+}
+
+export async function getProfileById(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<Profile | null> {

@@ -11,12 +11,14 @@ import { useAuth } from "@/lib/auth-store";
 import { AuctionTimer, isAuctionEnded } from "@/components/AuctionTimer";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Avatar } from "@/components/Avatar";
+import { StarRating } from "@/components/StarRating";
 import { CarIcon, HammerIcon, HandshakeIcon, ZapIcon } from "@/components/icons";
 import { formatInr, timeAgo } from "@/lib/format";
 import { CONDITION_LABELS } from "@/lib/types";
 import type { Listing, ListingStatus } from "@/lib/types";
 import { useRazorpayPayment } from "@/lib/use-razorpay";
 import { BOOST_PRICE_INR } from "@/lib/pricing";
+import { useMyProfile } from "@/lib/use-my-profile";
 
 function StatusBadge({ status }: { status: ListingStatus }) {
   const styles: Record<ListingStatus, string> = {
@@ -217,6 +219,7 @@ function ProfileContent() {
   const { proposals } = useProposals();
   const { bids } = useBids();
   const { user } = useAuth();
+  const { profile } = useMyProfile();
   const initialTab = searchParams.get("tab") === "bids" ? "bids" : "listings";
   const [tab, setTab] = useState<"listings" | "bids">(initialTab);
 
@@ -276,9 +279,12 @@ function ProfileContent() {
                   Settings
                 </Link>
               </div>
-              {(user.city ?? myListings[0]?.seller.city) && (
-                <p className="text-sm text-zinc-400">{user.city ?? myListings[0]?.seller.city}</p>
-              )}
+              <div className="flex items-center gap-2 text-sm text-zinc-400">
+                {profile && <StarRating sum={profile.ratingSum} count={profile.ratingCount} />}
+                {(user.city ?? myListings[0]?.seller.city) && (
+                  <span>{user.city ?? myListings[0]?.seller.city}</span>
+                )}
+              </div>
               <p className="text-xs italic text-zinc-500">Collector since {joinedLabel}</p>
             </div>
           </div>
