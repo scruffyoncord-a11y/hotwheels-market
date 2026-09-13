@@ -138,7 +138,6 @@ function SellForm() {
   const [prefilledFromInventory, setPrefilledFromInventory] = useState(false);
   const [adOpen, setAdOpen] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
-  const [readingCard, setReadingCard] = useState(false);
 
   useEffect(() => {
     if (!inventoryId) return;
@@ -168,39 +167,6 @@ function SellForm() {
       return;
     }
     setter(url);
-  }
-
-  // Only the back photo triggers a read — it has the actual printed
-  // name/series text, while the front is mostly logo/graphics that was
-  // producing worse (sometimes garbage) guesses.
-  async function runCardOcr(file: File) {
-    setReadingCard(true);
-    try {
-      const { recognizeCardText, guessDetailsFromCardText } = await import("@/lib/ocr");
-      const text = await recognizeCardText(file);
-      const guess = guessDetailsFromCardText(text);
-      if (guess.castingName) {
-        setCastingName((prev) => prev || guess.castingName!);
-        setTitle((prev) => prev || guess.castingName!);
-      }
-      if (guess.series) {
-        setSeries((prev) => prev || guess.series!);
-      }
-    } catch {
-      // Best-effort convenience only — the seller can always type these
-      // fields in by hand, so a failed read is silently ignored.
-    } finally {
-      setReadingCard(false);
-    }
-  }
-
-  function handleFrontPhotoChange(file: File) {
-    void handleSlotChange(file, setFrontPhoto);
-  }
-
-  function handleBackPhotoChange(file: File) {
-    void handleSlotChange(file, setBackPhoto);
-    void runCardOcr(file);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -351,21 +317,17 @@ function SellForm() {
             <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
               Photos <span className="text-zinc-400">— at least 2 required</span>
             </span>
-            <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-              Tip: keep the printed name on the card clearly visible and in focus — Title, Casting
-              name &amp; Series autofill from it, but a blurry or angled shot won&apos;t read well.
-            </p>
             <div className="mt-1.5 grid grid-cols-4 gap-2">
               <PhotoSlot
                 label="Front"
                 photo={frontPhoto}
-                onChange={handleFrontPhotoChange}
+                onChange={(file) => handleSlotChange(file, setFrontPhoto)}
                 onRemove={() => setFrontPhoto(null)}
               />
               <PhotoSlot
                 label="Back"
                 photo={backPhoto}
-                onChange={handleBackPhotoChange}
+                onChange={(file) => handleSlotChange(file, setBackPhoto)}
                 onRemove={() => setBackPhoto(null)}
               />
               {extraPhotos.map((photo, i) => (
@@ -392,13 +354,6 @@ function SellForm() {
               )}
             </div>
           </div>
-
-          {readingCard && (
-            <p className="-mb-2 flex items-center gap-1.5 text-xs font-medium text-orange-500">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-orange-500" />
-              Reading the packaging photo — Title, Casting name &amp; Series will autofill if found.
-            </p>
-          )}
 
           <Field label="Title">
             <input

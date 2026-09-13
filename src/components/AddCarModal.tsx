@@ -26,7 +26,6 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
   const [photo, setPhoto] = useState<string | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [readingCard, setReadingCard] = useState(false);
   const [error, setError] = useState("");
 
   if (!open) return null;
@@ -39,7 +38,6 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
     setNotes("");
     setPhoto(null);
     setPhotoPreview(null);
-    setReadingCard(false);
     setError("");
   }
 
@@ -55,24 +53,6 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
       return;
     }
     setPhoto(url);
-
-    setReadingCard(true);
-    try {
-      const { recognizeCardText, guessDetailsFromCardText } = await import("@/lib/ocr");
-      const text = await recognizeCardText(file);
-      const guess = guessDetailsFromCardText(text);
-      if (guess.castingName) {
-        setCastingName((prev) => prev || guess.castingName!);
-        setTitle((prev) => prev || guess.castingName!);
-      }
-      if (guess.series) {
-        setSeries((prev) => prev || guess.series!);
-      }
-    } catch {
-      // Best-effort convenience only — silently ignore a failed read.
-    } finally {
-      setReadingCard(false);
-    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -174,18 +154,6 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
           >
             <CameraIcon className="h-3.5 w-3.5" /> Use camera
           </button>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Tip: keep the printed name on the card clearly visible and in focus — Title, Casting
-            &amp; Series autofill from it, but a blurry or angled shot won&apos;t read well.
-          </p>
-
-          {readingCard && (
-            <p className="flex items-center gap-1.5 text-xs font-medium text-orange-600 dark:text-orange-400">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-orange-500" />
-              Reading the photo — Title, Casting &amp; Series will autofill if found.
-            </p>
-          )}
-
           <label className="flex flex-col gap-1">
             <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Title</span>
             <input
