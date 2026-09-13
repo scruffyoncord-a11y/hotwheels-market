@@ -47,6 +47,8 @@ const KNOWN_SERIES = [
   "Pop Culture",
   "Entertainment",
   "Fast & Furious",
+  "Formula 1",
+  "Formula One",
   "Red Line Club",
   "Retro Racers",
   "Mainline",
@@ -56,6 +58,25 @@ const KNOWN_SERIES = [
 const NOISE_LINE = /copyright|mattel|made in|choking|hazard|warning|www\.|\.com|barcode/i;
 const MOSTLY_NON_LETTERS = /^[\d\s./\\_-]+$/;
 
+// Words Tesseract commonly misreads on glossy/stylized packaging print,
+// corrected so a recognizable brand name doesn't end up misspelled in
+// the autofilled fields.
+const WORD_CORRECTIONS: Record<string, string> = {
+  HARTIN: "MARTIN",
+  ARANCO: "ARAMCO",
+};
+
+function cleanLine(line: string): string {
+  return line
+    // A stray 1-3 letter OCR artifact immediately before a ©/®/™ mark,
+    // e.g. "IR © ASTON MARTIN..." — drop the artifact and the mark.
+    .replace(/^\s*[A-Za-z]{1,3}\s*[©®™]\s*/, "")
+    .replace(/[©®™]/g, "")
+    .replace(/\b[A-Za-z]+\b/g, (word) => WORD_CORRECTIONS[word.toUpperCase()] ?? word)
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 export interface CardOcrGuess {
   castingName?: string;
   series?: string;
@@ -64,7 +85,7 @@ export interface CardOcrGuess {
 export function guessDetailsFromCardText(rawText: string): CardOcrGuess {
   const lines = rawText
     .split(/\r?\n/)
-    .map((l) => l.trim())
+    .map((l) => cleanLine(l))
     .filter((l) => l.length >= 3 && /[a-zA-Z]/.test(l));
 
   const series = KNOWN_SERIES.find((s) =>
