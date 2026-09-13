@@ -154,6 +154,10 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
               </span>
             )}
           </button>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Tip: keep the printed name on the card clearly visible and in focus — Title, Casting
+            &amp; Series autofill from it, but a blurry or angled shot won&apos;t read well.
+          </p>
 
           {readingCard && (
             <p className="flex items-center gap-1.5 text-xs font-medium text-orange-600 dark:text-orange-400">

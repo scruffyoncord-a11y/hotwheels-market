@@ -328,6 +328,10 @@ function SellForm() {
             <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
               Photos <span className="text-zinc-400">— at least 2 required</span>
             </span>
+            <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+              Tip: keep the printed name on the card clearly visible and in focus — Title, Casting
+              name &amp; Series autofill from it, but a blurry or angled shot won&apos;t read well.
+            </p>
             <div className="mt-1.5 grid grid-cols-4 gap-2">
               <PhotoSlot
                 label="Front"
