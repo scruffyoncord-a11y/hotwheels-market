@@ -13,6 +13,7 @@ import { useAuth } from "@/lib/auth-store";
 import { useMyProfile } from "@/lib/use-my-profile";
 import { setCollectionPublic } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/client";
+import type { InventoryItem } from "@/lib/types";
 
 function CollectionPrivacyCard() {
   const { user } = useAuth();
@@ -70,8 +71,71 @@ function CollectionPrivacyCard() {
   );
 }
 
+function CollectionCard({ item }: { item: InventoryItem }) {
+  const { removeItem } = useInventory();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  async function remove() {
+    if (!window.confirm(`Remove "${item.title}" from your collection?`)) return;
+    setBusy(true);
+    setError("");
+    const { error: err } = await removeItem(item.id);
+    setBusy(false);
+    if (err) setError(err);
+  }
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="relative aspect-square bg-zinc-100 dark:bg-zinc-800">
+        <Image src={item.image} alt={item.title} fill unoptimized className="object-cover" />
+        <div className="absolute left-2 top-2">
+          <ConditionBadge condition={item.condition} />
+        </div>
+      </div>
+      <div className="p-3">
+        <p className="line-clamp-1 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+          {item.title}
+        </p>
+        {item.series && (
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">{item.series}</p>
+        )}
+        {item.notes && (
+          <p className="mt-1 line-clamp-2 text-xs text-zinc-500 dark:text-zinc-400">
+            {item.notes}
+          </p>
+        )}
+        <div className="mt-2 flex flex-col gap-1.5">
+          <div className="flex gap-1.5">
+            <Link
+              href={`/sell?type=TRADE&inventoryId=${item.id}`}
+              className="flex-1 rounded-full bg-violet-600 px-2 py-1.5 text-center text-xs font-semibold text-white transition hover:bg-violet-700"
+            >
+              List for Trade
+            </Link>
+            <Link
+              href={`/sell?type=AUCTION&inventoryId=${item.id}`}
+              className="flex-1 rounded-full bg-red-600 px-2 py-1.5 text-center text-xs font-semibold text-white transition hover:bg-red-700"
+            >
+              Auction
+            </Link>
+          </div>
+          <button
+            onClick={remove}
+            disabled={busy}
+            className="flex items-center justify-center gap-1.5 rounded-full bg-zinc-100 py-1.5 text-xs text-zinc-600 transition hover:bg-rose-50 hover:text-rose-600 disabled:opacity-60 dark:bg-zinc-800 dark:text-zinc-300"
+          >
+            <TrashIcon className="h-3.5 w-3.5" /> {busy ? "Removing…" : "Remove"}
+          </button>
+          {error && <p className="text-center text-[11px] text-rose-500">{error}</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function InventoryPage() {
-  const { items, removeItem } = useInventory();
+  const { items } = useInventory();
   const { isAuthenticated } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -126,52 +190,7 @@ export default function InventoryPage() {
             <span className="text-sm font-semibold">Add a car</span>
           </button>
           {items.map((item) => (
-            <div
-              key={item.id}
-              className="overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
-            >
-              <div className="relative aspect-square bg-zinc-100 dark:bg-zinc-800">
-                <Image src={item.image} alt={item.title} fill unoptimized className="object-cover" />
-                <div className="absolute left-2 top-2">
-                  <ConditionBadge condition={item.condition} />
-                </div>
-              </div>
-              <div className="p-3">
-                <p className="line-clamp-1 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                  {item.title}
-                </p>
-                {item.series && (
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{item.series}</p>
-                )}
-                {item.notes && (
-                  <p className="mt-1 line-clamp-2 text-xs text-zinc-500 dark:text-zinc-400">
-                    {item.notes}
-                  </p>
-                )}
-                <div className="mt-2 flex flex-col gap-1.5">
-                  <div className="flex gap-1.5">
-                    <Link
-                      href={`/sell?type=TRADE&inventoryId=${item.id}`}
-                      className="flex-1 rounded-full bg-violet-600 px-2 py-1.5 text-center text-xs font-semibold text-white transition hover:bg-violet-700"
-                    >
-                      List for Trade
-                    </Link>
-                    <Link
-                      href={`/sell?type=AUCTION&inventoryId=${item.id}`}
-                      className="flex-1 rounded-full bg-red-600 px-2 py-1.5 text-center text-xs font-semibold text-white transition hover:bg-red-700"
-                    >
-                      Auction
-                    </Link>
-                  </div>
-                  <button
-                    onClick={() => removeItem(item.id)}
-                    className="flex items-center justify-center gap-1.5 rounded-full bg-zinc-100 py-1.5 text-xs text-zinc-600 transition hover:bg-rose-50 hover:text-rose-600 dark:bg-zinc-800 dark:text-zinc-300"
-                  >
-                    <TrashIcon className="h-3.5 w-3.5" /> Remove
-                  </button>
-                </div>
-              </div>
-            </div>
+            <CollectionCard key={item.id} item={item} />
           ))}
         </div>
       )}

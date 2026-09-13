@@ -37,7 +37,7 @@ interface InventoryContextValue {
   loading: boolean;
   addItem: (item: NewInventoryItem) => Promise<{ error?: string }>;
   getItem: (id: string) => InventoryItem | undefined;
-  removeItem: (id: string) => void;
+  removeItem: (id: string) => Promise<{ error?: string }>;
 }
 
 const InventoryContext = createContext<InventoryContextValue | null>(null);
@@ -95,9 +95,18 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         return {};
       },
       getItem: (id) => items.find((i) => i.id === id),
-      removeItem: (id) => {
+      removeItem: async (id) => {
+        const removed = items.find((i) => i.id === id);
         setItems((prev) => prev.filter((i) => i.id !== id));
-        void supabase.from("inventory").delete().eq("id", id);
+        const { error } = await supabase.from("inventory").delete().eq("id", id);
+        if (error) {
+          // The delete didn't actually happen server-side — put it back
+          // rather than leave the UI showing it gone until a reload
+          // brings it right back anyway.
+          if (removed) setItems((prev) => [removed, ...prev]);
+          return { error: error.message };
+        }
+        return {};
       },
     }),
     [items, loading, supabase, user.id],
