@@ -117,6 +117,7 @@ function SellForm() {
   const [prefilledFromInventory, setPrefilledFromInventory] = useState(false);
   const [adOpen, setAdOpen] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
+  const [readingCard, setReadingCard] = useState(false);
 
   useEffect(() => {
     if (!inventoryId) return;
@@ -146,6 +147,28 @@ function SellForm() {
       return;
     }
     setter(url);
+  }
+
+  async function handleBackPhotoChange(file: File) {
+    void handleSlotChange(file, setBackPhoto);
+    setReadingCard(true);
+    try {
+      const { recognizeCardText, guessDetailsFromCardText } = await import("@/lib/ocr");
+      const text = await recognizeCardText(file);
+      const guess = guessDetailsFromCardText(text);
+      if (guess.castingName) {
+        setCastingName((prev) => prev || guess.castingName!);
+        setTitle((prev) => prev || guess.castingName!);
+      }
+      if (guess.series) {
+        setSeries((prev) => prev || guess.series!);
+      }
+    } catch {
+      // Best-effort convenience only — the seller can always type these
+      // fields in by hand, so a failed read is silently ignored.
+    } finally {
+      setReadingCard(false);
+    }
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -306,7 +329,7 @@ function SellForm() {
               <PhotoSlot
                 label="Back"
                 photo={backPhoto}
-                onChange={(file) => handleSlotChange(file, setBackPhoto)}
+                onChange={(file) => void handleBackPhotoChange(file)}
                 onRemove={() => setBackPhoto(null)}
               />
               {extraPhotos.map((photo, i) => (
@@ -333,6 +356,13 @@ function SellForm() {
               )}
             </div>
           </div>
+
+          {readingCard && (
+            <p className="-mb-2 flex items-center gap-1.5 text-xs font-medium text-orange-500">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-orange-500" />
+              Reading the card back — Title, Casting name &amp; Series will autofill if found.
+            </p>
+          )}
 
           <Field label="Title">
             <input
