@@ -170,41 +170,21 @@ function SellForm() {
     setter(url);
   }
 
-  // The back of the card reads more reliably than the front (the front is
-  // mostly logo/graphics, the back has the actual printed name), so a
-  // back-photo read is treated as authoritative: it overwrites whatever
-  // the front's read already guessed. It still won't touch a field the
-  // seller has typed something else into — frontGuessRef tracks exactly
-  // what the front's read put there, so "still equal to that" is how we
-  // tell "still an autofill" apart from "the seller edited this."
-  const frontGuessRef = useRef<{ castingName?: string; title?: string; series?: string }>({});
-
-  async function runCardOcr(file: File, source: "front" | "back") {
+  // Only the back photo triggers a read — it has the actual printed
+  // name/series text, while the front is mostly logo/graphics that was
+  // producing worse (sometimes garbage) guesses.
+  async function runCardOcr(file: File) {
     setReadingCard(true);
     try {
       const { recognizeCardText, guessDetailsFromCardText } = await import("@/lib/ocr");
       const text = await recognizeCardText(file);
       const guess = guessDetailsFromCardText(text);
-
-      if (source === "front") {
-        if (guess.castingName) {
-          setCastingName((prev) => prev || guess.castingName!);
-          setTitle((prev) => prev || guess.castingName!);
-          frontGuessRef.current.castingName = guess.castingName;
-          frontGuessRef.current.title = guess.castingName;
-        }
-        if (guess.series) {
-          setSeries((prev) => prev || guess.series!);
-          frontGuessRef.current.series = guess.series;
-        }
-      } else {
-        if (guess.castingName) {
-          setCastingName((prev) => (!prev || prev === frontGuessRef.current.castingName ? guess.castingName! : prev));
-          setTitle((prev) => (!prev || prev === frontGuessRef.current.title ? guess.castingName! : prev));
-        }
-        if (guess.series) {
-          setSeries((prev) => (!prev || prev === frontGuessRef.current.series ? guess.series! : prev));
-        }
+      if (guess.castingName) {
+        setCastingName((prev) => prev || guess.castingName!);
+        setTitle((prev) => prev || guess.castingName!);
+      }
+      if (guess.series) {
+        setSeries((prev) => prev || guess.series!);
       }
     } catch {
       // Best-effort convenience only — the seller can always type these
@@ -216,12 +196,11 @@ function SellForm() {
 
   function handleFrontPhotoChange(file: File) {
     void handleSlotChange(file, setFrontPhoto);
-    void runCardOcr(file, "front");
   }
 
   function handleBackPhotoChange(file: File) {
     void handleSlotChange(file, setBackPhoto);
-    void runCardOcr(file, "back");
+    void runCardOcr(file);
   }
 
   function handleSubmit(e: React.FormEvent) {
