@@ -15,6 +15,7 @@ import { SectionCard } from "@/components/ui/SectionCard";
 import { WatchAdModal } from "@/components/WatchAdModal";
 import { CameraIcon, XIcon } from "@/components/icons";
 import { CONDITION_LABELS, type ListingCondition, type ListingType } from "@/lib/types";
+import { MAJOR_INDIAN_CITIES } from "@/lib/cities";
 
 const CONDITIONS = Object.keys(CONDITION_LABELS) as ListingCondition[];
 
@@ -380,7 +381,8 @@ function SellForm() {
                 <input
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  placeholder="e.g. Bengaluru"
+                  list="major-cities"
+                  placeholder="Any city in India"
                   className="input"
                 />
               </Field>
@@ -538,6 +540,12 @@ function SellForm() {
           }}
         />
       )}
+
+      <datalist id="major-cities">
+        {MAJOR_INDIAN_CITIES.map((c) => (
+          <option key={c} value={c} />
+        ))}
+      </datalist>
     </main>
   );
 }
