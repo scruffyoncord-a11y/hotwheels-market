@@ -34,6 +34,7 @@ import { useAccess } from "@/lib/access-store";
 import { useAuth } from "@/lib/auth-store";
 import { createClient } from "@/lib/supabase/client";
 import { getProfileById, type Profile } from "@/lib/profile";
+import { Avatar } from "@/components/Avatar";
 import { StarRating } from "@/components/StarRating";
 import { formatInr, timeAgo } from "@/lib/format";
 import { CONDITION_LABELS } from "@/lib/types";
@@ -825,23 +826,47 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
             <div className="border-t border-zinc-100 dark:border-zinc-800" />
 
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-200 text-sm font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-                {listing.seller.name
-                  .split(" ")
-                  .map((p) => p[0])
-                  .join("")}
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                  {listing.seller.name}
-                </p>
-                <p className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-                  {sellerProfile && (
-                    <StarRating sum={sellerProfile.ratingSum} count={sellerProfile.ratingCount} />
-                  )}
-                  <span>{listing.seller.city}</span>
-                </p>
-              </div>
+              {sellerProfile?.username ? (
+                <Link
+                  href={`/u/${sellerProfile.username}`}
+                  className="group flex flex-1 items-center gap-3"
+                >
+                  <Avatar
+                    name={listing.seller.name}
+                    url={sellerProfile.avatarUrl ?? undefined}
+                    size={44}
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-zinc-900 group-hover:text-orange-600 dark:text-zinc-50 dark:group-hover:text-orange-400">
+                      {listing.seller.name}
+                    </p>
+                    <p className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                      <StarRating sum={sellerProfile.ratingSum} count={sellerProfile.ratingCount} />
+                      <span>{listing.seller.city}</span>
+                    </p>
+                  </div>
+                </Link>
+              ) : (
+                <div className="flex flex-1 items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-200 text-sm font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                    {listing.seller.name
+                      .split(" ")
+                      .map((p) => p[0])
+                      .join("")}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+                      {listing.seller.name}
+                    </p>
+                    <p className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                      {sellerProfile && (
+                        <StarRating sum={sellerProfile.ratingSum} count={sellerProfile.ratingCount} />
+                      )}
+                      <span>{listing.seller.city}</span>
+                    </p>
+                  </div>
+                </div>
+              )}
               <ReportButton targetType="listing" targetId={listing.id} />
             </div>
           </div>
