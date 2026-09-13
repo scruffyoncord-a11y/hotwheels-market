@@ -78,7 +78,7 @@ function WishlistCard({
           </span>
         )}
         {available && offerCount > 0 && (
-          <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-zinc-800 shadow">
+          <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-xl bg-white px-2 py-0.5 text-[10px] font-bold text-zinc-800 shadow">
             <FlameIcon className="h-2.5 w-2.5" /> {offerCount} {isAuction ? (offerCount === 1 ? "bid" : "bids") : offerCount === 1 ? "offer" : "offers"}
           </span>
         )}
@@ -169,13 +169,13 @@ export default function WishlistPage() {
             <>
               <Link
                 href="/"
-                className="rounded-full bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700"
+                className="rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700"
               >
                 Browse trades
               </Link>
               <Link
                 href="/auctions"
-                className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-red-400 dark:border-zinc-700 dark:text-zinc-300"
+                className="rounded-xl border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-red-400 dark:border-zinc-700 dark:text-zinc-300"
               >
                 Browse auctions
               </Link>
@@ -205,7 +205,7 @@ export default function WishlistPage() {
             {visible.length > 0 && (
               <button
                 onClick={selectAll}
-                className="flex items-center gap-1.5 rounded-full border border-zinc-200 px-3 py-1.5 text-sm font-semibold text-zinc-700 shadow-sm transition hover:border-orange-400 dark:border-zinc-700 dark:text-zinc-300"
+                className="flex items-center gap-1.5 rounded-xl border border-zinc-200 px-3 py-1.5 text-sm font-semibold text-zinc-700 shadow-sm transition hover:border-orange-400 dark:border-zinc-700 dark:text-zinc-300"
               >
                 {selectedIds.size === visible.length ? "Deselect all" : "Select all"}
               </button>
@@ -255,7 +255,7 @@ export default function WishlistPage() {
               <button
                 onClick={removeSelected}
                 disabled={selectedIds.size === 0}
-                className="rounded-full bg-rose-600 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-zinc-300 dark:disabled:bg-zinc-700"
+                className="rounded-xl bg-rose-600 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-zinc-300 dark:disabled:bg-zinc-700"
               >
                 Remove Selected
               </button>

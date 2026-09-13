@@ -37,7 +37,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="rounded-full px-3 py-1.5 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
+                  className="rounded-xl px-3 py-1.5 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
                 >
                   {item.label}
                 </Link>
@@ -46,7 +46,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <span className="text-xs text-zinc-500 dark:text-zinc-400">{user.email}</span>
             <Link
               href="https://lotclub.in"
-              className="rounded-full border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-600 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-300"
+              className="rounded-xl border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-600 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-300"
             >
               ← Back to site
             </Link>

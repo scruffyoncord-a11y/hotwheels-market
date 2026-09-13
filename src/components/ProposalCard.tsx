@@ -107,7 +107,7 @@ export function ProposalCard({
             </p>
             <Link
               href={`/trade/${proposal.id}`}
-              className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-700"
+              className="rounded-xl bg-emerald-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-700"
             >
               Confirm trade →
             </Link>
@@ -136,7 +136,7 @@ export function ProposalCard({
             {needsResolution ? (
               <Link
                 href={`/trade/${proposal.id}`}
-                className="rounded-full bg-orange-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-orange-700"
+                className="rounded-xl bg-orange-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-orange-700"
               >
                 Resolve listing →
               </Link>
@@ -145,7 +145,7 @@ export function ProposalCard({
               listing && (
                 <Link
                   href={`/listing/${proposal.listingId}`}
-                  className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:border-orange-500 hover:text-orange-400"
+                  className="rounded-xl border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:border-orange-500 hover:text-orange-400"
                 >
                   Make Another Offer
                 </Link>
@@ -159,13 +159,13 @@ export function ProposalCard({
               <>
                 <button
                   onClick={accept}
-                  className="flex-1 rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700"
+                  className="flex-1 rounded-xl bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700"
                 >
                   Accept
                 </button>
                 <button
                   onClick={decline}
-                  className="flex-1 rounded-full border border-rose-800 px-4 py-1.5 text-xs font-semibold text-rose-400 transition hover:bg-rose-950"
+                  className="flex-1 rounded-xl border border-rose-800 px-4 py-1.5 text-xs font-semibold text-rose-400 transition hover:bg-rose-950"
                 >
                   Decline
                 </button>
@@ -173,7 +173,7 @@ export function ProposalCard({
             ) : (
               <button
                 onClick={decline}
-                className="rounded-full border border-zinc-700 px-4 py-1.5 text-xs font-semibold text-zinc-400 transition hover:border-rose-800 hover:text-rose-400"
+                className="rounded-xl border border-zinc-700 px-4 py-1.5 text-xs font-semibold text-zinc-400 transition hover:border-rose-800 hover:text-rose-400"
               >
                 Withdraw proposal
               </button>

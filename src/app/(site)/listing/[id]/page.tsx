@@ -237,12 +237,12 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
             </p>
           </div>
           {myAccessRequest?.status === "PENDING" ? (
-            <p className="rounded-full bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+            <p className="rounded-xl bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-300">
               Request sent — waiting on {listing.seller.name}
             </p>
           ) : myAccessRequest?.status === "DENIED" ? (
             <div className="flex flex-col items-center gap-2">
-              <p className="rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 dark:bg-rose-950 dark:text-rose-300">
+              <p className="rounded-xl bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 dark:bg-rose-950 dark:text-rose-300">
                 Your request was declined
               </p>
               <button
@@ -255,7 +255,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
           ) : (
             <button
               onClick={() => requestAccess(listing.id, viewerName)}
-              className="rounded-full bg-red-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-red-700"
+              className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-red-700"
             >
               Request Access
             </button>
@@ -278,7 +278,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                       setLinkCopied(true);
                       setTimeout(() => setLinkCopied(false), 1800);
                     }}
-                    className="rounded-full bg-zinc-900 px-3 py-1 text-xs font-semibold text-white transition hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900"
+                    className="rounded-xl bg-zinc-900 px-3 py-1 text-xs font-semibold text-white transition hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900"
                   >
                     {linkCopied ? "Copied!" : "Copy invite link"}
                   </button>
@@ -310,13 +310,13 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                         <div className="flex shrink-0 gap-1.5">
                           <button
                             onClick={() => respondToRequest(r.id, true)}
-                            className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-700"
+                            className="rounded-xl bg-emerald-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-700"
                           >
                             Approve
                           </button>
                           <button
                             onClick={() => respondToRequest(r.id, false)}
-                            className="rounded-full border border-rose-300 px-3 py-1 text-xs font-semibold text-rose-600 transition hover:bg-rose-50 dark:border-rose-800 dark:hover:bg-rose-950"
+                            className="rounded-xl border border-rose-300 px-3 py-1 text-xs font-semibold text-rose-600 transition hover:bg-rose-50 dark:border-rose-800 dark:hover:bg-rose-950"
                           >
                             Decline
                           </button>
@@ -343,7 +343,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                 />
                 {disabled && (
                   <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/50">
-                    <span className="rounded-full bg-white px-4 py-1.5 text-base font-bold uppercase tracking-wide text-zinc-900">
+                    <span className="rounded-xl bg-white px-4 py-1.5 text-base font-bold uppercase tracking-wide text-zinc-900">
                       {isAuction && (auctionEnded || listing.status === "SOLD")
                         ? "Auction Ended"
                         : listing.status === "SOLD"
@@ -380,7 +380,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                   >
                     <ChevronRightIcon className="h-4 w-4" />
                   </button>
-                  <span className="absolute bottom-2 right-2 rounded-full bg-black/50 px-2 py-0.5 text-xs font-medium text-white">
+                  <span className="absolute bottom-2 right-2 rounded-xl bg-black/50 px-2 py-0.5 text-xs font-medium text-white">
                     {activeImage + 1} / {listing.images.length}
                   </span>
                 </>
@@ -482,7 +482,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                         >
                           {b.bidderName}
                           {isLeading && (
-                            <span className="ml-1.5 rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700">
+                            <span className="ml-1.5 rounded-xl bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700">
                               HIGH BID
                             </span>
                           )}
@@ -513,32 +513,32 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
               <div>
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   {isTrade && (
-                    <span className="inline-flex items-center rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-medium text-violet-800">
+                    <span className="inline-flex items-center rounded-xl bg-violet-100 px-2.5 py-0.5 text-xs font-medium text-violet-800">
                       Trade
                     </span>
                   )}
                   {isAuction && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+                    <span className="inline-flex items-center gap-1 rounded-xl bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
                       <HammerIcon className="h-3 w-3" /> Auction
                     </span>
                   )}
                   {isAuction && !disabled && !biddingPaused && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-2.5 py-0.5 text-xs font-bold text-white">
+                    <span className="inline-flex items-center gap-1 rounded-xl bg-red-600 px-2.5 py-0.5 text-xs font-bold text-white">
                       <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> LIVE
                     </span>
                   )}
                   {isAuction && biddingPaused && !disabled && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800">
+                    <span className="inline-flex items-center gap-1 rounded-xl bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800">
                       <PauseIcon className="h-2.5 w-2.5" /> Paused
                     </span>
                   )}
                   {isPrivateAuction && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-zinc-900 px-2.5 py-0.5 text-xs font-bold text-white dark:bg-zinc-50 dark:text-zinc-900">
+                    <span className="inline-flex items-center gap-1 rounded-xl bg-zinc-900 px-2.5 py-0.5 text-xs font-bold text-white dark:bg-zinc-50 dark:text-zinc-900">
                       <LockIcon className="h-2.5 w-2.5" /> Private
                     </span>
                   )}
                   {listing.series && (
-                    <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                    <span className="rounded-xl bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                       {listing.series}
                     </span>
                   )}
@@ -626,17 +626,17 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
             {/* Stats bar */}
             <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
               {isPopular && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 font-semibold text-orange-700 dark:bg-orange-950 dark:text-orange-300">
+                <span className="inline-flex items-center gap-1 rounded-xl bg-orange-50 px-2.5 py-1 font-semibold text-orange-700 dark:bg-orange-950 dark:text-orange-300">
                   <FlameIcon className="h-3 w-3" /> Popular
                 </span>
               )}
               {isTrade && offerCount > 0 && (
-                <span className="rounded-full bg-zinc-100 px-2.5 py-1 font-medium dark:bg-zinc-800">
+                <span className="rounded-xl bg-zinc-100 px-2.5 py-1 font-medium dark:bg-zinc-800">
                   {offerCount} {offerCount === 1 ? "offer" : "offers"} made
                 </span>
               )}
               {isAuction && (
-                <span className="rounded-full bg-zinc-100 px-2.5 py-1 font-medium dark:bg-zinc-800">
+                <span className="rounded-xl bg-zinc-100 px-2.5 py-1 font-medium dark:bg-zinc-800">
                   {listingBids.length} {listingBids.length === 1 ? "bid" : "bids"}
                 </span>
               )}
@@ -675,7 +675,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                     </p>
                     <Link
                       href={`/login?next=${encodeURIComponent(`/listing/${listing.id}`)}`}
-                      className="rounded-full bg-red-600 px-5 py-2 text-sm font-bold text-white transition hover:bg-red-700"
+                      className="rounded-xl bg-red-600 px-5 py-2 text-sm font-bold text-white transition hover:bg-red-700"
                     >
                       Sign in to bid
                     </Link>
@@ -701,7 +701,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                             key={amt}
                             type="button"
                             onClick={() => setBidAmount(String(amt))}
-                            className="rounded-full border border-zinc-300 px-3 py-1 text-sm font-medium text-zinc-700 transition hover:border-red-400 hover:text-red-600 dark:border-zinc-700 dark:text-zinc-300"
+                            className="rounded-xl border border-zinc-300 px-3 py-1 text-sm font-medium text-zinc-700 transition hover:border-red-400 hover:text-red-600 dark:border-zinc-700 dark:text-zinc-300"
                           >
                             {formatInr(amt)}
                           </button>
@@ -715,12 +715,12 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                         value={bidAmount}
                         onChange={(e) => setBidAmount(e.target.value)}
                         placeholder={`${formatInr(nextMinBid)} or more`}
-                        className="flex-1 rounded-full border border-zinc-300 px-4 py-2 text-sm outline-none focus:border-red-500 dark:border-zinc-700 dark:bg-zinc-950"
+                        className="flex-1 rounded-xl border border-zinc-300 px-4 py-2 text-sm outline-none focus:border-red-500 dark:border-zinc-700 dark:bg-zinc-950"
                       />
                       <button
                         type="submit"
                         disabled={bidSubmitting}
-                        className="rounded-full bg-red-600 px-5 py-2 text-sm font-bold text-white transition hover:bg-red-700 disabled:opacity-60"
+                        className="rounded-xl bg-red-600 px-5 py-2 text-sm font-bold text-white transition hover:bg-red-700 disabled:opacity-60"
                       >
                         {bidSubmitting ? "Placing…" : "Place Bid"}
                       </button>
@@ -735,7 +735,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                 )}
                 <button
                   onClick={() => setChatOpen((v) => !v)}
-                  className="flex items-center justify-center gap-2 rounded-full border border-zinc-300 px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:border-red-400 dark:border-zinc-700 dark:text-zinc-300"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-zinc-300 px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:border-red-400 dark:border-zinc-700 dark:text-zinc-300"
                   title="Message seller"
                 >
                   <MessageIcon className="h-4 w-4" /> Ask a question
@@ -749,20 +749,20 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
             ) : (
               <div className="flex gap-3">
                 {isOwnListing ? (
-                  <p className="flex-1 rounded-full bg-zinc-50 px-5 py-3 text-center text-sm font-medium text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
+                  <p className="flex-1 rounded-xl bg-zinc-50 px-5 py-3 text-center text-sm font-medium text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
                     This is your listing — you can&apos;t propose a trade on it.
                   </p>
                 ) : disabled ? (
                   <button
                     disabled
-                    className="flex-1 cursor-not-allowed rounded-full bg-zinc-300 px-5 py-3 text-sm font-bold text-white shadow-none dark:bg-zinc-700"
+                    className="flex-1 cursor-not-allowed rounded-xl bg-zinc-300 px-5 py-3 text-sm font-bold text-white shadow-none dark:bg-zinc-700"
                   >
                     No longer available
                   </button>
                 ) : (
                   <Link
                     href={`/listing/${listing.id}/propose`}
-                    className="flex-1 rounded-full bg-violet-600 px-5 py-3 text-center text-sm font-bold text-white shadow-sm transition hover:bg-violet-700"
+                    className="flex-1 rounded-xl bg-violet-600 px-5 py-3 text-center text-sm font-bold text-white shadow-sm transition hover:bg-violet-700"
                   >
                     Propose a Trade
                   </Link>
@@ -770,7 +770,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                 {!disabled && !isOwnListing && (
                   <button
                     onClick={() => setChatOpen((v) => !v)}
-                    className="flex items-center justify-center rounded-full border border-zinc-300 px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:border-violet-400 dark:border-zinc-700 dark:text-zinc-300"
+                    className="flex items-center justify-center rounded-xl border border-zinc-300 px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:border-violet-400 dark:border-zinc-700 dark:text-zinc-300"
                     title="Message seller"
                   >
                     <MessageIcon className="h-4 w-4" />
@@ -811,11 +811,11 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                         ? "I have a car that might interest you..."
                         : "Any more details on this piece?"
                     }
-                    className="flex-1 rounded-full border border-zinc-300 px-3 py-1.5 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950"
+                    className="flex-1 rounded-xl border border-zinc-300 px-3 py-1.5 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950"
                   />
                   <button
                     onClick={sendMessage}
-                    className="rounded-full bg-zinc-900 px-4 py-1.5 text-sm font-semibold text-white dark:bg-zinc-50 dark:text-zinc-900"
+                    className="rounded-xl bg-zinc-900 px-4 py-1.5 text-sm font-semibold text-white dark:bg-zinc-50 dark:text-zinc-900"
                   >
                     Send
                   </button>
@@ -914,13 +914,13 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
 
       <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
         {liveFlash && (
-          <div className="flex items-center gap-2 rounded-full bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-xl">
+          <div className="flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-xl">
             <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
             <ZapIcon className="h-4 w-4 text-orange-400" /> {liveFlash.name} just bid {formatInr(liveFlash.amount)}!
           </div>
         )}
         {extendedFlash && (
-          <div className="flex items-center gap-2 rounded-full bg-amber-500 px-4 py-3 text-sm font-semibold text-white shadow-xl">
+          <div className="flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white shadow-xl">
             <ClockIcon className="h-4 w-4" /> Late bid — auction extended by 5 minutes!
           </div>
         )}

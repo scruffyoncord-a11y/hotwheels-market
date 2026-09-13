@@ -66,7 +66,7 @@ export function WatchAdModal({
           ) : (
             <button
               onClick={onComplete}
-              className="w-full rounded-full bg-orange-600 py-2.5 text-sm font-bold text-white transition hover:bg-orange-700"
+              className="w-full rounded-xl bg-orange-600 py-2.5 text-sm font-bold text-white transition hover:bg-orange-700"
             >
               Continue
             </button>

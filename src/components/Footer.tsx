@@ -70,7 +70,7 @@ export function Footer() {
             <p className="text-xs font-semibold text-zinc-900 dark:text-white">
               Trading Safety Checklist
             </p>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+            <span className="inline-flex items-center gap-1 rounded-xl bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
               <ShieldIcon className="h-2.5 w-2.5" /> Anti-Scalp Protocol
             </span>
           </div>

@@ -42,10 +42,10 @@ export default function OffersPage() {
         </p>
       ) : (
         <>
-          <div className="mb-4 inline-flex gap-1.5 rounded-full border border-zinc-800 bg-zinc-900 p-1">
+          <div className="mb-4 inline-flex gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900 p-1">
             <button
               onClick={() => setTab("received")}
-              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+              className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
                 tab === "received" ? "bg-zinc-50 text-zinc-900" : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
@@ -53,7 +53,7 @@ export default function OffersPage() {
             </button>
             <button
               onClick={() => setTab("sent")}
-              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+              className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
                 tab === "sent" ? "bg-zinc-50 text-zinc-900" : "text-zinc-400 hover:text-zinc-200"
               }`}
             >

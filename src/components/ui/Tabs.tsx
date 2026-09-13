@@ -24,12 +24,12 @@ export function Tabs<T extends string>({
   }[accent];
 
   return (
-    <div className="inline-flex flex-wrap gap-1 rounded-full border border-zinc-200 bg-white p-1 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="inline-flex flex-wrap gap-1 rounded-xl border border-zinc-200 bg-white p-1 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
       {items.map((item) => (
         <button
           key={item.key}
           onClick={() => onChange(item.key)}
-          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+          className={`rounded-xl px-4 py-1.5 text-sm font-semibold transition ${
             active === item.key ? activeClass : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
           }`}
         >

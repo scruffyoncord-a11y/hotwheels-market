@@ -233,11 +233,11 @@ export function BrowseListings({
         actions={
           <button
             onClick={() => setFiltersOpen((v) => !v)}
-            className="flex items-center gap-1.5 rounded-full border border-zinc-700 bg-zinc-900 px-3.5 py-1.5 text-sm font-semibold text-zinc-300 shadow-sm transition hover:border-orange-500 lg:hidden"
+            className="flex items-center gap-1.5 rounded-xl border border-zinc-700 bg-zinc-900 px-3.5 py-1.5 text-sm font-semibold text-zinc-300 shadow-sm transition hover:border-orange-500 lg:hidden"
           >
             Filters
             {activeFilterCount > 0 && (
-              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-orange-600 px-1 text-[10px] font-bold text-white">
+              <span className="flex h-4 min-w-4 items-center justify-center rounded-xl bg-orange-600 px-1 text-[10px] font-bold text-white">
                 {activeFilterCount}
               </span>
             )}
@@ -262,7 +262,7 @@ export function BrowseListings({
                 activeFilterCount > 0 && (
                   <button
                     onClick={clearFilters}
-                    className="rounded-full bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700"
+                    className="rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700"
                   >
                     Clear filters
                   </button>

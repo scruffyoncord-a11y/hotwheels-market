@@ -22,7 +22,7 @@ export function ProposalStatusBadge({ status }: { status: TradeProposal["status"
     COMPLETED: "Trade Completed",
   } as const;
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${styles[status]}`}>
+    <span className={`inline-flex items-center rounded-xl px-2.5 py-1 text-xs font-semibold ${styles[status]}`}>
       {labels[status]}
     </span>
   );

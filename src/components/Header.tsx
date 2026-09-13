@@ -35,7 +35,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${
+      className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-sm font-semibold transition ${
         active
           ? "bg-orange-600 text-white"
           : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
@@ -132,7 +132,7 @@ export function Header() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search castings, series, sellers, or @username..."
               disabled={searching}
-              className="w-full rounded-full border border-zinc-300 bg-zinc-100 py-2 pl-8 pr-4 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-zinc-100"
+              className="w-full rounded-xl border border-zinc-300 bg-zinc-100 py-2 pl-8 pr-4 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-zinc-100"
             />
           </div>
         </form>
@@ -140,7 +140,7 @@ export function Header() {
         <nav className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <Link
             href="/sell"
-            className="rounded-full bg-orange-600 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 sm:px-4"
+            className="rounded-xl bg-orange-600 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 sm:px-4"
           >
             <span className="sm:hidden">+</span>
             <span className="hidden sm:inline">+ List a car</span>
@@ -154,7 +154,7 @@ export function Header() {
               glow={pendingOffersCount > 0}
               badge={
                 pendingOffersCount > 0 && (
-                  <span className="rounded-full bg-orange-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  <span className="rounded-xl bg-orange-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
                     {pendingOffersCount}
                   </span>
                 )
@@ -170,7 +170,7 @@ export function Header() {
           >
             <HeartIcon className="h-4.5 w-4.5" filled={favoriteIds.length > 0} />
             {favoriteIds.length > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-orange-600 px-1 text-[10px] font-bold text-white">
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-xl bg-orange-600 px-1 text-[10px] font-bold text-white">
                 {favoriteIds.length}
               </span>
             )}
@@ -182,7 +182,7 @@ export function Header() {
           ) : (
             <Link
               href="/login"
-              className="rounded-full border border-zinc-300 px-3.5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-300 dark:hover:text-orange-400"
+              className="rounded-xl border border-zinc-300 px-3.5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-300 dark:hover:text-orange-400"
             >
               Sign in
             </Link>
@@ -212,7 +212,7 @@ export function Header() {
           glow={pendingOffersCount > 0}
           badge={
             pendingOffersCount > 0 && (
-              <span className="rounded-full bg-orange-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+              <span className="rounded-xl bg-orange-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
                 {pendingOffersCount}
               </span>
             )

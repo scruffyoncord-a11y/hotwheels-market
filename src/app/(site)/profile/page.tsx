@@ -32,7 +32,7 @@ function StatusBadge({ status }: { status: ListingStatus }) {
     SOLD: "Sold / Traded",
   };
   return (
-    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${styles[status]}`}>
+    <span className={`inline-flex items-center rounded-xl px-2 py-0.5 text-xs font-medium ${styles[status]}`}>
       {labels[status]}
     </span>
   );
@@ -65,7 +65,7 @@ function MyListingRow({ listing }: { listing: Listing }) {
       <div className="flex-1">
         <div className="mb-1 flex flex-wrap items-center gap-1.5">
           <span
-            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+            className={`inline-flex items-center rounded-xl px-2 py-0.5 text-xs font-medium ${
               isTrade ? "bg-violet-500/15 text-violet-400" : "bg-red-500/15 text-red-400"
             }`}
           >
@@ -91,7 +91,7 @@ function MyListingRow({ listing }: { listing: Listing }) {
         {isAuction && (
           <Link
             href={`/listing/${listing.id}/host`}
-            className="flex items-center justify-center gap-1.5 rounded-full bg-zinc-50 px-3 py-1 text-center text-xs font-semibold text-zinc-900 transition hover:bg-zinc-200"
+            className="flex items-center justify-center gap-1.5 rounded-xl bg-zinc-50 px-3 py-1 text-center text-xs font-semibold text-zinc-900 transition hover:bg-zinc-200"
           >
             <HammerIcon className="h-3.5 w-3.5" /> Host
           </Link>
@@ -100,7 +100,7 @@ function MyListingRow({ listing }: { listing: Listing }) {
           <button
             onClick={boost}
             disabled={busy}
-            className="flex items-center justify-center gap-1.5 rounded-full border border-orange-800 px-3 py-1 text-xs font-semibold text-orange-400 transition hover:bg-orange-950 disabled:opacity-50"
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-orange-800 px-3 py-1 text-xs font-semibold text-orange-400 transition hover:bg-orange-950 disabled:opacity-50"
           >
             <ZapIcon className="h-3.5 w-3.5" /> {busy ? "Processing…" : `Boost (₹${BOOST_PRICE_INR})`}
           </button>
@@ -108,7 +108,7 @@ function MyListingRow({ listing }: { listing: Listing }) {
         {listing.status === "ACTIVE" && (
           <button
             onClick={() => updateListingStatus(listing.id, "RESERVED")}
-            className="rounded-full border border-amber-800 px-3 py-1 text-xs font-semibold text-amber-400 transition hover:bg-amber-950"
+            className="rounded-xl border border-amber-800 px-3 py-1 text-xs font-semibold text-amber-400 transition hover:bg-amber-950"
           >
             Mark Reserved
           </button>
@@ -116,7 +116,7 @@ function MyListingRow({ listing }: { listing: Listing }) {
         {listing.status !== "SOLD" && !isAuction && (
           <button
             onClick={() => updateListingStatus(listing.id, "SOLD")}
-            className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-800"
+            className="rounded-xl border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-800"
           >
             Mark {isTrade ? "Traded" : "Sold"}
           </button>
@@ -124,7 +124,7 @@ function MyListingRow({ listing }: { listing: Listing }) {
         {listing.status !== "SOLD" && isAuction && (
           <Link
             href={`/listing/${listing.id}/host`}
-            className="rounded-full border border-zinc-700 px-3 py-1 text-center text-xs font-semibold text-zinc-300 transition hover:bg-zinc-800"
+            className="rounded-xl border border-zinc-700 px-3 py-1 text-center text-xs font-semibold text-zinc-300 transition hover:bg-zinc-800"
           >
             Close via Host
           </Link>
@@ -132,14 +132,14 @@ function MyListingRow({ listing }: { listing: Listing }) {
         {listing.status !== "ACTIVE" && (
           <button
             onClick={() => updateListingStatus(listing.id, "ACTIVE")}
-            className="rounded-full border border-emerald-800 px-3 py-1 text-xs font-semibold text-emerald-400 transition hover:bg-emerald-950"
+            className="rounded-xl border border-emerald-800 px-3 py-1 text-xs font-semibold text-emerald-400 transition hover:bg-emerald-950"
           >
             Reactivate
           </button>
         )}
         <button
           onClick={remove}
-          className="rounded-full border border-rose-800 px-3 py-1 text-xs font-semibold text-rose-400 transition hover:bg-rose-950"
+          className="rounded-xl border border-rose-800 px-3 py-1 text-xs font-semibold text-rose-400 transition hover:bg-rose-950"
         >
           Remove
         </button>
@@ -178,7 +178,7 @@ function MyBidRow({ listing }: { listing: Listing }) {
       </Link>
       <div className="flex-1">
         <div className="mb-1 flex flex-wrap items-center gap-1.5">
-          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusStyle}`}>
+          <span className={`inline-flex items-center rounded-xl px-2 py-0.5 text-xs font-medium ${statusStyle}`}>
             {statusLabel}
           </span>
           {!ended && listing.endsAt && (
@@ -204,7 +204,7 @@ function MyBidRow({ listing }: { listing: Listing }) {
       {!ended && !winning && (
         <Link
           href={`/listing/${listing.id}`}
-          className="shrink-0 rounded-full border border-red-800 px-3 py-1.5 text-center text-xs font-semibold text-red-400 transition hover:bg-red-950"
+          className="shrink-0 rounded-xl border border-red-800 px-3 py-1.5 text-center text-xs font-semibold text-red-400 transition hover:bg-red-950"
         >
           Bid again
         </Link>

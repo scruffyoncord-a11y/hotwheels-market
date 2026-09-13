@@ -180,14 +180,14 @@ export default function TradeConfirmationPage({
                   <button
                     onClick={() => respond(true)}
                     disabled={busy}
-                    className="flex-1 rounded-full bg-emerald-600 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+                    className="flex-1 rounded-xl bg-emerald-600 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:opacity-60"
                   >
                     <CheckIcon className="mr-1.5 inline h-4 w-4" /> Yes, completed
                   </button>
                   <button
                     onClick={() => respond(false)}
                     disabled={busy}
-                    className="flex-1 rounded-full border border-rose-800 py-2.5 text-sm font-bold text-rose-400 transition hover:bg-rose-950 disabled:opacity-60"
+                    className="flex-1 rounded-xl border border-rose-800 py-2.5 text-sm font-bold text-rose-400 transition hover:bg-rose-950 disabled:opacity-60"
                   >
                     <XIcon className="mr-1.5 inline h-4 w-4" /> Didn&apos;t happen
                   </button>
@@ -253,14 +253,14 @@ export default function TradeConfirmationPage({
                   <button
                     onClick={() => resolve(true)}
                     disabled={busy}
-                    className="flex-1 rounded-full bg-orange-600 py-2.5 text-sm font-bold text-white transition hover:bg-orange-700 disabled:opacity-60"
+                    className="flex-1 rounded-xl bg-orange-600 py-2.5 text-sm font-bold text-white transition hover:bg-orange-700 disabled:opacity-60"
                   >
                     Put back up for trade
                   </button>
                   <button
                     onClick={() => resolve(false)}
                     disabled={busy}
-                    className="flex-1 rounded-full border border-rose-800 py-2.5 text-sm font-bold text-rose-400 transition hover:bg-rose-950 disabled:opacity-60"
+                    className="flex-1 rounded-xl border border-rose-800 py-2.5 text-sm font-bold text-rose-400 transition hover:bg-rose-950 disabled:opacity-60"
                   >
                     Remove listing
                   </button>

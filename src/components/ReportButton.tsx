@@ -64,7 +64,7 @@ export function ReportButton({
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="mt-4 rounded-full bg-zinc-900 px-4 py-1.5 text-sm font-semibold text-white dark:bg-zinc-50 dark:text-zinc-900"
+                  className="mt-4 rounded-xl bg-zinc-900 px-4 py-1.5 text-sm font-semibold text-white dark:bg-zinc-50 dark:text-zinc-900"
                 >
                   Close
                 </button>
@@ -77,7 +77,7 @@ export function ReportButton({
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="mt-4 rounded-full border border-zinc-300 px-4 py-1.5 text-sm font-semibold text-zinc-600 dark:border-zinc-700 dark:text-zinc-300"
+                  className="mt-4 rounded-xl border border-zinc-300 px-4 py-1.5 text-sm font-semibold text-zinc-600 dark:border-zinc-700 dark:text-zinc-300"
                 >
                   Close
                 </button>
@@ -109,7 +109,7 @@ export function ReportButton({
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="rounded-full border border-zinc-300 px-4 py-1.5 text-sm font-semibold text-zinc-600 dark:border-zinc-700 dark:text-zinc-300"
+                    className="rounded-xl border border-zinc-300 px-4 py-1.5 text-sm font-semibold text-zinc-600 dark:border-zinc-700 dark:text-zinc-300"
                   >
                     Cancel
                   </button>
@@ -117,7 +117,7 @@ export function ReportButton({
                     type="button"
                     onClick={submit}
                     disabled={busy}
-                    className="rounded-full bg-red-600 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
+                    className="rounded-xl bg-red-600 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
                   >
                     {busy ? "Reporting…" : "Submit"}
                   </button>

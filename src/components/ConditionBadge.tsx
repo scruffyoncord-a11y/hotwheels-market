@@ -11,7 +11,7 @@ const STYLES: Record<ListingCondition, string> = {
 export function ConditionBadge({ condition }: { condition: ListingCondition }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STYLES[condition]}`}
+      className={`inline-flex items-center rounded-xl px-2.5 py-0.5 text-xs font-medium ${STYLES[condition]}`}
     >
       {CONDITION_LABELS[condition]}
     </span>

@@ -292,13 +292,13 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
         <div className="mt-4 flex gap-3">
           <Link
             href={`/listing/${listing.id}`}
-            className="rounded-full border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-300 hover:border-orange-400"
+            className="rounded-xl border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-300 hover:border-orange-400"
           >
             Back to listing
           </Link>
           <Link
             href="/profile"
-            className="rounded-full bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+            className="rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700"
           >
             View your offers
           </Link>
@@ -335,7 +335,7 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
           </p>
           <Link
             href={`/login?next=${encodeURIComponent(`/listing/${listing.id}/propose`)}`}
-            className="mt-3 inline-block rounded-full bg-orange-600 px-5 py-2 text-sm font-bold text-white hover:bg-orange-700"
+            className="mt-3 inline-block rounded-xl bg-orange-600 px-5 py-2 text-sm font-bold text-white hover:bg-orange-700"
           >
             Sign in
           </Link>
@@ -363,13 +363,13 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
                   <button
                     type="button"
                     onClick={() => setAddCarOpen(true)}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-orange-700"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-orange-700"
                   >
                     <PlusIcon className="h-3.5 w-3.5" /> Add a car
                   </button>
                   <Link
                     href="/inventory"
-                    className="rounded-full border border-zinc-700 px-4 py-2 text-xs font-semibold text-zinc-300 transition hover:border-orange-400 hover:text-orange-400"
+                    className="rounded-xl border border-zinc-700 px-4 py-2 text-xs font-semibold text-zinc-300 transition hover:border-orange-400 hover:text-orange-400"
                   >
                     Pick from your collection
                   </Link>
@@ -425,7 +425,7 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
               <button
                 onClick={() => setAdOpen(true)}
                 disabled={!canSend || sending}
-                className="w-full rounded-full bg-orange-600 py-3 text-base font-extrabold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-500"
+                className="w-full rounded-xl bg-orange-600 py-3 text-base font-extrabold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-500"
               >
                 {sending ? "Sending…" : "Send Proposal"}
               </button>

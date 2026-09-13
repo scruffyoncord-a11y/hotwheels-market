@@ -95,7 +95,7 @@ export default async function AdminReportsPage() {
                 <form action={resolveReport.bind(null, r.id, "RESOLVED")}>
                   <button
                     type="submit"
-                    className="rounded-full bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white dark:bg-zinc-50 dark:text-zinc-900"
+                    className="rounded-xl bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white dark:bg-zinc-50 dark:text-zinc-900"
                   >
                     Mark resolved
                   </button>
@@ -103,7 +103,7 @@ export default async function AdminReportsPage() {
                 <form action={resolveReport.bind(null, r.id, "DISMISSED")}>
                   <button
                     type="submit"
-                    className="rounded-full border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                    className="rounded-xl border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
                   >
                     Dismiss
                   </button>
@@ -127,7 +127,7 @@ export default async function AdminReportsPage() {
                   <span className="ml-2 text-zinc-500 dark:text-zinc-400">{r.reason}</span>
                 </div>
                 <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                  className={`rounded-xl px-2 py-0.5 text-xs font-semibold ${
                     r.status === "RESOLVED"
                       ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
                       : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"

@@ -150,7 +150,7 @@ function LoginForm() {
             onClick={handleGoogle}
             disabled={googleBusy || !agreed}
             title={!agreed ? "Agree to the Terms & Conditions first" : undefined}
-            className="flex w-full items-center justify-center gap-2.5 rounded-full border border-zinc-700 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-zinc-700 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <GoogleGIcon />
             {googleBusy ? "Signing in..." : "Continue with Google"}
@@ -182,7 +182,7 @@ function LoginForm() {
                 type="submit"
                 disabled={!agreed || sendBusy}
                 title={!agreed ? "Agree to the Terms & Conditions first" : undefined}
-                className="mt-1 rounded-full bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="mt-1 rounded-xl bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {sendBusy ? "Sending…" : "Send OTP"}
               </button>
@@ -207,7 +207,7 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={otpBusy}
-                className="mt-1 rounded-full bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:opacity-60"
+                className="mt-1 rounded-xl bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:opacity-60"
               >
                 {otpBusy ? "Verifying..." : "Verify & Sign In"}
               </button>

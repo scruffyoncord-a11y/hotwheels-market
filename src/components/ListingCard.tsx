@@ -47,7 +47,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
         />
         {(sold || reserved) && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-            <span className="rounded-full bg-white px-3 py-1 text-sm font-bold uppercase tracking-wide text-zinc-900 shadow-sm">
+            <span className="rounded-xl bg-white px-3 py-1 text-sm font-bold uppercase tracking-wide text-zinc-900 shadow-sm">
               {sold ? (isAuction ? "Ended" : "Traded") : "Reserved"}
             </span>
           </div>
@@ -55,22 +55,22 @@ export function ListingCard({ listing }: { listing: Listing }) {
         <div className="absolute left-2 top-2 flex gap-1.5">
           {isAuction && !sold && !reserved && !auctionOver && (
             listing.biddingPaused ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+              <span className="inline-flex items-center gap-1 rounded-xl bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
                 <PauseIcon className="h-2.5 w-2.5" /> Paused
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white">
+              <span className="inline-flex items-center gap-1 rounded-xl bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> LIVE
               </span>
             )
           )}
           {isPrivateAuction && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-zinc-900 px-2 py-0.5 text-[10px] font-bold text-white">
+            <span className="inline-flex items-center gap-1 rounded-xl bg-zinc-900 px-2 py-0.5 text-[10px] font-bold text-white">
               <LockIcon className="h-2.5 w-2.5" /> Private
             </span>
           )}
           {isBoosted && !sold && !reserved && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2 py-0.5 text-[10px] font-bold text-white">
+            <span className="inline-flex items-center gap-1 rounded-xl bg-orange-500 px-2 py-0.5 text-[10px] font-bold text-white">
               <ZapIcon className="h-2.5 w-2.5" /> Boosted
             </span>
           )}
@@ -88,7 +88,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
           <HeartIcon className="h-3.5 w-3.5" filled={favorited} />
         </button>
         {isAuction && listing.endsAt && !auctionOver && !sold && !reserved && (
-          <span className="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white">
+          <span className="absolute bottom-2 right-2 rounded-xl bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white">
             <AuctionTimer endsAt={listing.endsAt} />
           </span>
         )}
@@ -96,12 +96,12 @@ export function ListingCard({ listing }: { listing: Listing }) {
       <div className="flex flex-1 flex-col gap-1 p-3">
         <div className="mb-0.5 flex flex-wrap items-center gap-1.5">
           {isTrade && (
-            <span className="inline-flex items-center rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-medium text-violet-800">
+            <span className="inline-flex items-center rounded-xl bg-violet-100 px-2.5 py-0.5 text-xs font-medium text-violet-800">
               Trade
             </span>
           )}
           {isAuction && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+            <span className="inline-flex items-center gap-1 rounded-xl bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
               <HammerIcon className="h-3 w-3" /> Auction
             </span>
           )}

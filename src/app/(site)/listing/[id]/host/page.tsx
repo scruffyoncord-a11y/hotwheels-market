@@ -97,7 +97,7 @@ export default function HostAuctionPage({ params }: { params: Promise<{ id: stri
         >
           ← Back to listing
         </Link>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white">
+        <span className="inline-flex items-center gap-1.5 rounded-xl bg-red-600 px-3 py-1 text-xs font-bold text-white">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> AUCTIONEER CONSOLE
         </span>
       </div>
@@ -154,7 +154,7 @@ export default function HostAuctionPage({ params }: { params: Promise<{ id: stri
             <button
               onClick={toggleAccepting}
               disabled={ended}
-              className={`rounded-full px-4 py-1.5 text-xs font-bold text-white transition disabled:opacity-40 ${
+              className={`rounded-xl px-4 py-1.5 text-xs font-bold text-white transition disabled:opacity-40 ${
                 listing.biddingPaused ? "bg-emerald-600 hover:bg-emerald-700" : "bg-amber-500 hover:bg-amber-600"
               }`}
             >

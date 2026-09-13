@@ -170,7 +170,7 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
           <button
             type="button"
             onClick={() => cameraInputRef.current?.click()}
-            className="flex items-center justify-center gap-1.5 rounded-full border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-600 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-400 dark:hover:text-orange-400"
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-600 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-400 dark:hover:text-orange-400"
           >
             <CameraIcon className="h-3.5 w-3.5" /> Use camera
           </button>
@@ -248,7 +248,7 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
           <button
             type="submit"
             disabled={uploading}
-            className="mt-1 rounded-full bg-orange-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:opacity-60"
+            className="mt-1 rounded-xl bg-orange-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:opacity-60"
           >
             {uploading ? "Uploading photo…" : "Add to collection"}
           </button>

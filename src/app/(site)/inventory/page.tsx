@@ -59,7 +59,7 @@ function CollectionPrivacyCard() {
       <button
         onClick={toggle}
         disabled={saving}
-        className={`rounded-full px-4 py-1.5 text-xs font-bold text-white transition disabled:opacity-60 ${
+        className={`rounded-xl px-4 py-1.5 text-xs font-bold text-white transition disabled:opacity-60 ${
           profile.collectionPublic
             ? "bg-zinc-700 hover:bg-zinc-600"
             : "bg-orange-600 hover:bg-orange-700"
@@ -109,13 +109,13 @@ function CollectionCard({ item }: { item: InventoryItem }) {
           <div className="flex gap-1.5">
             <Link
               href={`/sell?type=TRADE&inventoryId=${item.id}`}
-              className="flex-1 rounded-full bg-violet-600 px-2 py-1.5 text-center text-xs font-semibold text-white transition hover:bg-violet-700"
+              className="flex-1 rounded-xl bg-violet-600 px-2 py-1.5 text-center text-xs font-semibold text-white transition hover:bg-violet-700"
             >
               List for Trade
             </Link>
             <Link
               href={`/sell?type=AUCTION&inventoryId=${item.id}`}
-              className="flex-1 rounded-full bg-red-600 px-2 py-1.5 text-center text-xs font-semibold text-white transition hover:bg-red-700"
+              className="flex-1 rounded-xl bg-red-600 px-2 py-1.5 text-center text-xs font-semibold text-white transition hover:bg-red-700"
             >
               Auction
             </Link>
@@ -123,7 +123,7 @@ function CollectionCard({ item }: { item: InventoryItem }) {
           <button
             onClick={remove}
             disabled={busy}
-            className="flex items-center justify-center gap-1.5 rounded-full bg-zinc-100 py-1.5 text-xs text-zinc-600 transition hover:bg-rose-50 hover:text-rose-600 disabled:opacity-60 dark:bg-zinc-800 dark:text-zinc-300"
+            className="flex items-center justify-center gap-1.5 rounded-xl bg-zinc-100 py-1.5 text-xs text-zinc-600 transition hover:bg-rose-50 hover:text-rose-600 disabled:opacity-60 dark:bg-zinc-800 dark:text-zinc-300"
           >
             <TrashIcon className="h-3.5 w-3.5" /> {busy ? "Removing…" : "Remove"}
           </button>
@@ -147,7 +147,7 @@ export default function InventoryPage() {
         actions={
           <button
             onClick={() => setModalOpen(true)}
-            className="rounded-full bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700"
+            className="rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700"
           >
             + Add car
           </button>
@@ -172,7 +172,7 @@ export default function InventoryPage() {
           action={
             <button
               onClick={() => setModalOpen(true)}
-              className="rounded-full bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700"
+              className="rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700"
             >
               + Add your first car
             </button>

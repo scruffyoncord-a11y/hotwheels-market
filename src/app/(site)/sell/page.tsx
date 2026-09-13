@@ -316,15 +316,15 @@ function SellForm() {
       )}
 
       {lockedToTrade ? (
-        <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-violet-600 px-4 py-1.5 text-sm font-semibold text-white">
+        <span className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-violet-600 px-4 py-1.5 text-sm font-semibold text-white">
           Trade for another car
         </span>
       ) : (
-        <div className="mt-4 inline-flex rounded-full border border-zinc-300 bg-white p-1 dark:border-zinc-700 dark:bg-zinc-900">
+        <div className="mt-4 inline-flex rounded-xl border border-zinc-300 bg-white p-1 dark:border-zinc-700 dark:bg-zinc-900">
           <button
             type="button"
             onClick={() => setType("TRADE")}
-            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+            className={`rounded-xl px-4 py-1.5 text-sm font-semibold transition ${
               isTrade
                 ? "bg-violet-600 text-white"
                 : "text-zinc-600 dark:text-zinc-300"
@@ -335,7 +335,7 @@ function SellForm() {
           <button
             type="button"
             onClick={() => setType("AUCTION")}
-            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+            className={`rounded-xl px-4 py-1.5 text-sm font-semibold transition ${
               isAuction ? "bg-red-600 text-white" : "text-zinc-600 dark:text-zinc-300"
             }`}
           >
@@ -552,7 +552,7 @@ function SellForm() {
           <button
             type="submit"
             disabled={uploadingCount > 0}
-            className={`mt-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60 ${
+            className={`mt-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60 ${
               isTrade ? "bg-violet-600 hover:bg-violet-700" : "bg-red-600 hover:bg-red-700"
             }`}
           >

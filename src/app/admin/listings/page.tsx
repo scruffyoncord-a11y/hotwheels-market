@@ -61,7 +61,7 @@ export default async function AdminListingsPage() {
                   <form action={deleteListingAsAdmin.bind(null, l.id)}>
                     <button
                       type="submit"
-                      className="rounded-full border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
+                      className="rounded-xl border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
                     >
                       Remove
                     </button>

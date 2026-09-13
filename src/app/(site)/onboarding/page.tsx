@@ -219,7 +219,7 @@ function OnboardingForm() {
           <button
             onClick={handleContinue}
             disabled={saving}
-            className="mt-5 w-full rounded-full bg-orange-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-orange-700 disabled:opacity-60"
+            className="mt-5 w-full rounded-xl bg-orange-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-orange-700 disabled:opacity-60"
           >
             {saving ? "Saving…" : "Continue"}
           </button>

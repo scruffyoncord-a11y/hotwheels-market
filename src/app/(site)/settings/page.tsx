@@ -70,7 +70,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition ${
+      className={`relative h-6 w-11 shrink-0 rounded-xl transition ${
         checked ? "bg-orange-600" : "bg-zinc-300 dark:bg-zinc-700"
       }`}
     >
@@ -333,7 +333,7 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
               <button
                 type="button"
                 onClick={sendOtp}
-                className="self-start rounded-full bg-zinc-200 px-4 py-1.5 text-xs font-semibold text-zinc-800 transition hover:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                className="self-start rounded-xl bg-zinc-200 px-4 py-1.5 text-xs font-semibold text-zinc-800 transition hover:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
               >
                 Send OTP
               </button>
@@ -354,7 +354,7 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
               <button
                 type="button"
                 onClick={verifyOtp}
-                className="self-start rounded-full bg-orange-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-orange-700"
+                className="self-start rounded-xl bg-orange-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-orange-700"
               >
                 Verify
               </button>
@@ -446,7 +446,7 @@ export default function SettingsPage() {
                 {!isAuthenticated && (
                   <Link
                     href="/login"
-                    className="rounded-full bg-orange-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-orange-700"
+                    className="rounded-xl bg-orange-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-orange-700"
                   >
                     Sign in
                   </Link>
@@ -476,7 +476,7 @@ export default function SettingsPage() {
               {isAuthenticated && (
                 <button
                   onClick={handleSignOut}
-                  className="rounded-full border border-rose-300 px-5 py-3 text-center text-sm font-bold text-rose-600 transition hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-950"
+                  className="rounded-xl border border-rose-300 px-5 py-3 text-center text-sm font-bold text-rose-600 transition hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-950"
                 >
                   Sign Out
                 </button>

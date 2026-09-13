@@ -59,11 +59,11 @@ export default async function AdminUsersPage() {
                 </td>
                 <td className="px-4 py-3">
                   {u.banned ? (
-                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-950 dark:text-red-400">
+                    <span className="rounded-xl bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-950 dark:text-red-400">
                       Banned
                     </span>
                   ) : (
-                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                    <span className="rounded-xl bg-zinc-100 px-2 py-0.5 text-xs font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
                       Active
                     </span>
                   )}
@@ -72,7 +72,7 @@ export default async function AdminUsersPage() {
                   <form action={setUserBanned.bind(null, u.id, !u.banned, "Banned by admin")}>
                     <button
                       type="submit"
-                      className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                      className={`rounded-xl border px-3 py-1 text-xs font-semibold transition ${
                         u.banned
                           ? "border-zinc-300 text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
                           : "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
