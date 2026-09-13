@@ -18,9 +18,11 @@ async function getWorker() {
 
 export async function recognizeCardText(file: File): Promise<string> {
   const worker = await getWorker();
+  const { preprocessForOcr } = await import("./image-preprocess");
+  const image = await preprocessForOcr(file);
   const {
     data: { text },
-  } = await worker.recognize(file);
+  } = await worker.recognize(image);
   return text;
 }
 
