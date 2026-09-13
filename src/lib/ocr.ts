@@ -54,6 +54,8 @@ const KNOWN_SERIES = [
   "Red Line Club",
   "Retro Racers",
   "Team Wheels",
+  "HW Starting Grid",
+  "Nightspeed",
   "Mainline",
   "Premium",
 ];
@@ -62,11 +64,19 @@ const KNOWN_SERIES = [
 // (address, warnings, certifications, barcode) underneath the actual
 // name — these catch the most common shapes of that block regardless of
 // language, rather than trying to list every possible legal phrase.
+// "hot wheels" itself is here too since the brand wordmark/logo sits
+// right above the name and would otherwise be a candidate in its own
+// right.
 const NOISE_LINE =
-  /copyright|mattel|made in|manufactured|imported|distributed|customer (complaint|service|care)|retail price|sale price|net quantity|product no|conforms to|choking|hazard|small parts|warning|advertencia|atenção|attention|www\.|\.com|barcode|astm|\bbis\b/i;
+  /copyright|mattel|made in|manufactured|imported|distributed|customer (complaint|service|care)|retail price|sale price|net quantity|product no|conforms to|choking|hazard|small parts|warning|advertencia|atenção|attention|www\.|\.com|barcode|astm|\bbis\b|hot\s*wheels/i;
 const MOSTLY_NON_LETTERS = /^[\d\s./\\_-]+$/;
 const HAS_LABEL_COLON = /:/;
 const MAX_CANDIDATE_LENGTH = 45;
+const MIN_CANDIDATE_LENGTH = 6;
+// The small product-code stub on the hang-tab, e.g. "JNG69-N7C5" or a
+// bare "JJK19" under "Product No." — letters immediately followed by
+// digits, no spaces, unlike any real (multi-word) car name.
+const PRODUCT_CODE_LINE = /^[A-Z]{2,5}\d{2,4}(-[A-Z0-9]+)?$/;
 
 // Words Tesseract commonly misreads on glossy/stylized packaging print,
 // corrected so a recognizable brand name doesn't end up misspelled in
@@ -108,16 +118,18 @@ export function guessDetailsFromCardText(rawText: string): CardOcrGuess {
     topLines.some((l) => l.toLowerCase().includes(s.toLowerCase())),
   );
 
-  // The printed model name tends to be the longest short line up there
-  // that isn't a barcode/number string, a "Label: value" compliance
-  // line (regardless of language, almost the entire block is shaped
-  // that way), or one of the small-print legal/safety lines.
+  // The printed model name is the first line up there that survives
+  // filtering — not the longest one. The name always prints before the
+  // series bar (and, on some cards, a same-length-or-longer foreign-
+  // language translation of it right underneath), so "first" beats
+  // "longest" for picking the name out from its neighbors.
   const candidates = topLines
     .filter((l) => !MOSTLY_NON_LETTERS.test(l))
     .filter((l) => !HAS_LABEL_COLON.test(l))
-    .filter((l) => l.length <= MAX_CANDIDATE_LENGTH)
+    .filter((l) => !PRODUCT_CODE_LINE.test(l))
+    .filter((l) => l.length >= MIN_CANDIDATE_LENGTH && l.length <= MAX_CANDIDATE_LENGTH)
     .filter((l) => !NOISE_LINE.test(l));
-  const castingName = [...candidates].sort((a, b) => b.length - a.length)[0];
+  const castingName = candidates[0];
 
   return { castingName, series };
 }
