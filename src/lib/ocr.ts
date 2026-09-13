@@ -1,10 +1,10 @@
 "use client";
 
-// Best-effort autofill from the printed text on a Hot Wheels card back —
-// runs entirely client-side (tesseract.js/WASM), no API key or per-image
-// cost. Never authoritative: callers should only prefill fields the
-// seller hasn't already typed into, and the seller reviews/edits before
-// publishing either way.
+// Best-effort autofill from the printed text on a Hot Wheels card photo
+// (front or back) — runs entirely client-side (tesseract.js/WASM), no
+// API key or per-image cost. Never authoritative: callers should only
+// prefill fields the seller hasn't already typed into, and the seller
+// reviews/edits before publishing either way.
 
 let workerPromise: Promise<import("tesseract.js").Worker> | null = null;
 

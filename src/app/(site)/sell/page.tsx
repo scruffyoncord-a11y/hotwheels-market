@@ -149,8 +149,7 @@ function SellForm() {
     setter(url);
   }
 
-  async function handleBackPhotoChange(file: File) {
-    void handleSlotChange(file, setBackPhoto);
+  async function runCardOcr(file: File) {
     setReadingCard(true);
     try {
       const { recognizeCardText, guessDetailsFromCardText } = await import("@/lib/ocr");
@@ -169,6 +168,16 @@ function SellForm() {
     } finally {
       setReadingCard(false);
     }
+  }
+
+  function handleFrontPhotoChange(file: File) {
+    void handleSlotChange(file, setFrontPhoto);
+    void runCardOcr(file);
+  }
+
+  function handleBackPhotoChange(file: File) {
+    void handleSlotChange(file, setBackPhoto);
+    void runCardOcr(file);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -323,13 +332,13 @@ function SellForm() {
               <PhotoSlot
                 label="Front"
                 photo={frontPhoto}
-                onChange={(file) => handleSlotChange(file, setFrontPhoto)}
+                onChange={handleFrontPhotoChange}
                 onRemove={() => setFrontPhoto(null)}
               />
               <PhotoSlot
                 label="Back"
                 photo={backPhoto}
-                onChange={(file) => void handleBackPhotoChange(file)}
+                onChange={handleBackPhotoChange}
                 onRemove={() => setBackPhoto(null)}
               />
               {extraPhotos.map((photo, i) => (
@@ -360,7 +369,7 @@ function SellForm() {
           {readingCard && (
             <p className="-mb-2 flex items-center gap-1.5 text-xs font-medium text-orange-500">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-orange-500" />
-              Reading the card back — Title, Casting name &amp; Series will autofill if found.
+              Reading the packaging photo — Title, Casting name &amp; Series will autofill if found.
             </p>
           )}
 
