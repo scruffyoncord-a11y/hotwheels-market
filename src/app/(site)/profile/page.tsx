@@ -17,7 +17,7 @@ import { formatInr, timeAgo } from "@/lib/format";
 import { CONDITION_LABELS } from "@/lib/types";
 import type { Listing, ListingStatus } from "@/lib/types";
 import { useRazorpayPayment } from "@/lib/use-razorpay";
-import { BOOST_PRICE_INR } from "@/lib/pricing";
+import { BOOST_PRICE_INR, BOOSTS_ENABLED } from "@/lib/pricing";
 import { useMyProfile } from "@/lib/use-my-profile";
 
 function StatusBadge({ status }: { status: ListingStatus }) {
@@ -96,7 +96,7 @@ function MyListingRow({ listing }: { listing: Listing }) {
             <HammerIcon className="h-3.5 w-3.5" /> Host
           </Link>
         )}
-        {listing.status === "ACTIVE" && !isBoosted && (
+        {BOOSTS_ENABLED && listing.status === "ACTIVE" && !isBoosted && (
           <button
             onClick={boost}
             disabled={busy}

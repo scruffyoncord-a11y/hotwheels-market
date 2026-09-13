@@ -119,9 +119,6 @@ export function LandingPage({ onContinue }: { onContinue: () => void }) {
             className="h-10 w-auto brightness-0 dark:brightness-100 sm:h-12"
             priority
           />
-          <span className="mt-6 inline-flex items-center gap-1.5 rounded-xl bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700 dark:bg-orange-950 dark:text-orange-400">
-            For collectors, not scalpers
-          </span>
           <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl">
             Trade and bid with real Hot Wheels collectors.
           </h1>
