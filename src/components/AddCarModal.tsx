@@ -16,6 +16,7 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
   const { addItem } = useInventory();
   const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
   const [castingName, setCastingName] = useState("");
@@ -133,6 +134,18 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
               e.target.value = "";
             }}
           />
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handlePhotoChange(file);
+              e.target.value = "";
+            }}
+          />
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
@@ -153,6 +166,13 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
                 Add a photo (optional)
               </span>
             )}
+          </button>
+          <button
+            type="button"
+            onClick={() => cameraInputRef.current?.click()}
+            className="flex items-center justify-center gap-1.5 rounded-full border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-600 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-400 dark:hover:text-orange-400"
+          >
+            <CameraIcon className="h-3.5 w-3.5" /> Use camera
           </button>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
             Tip: keep the printed name on the card clearly visible and in focus — Title, Casting

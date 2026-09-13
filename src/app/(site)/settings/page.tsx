@@ -88,6 +88,7 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
   const { profile, setProfile } = useMyProfile();
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [displayName, setDisplayName] = useState(user.displayName);
   const [username, setUsername] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -213,17 +214,39 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
               e.target.value = "";
             }}
           />
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zinc-300 bg-zinc-100 text-zinc-400 transition hover:border-orange-500 hover:text-orange-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:text-orange-400"
-          >
-            {avatarPreview ? (
-              <Image src={avatarPreview} alt="" fill unoptimized className="object-cover" />
-            ) : (
-              <CameraIcon className="h-6 w-6" />
-            )}
-          </button>
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="user"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleAvatarPick(file);
+              e.target.value = "";
+            }}
+          />
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zinc-300 bg-zinc-100 text-zinc-400 transition hover:border-orange-500 hover:text-orange-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:text-orange-400"
+            >
+              {avatarPreview ? (
+                <Image src={avatarPreview} alt="" fill unoptimized className="object-cover" />
+              ) : (
+                <CameraIcon className="h-6 w-6" />
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => cameraInputRef.current?.click()}
+              title="Use camera"
+              className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-orange-600 text-white shadow-sm hover:bg-orange-700"
+            >
+              <CameraIcon className="h-3.5 w-3.5" />
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}

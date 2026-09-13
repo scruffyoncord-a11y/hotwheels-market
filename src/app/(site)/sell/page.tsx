@@ -31,6 +31,7 @@ function PhotoSlot({
   onRemove?: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="relative">
@@ -38,6 +39,18 @@ function PhotoSlot({
         ref={inputRef}
         type="file"
         accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) onChange(file);
+          e.target.value = "";
+        }}
+      />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
@@ -62,6 +75,14 @@ function PhotoSlot({
             <span className="text-xs font-medium">{label}</span>
           </>
         )}
+      </button>
+      <button
+        type="button"
+        onClick={() => cameraInputRef.current?.click()}
+        title="Use camera"
+        className="absolute -bottom-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-orange-600 text-white shadow-sm hover:bg-orange-700"
+      >
+        <CameraIcon className="h-3 w-3" />
       </button>
       {photo && (
         <>
