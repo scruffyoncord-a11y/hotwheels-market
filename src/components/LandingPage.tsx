@@ -247,7 +247,7 @@ export function LandingPage({ onContinue }: { onContinue: () => void }) {
               accent="red"
               steps={[
                 "Set a starting bid and, if you want, a Buy Now price",
-                "Collectors place max bids — we only bid as much as needed to keep them ahead",
+                "Collectors bid against each other — the highest bid leads, right away",
                 "A late bid extends the clock, so the real highest bidder always wins",
               ]}
               footnote="Anti-snipe extension keeps the last few minutes fair."

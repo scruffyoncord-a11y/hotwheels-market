@@ -590,16 +590,11 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                 {youAreHighestBidder && !disabled && (
                   <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                     <CheckIcon className="h-3.5 w-3.5" /> You&apos;re the highest bidder
-                    {myLatestBid && myLatestBid.maxBidInr > currentBid && (
-                      <span className="font-normal text-emerald-600/80 dark:text-emerald-400/80">
-                        (max {formatInr(myLatestBid.maxBidInr)})
-                      </span>
-                    )}
                   </p>
                 )}
                 {!youAreHighestBidder && myLatestBid && !disabled && (
                   <p className="mt-1 text-xs font-semibold text-rose-600 dark:text-rose-400">
-                    You&apos;ve been outbid — your max was {formatInr(myLatestBid.maxBidInr)}
+                    You&apos;ve been outbid — your bid was {formatInr(myLatestBid.amountInr)}
                   </p>
                 )}
                 {disabled && topBid && (
@@ -685,11 +680,11 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                     className="rounded-2xl border border-zinc-100 p-4 dark:border-zinc-800"
                   >
                     <p className="mb-1 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                      Enter your max bid
+                      Place your bid
                     </p>
                     <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
-                      We&apos;ll only bid as much as needed to keep you in the lead, up to this
-                      amount — like eBay proxy bidding.
+                      Your bid becomes the current bid right away — everyone sees exactly what
+                      you offer.
                     </p>
                     <div className="mb-2 flex flex-wrap gap-2">
                       {[nextMinBid, nextMinBid + increment, nextMinBid + 2 * increment].map(
@@ -725,7 +720,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                     {bidError && <p className="mt-2 text-xs text-rose-600">{bidError}</p>}
                     {bidPlaced && (
                       <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-emerald-600">
-                        <CheckIcon className="h-3.5 w-3.5" /> Max bid placed.
+                        <CheckIcon className="h-3.5 w-3.5" /> Bid placed.
                       </p>
                     )}
                   </form>

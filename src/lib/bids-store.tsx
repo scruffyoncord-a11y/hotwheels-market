@@ -26,9 +26,7 @@ function rowToBid(r: BidRow): Bid {
   };
 }
 
-export type PlaceBidResult =
-  | { error: string }
-  | { leaderName: string; leaderAmount: number; youWereOutbid: boolean };
+export type PlaceBidResult = { error: string } | { leaderAmount: number };
 
 interface BidsContextValue {
   bids: Bid[];
@@ -37,9 +35,11 @@ interface BidsContextValue {
   highestBid: (listingId: string) => Bid | undefined;
   // The only way a bid can ever be created — enforced server-side by the
   // place_bid() Postgres function: requires a real signed-in account,
-  // blocks the listing's own seller, and computes the proxy-bid amount
-  // itself so the client can never fabricate or inflate a bid.
-  placeBid: (listingId: string, maxBidInr: number) => Promise<PlaceBidResult>;
+  // blocks the listing's own seller, and enforces the minimum-raise
+  // schedule itself so the client can never fabricate or lowball a bid.
+  // Simple bidding: the amount you pass in becomes the visible current
+  // bid immediately (no hidden proxy max).
+  placeBid: (listingId: string, amountInr: number) => Promise<PlaceBidResult>;
 }
 
 const BidsContext = createContext<BidsContextValue | null>(null);
@@ -99,17 +99,13 @@ export function BidsProvider({ children }: { children: React.ReactNode }) {
           return b.createdAt > max.createdAt ? b : max;
         });
       },
-      placeBid: async (listingId, maxBidInr) => {
+      placeBid: async (listingId, amountInr) => {
         const { data, error } = await supabase
-          .rpc("place_bid", { p_listing_id: listingId, p_max_bid_inr: maxBidInr })
+          .rpc("place_bid", { p_listing_id: listingId, p_amount_inr: amountInr })
           .single();
         if (error) return { error: error.message };
-        const row = data as { leader_name: string; leader_amount: number; you_were_outbid: boolean };
-        return {
-          leaderName: row.leader_name,
-          leaderAmount: row.leader_amount,
-          youWereOutbid: row.you_were_outbid,
-        };
+        const row = data as { leader_amount: number };
+        return { leaderAmount: row.leader_amount };
       },
     }),
     [bids, loading, supabase],

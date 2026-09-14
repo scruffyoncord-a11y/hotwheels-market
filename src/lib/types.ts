@@ -120,11 +120,13 @@ export interface Bid {
   // The real, authenticated Supabase account that placed this bid.
   bidderId: string;
   bidderName: string;
+  // What was actually bid — simple bidding, not a hidden proxy max, so
+  // this is always what the bidder entered and immediately visible to
+  // everyone as the current bid.
   amountInr: number;
-  // The bidder's true ceiling for proxy (max) bidding. The visible amountInr
-  // is only ever raised as far as needed to stay ahead of the next-highest
-  // bidder, same as eBay/Goldin-style auctions — maxBidInr itself stays
-  // private except to the bidder's own future top-ups.
+  // Equal to amountInr for every bid placed after the switch to simple
+  // bidding — kept only because older rows from the previous proxy
+  // (hidden max) system still have a real, different value here.
   maxBidInr: number;
   createdAt: string;
 }
