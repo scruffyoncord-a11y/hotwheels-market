@@ -26,6 +26,7 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
   const [photo, setPhoto] = useState<string | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   if (!open) return null;
@@ -38,6 +39,7 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
     setNotes("");
     setPhoto(null);
     setPhotoPreview(null);
+    setSubmitting(false);
     setError("");
   }
 
@@ -65,6 +67,8 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
       setError("Still uploading the photo — one sec.");
       return;
     }
+    if (submitting) return; // already in flight — ignore a double-click/tap
+    setSubmitting(true);
     const { error: submitError } = await addItem({
       title: title.trim(),
       castingName: castingName.trim() || undefined,
@@ -74,6 +78,7 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
       image: photo ?? PLACEHOLDER_IMAGE,
     });
     if (submitError) {
+      setSubmitting(false);
       setError(submitError);
       return;
     }
@@ -215,10 +220,10 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
 
           <button
             type="submit"
-            disabled={uploading}
+            disabled={uploading || submitting}
             className="mt-1 rounded-xl bg-orange-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:opacity-60"
           >
-            {uploading ? "Uploading photo…" : "Add to collection"}
+            {uploading ? "Uploading photo…" : submitting ? "Adding…" : "Add to collection"}
           </button>
         </form>
       </div>

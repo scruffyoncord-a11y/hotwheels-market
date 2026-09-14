@@ -137,6 +137,7 @@ function SellForm() {
   const [prefilledFromInventory, setPrefilledFromInventory] = useState(false);
   const [adOpen, setAdOpen] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!inventoryId) return;
@@ -221,6 +222,8 @@ function SellForm() {
 
   async function submitListing() {
     if (!user.id || !frontPhoto || !backPhoto) return;
+    if (submitting) return; // already in flight — ignore a double-click/tap
+    setSubmitting(true);
     const startingBidInr = Number(startingBid);
     const buyNowInr = buyNowPrice ? Number(buyNowPrice) : undefined;
     const id = crypto.randomUUID();
@@ -249,6 +252,7 @@ function SellForm() {
     });
 
     if (submitError) {
+      setSubmitting(false);
       setError(submitError);
       return;
     }
@@ -497,16 +501,18 @@ function SellForm() {
 
           <button
             type="submit"
-            disabled={uploadingCount > 0}
+            disabled={uploadingCount > 0 || submitting}
             className={`mt-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60 ${
               isTrade ? "bg-violet-600 hover:bg-violet-700" : "bg-red-600 hover:bg-red-700"
             }`}
           >
             {uploadingCount > 0
               ? "Uploading photos…"
-              : isTrade
-                ? "Publish trade listing"
-                : "Start auction"}
+              : submitting
+                ? "Publishing…"
+                : isTrade
+                  ? "Publish trade listing"
+                  : "Start auction"}
           </button>
         </form>
         </SectionCard>
