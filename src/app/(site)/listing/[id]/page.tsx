@@ -38,6 +38,7 @@ import { Avatar } from "@/components/Avatar";
 import { StarRating } from "@/components/StarRating";
 import { formatInr, timeAgo } from "@/lib/format";
 import { CONDITION_LABELS } from "@/lib/types";
+import { getBidIncrement } from "@/lib/pricing";
 
 interface ChatMessage {
   from: "me" | "seller";
@@ -162,8 +163,8 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
 
   const listingBids = isAuction ? bidsForListing(listing.id) : [];
   const currentBid = topBid?.amountInr ?? listing.startingBidInr ?? 0;
-  const nextMinBid =
-    listingBids.length === 0 ? currentBid : currentBid + (listing.bidIncrementInr ?? 100);
+  const increment = getBidIncrement(currentBid);
+  const nextMinBid = listingBids.length === 0 ? currentBid : currentBid + increment;
   const youAreHighestBidder = !!user.id && topBid?.bidderId === user.id;
   const myLatestBid = listingBids.find((b) => b.bidderId === user.id);
   const isPopular = (listing.views ?? 0) > 400 || offerCount >= 2 || listingBids.length >= 3;
@@ -171,7 +172,6 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const biddingBlocked = disabled || biddingPaused;
   const isOwnListing = !!user.id && listing.sellerId === user.id;
   const isHost = isAuction && isOwnListing;
-  const increment = listing.bidIncrementInr ?? 100;
 
   const hasAccessGranted = isHost || !isPrivateAuction || hasAccess(listing.id, viewerName);
   const myAccessRequest = myRequest(listing.id, viewerName);
@@ -430,9 +430,6 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                   ["Listing type", isAuction ? "Auction" : "Trade only"],
                   ...(isAuction && listing.startingBidInr
                     ? [["Starting bid", formatInr(listing.startingBidInr)]]
-                    : []),
-                  ...(isAuction && listing.bidIncrementInr
-                    ? [["Bid increment", formatInr(listing.bidIncrementInr)]]
                     : []),
                   ...(isAuction && listing.endsAt
                     ? [

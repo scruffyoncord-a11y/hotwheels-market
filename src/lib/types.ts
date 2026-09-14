@@ -28,7 +28,6 @@ export interface Listing {
   wantsInExchange?: string;
   // --- AUCTION-only fields ---
   startingBidInr?: number;
-  bidIncrementInr?: number;
   buyNowInr?: number;
   endsAt?: string; // ISO timestamp the auction closes
   biddingPaused?: boolean; // host has temporarily paused new bids

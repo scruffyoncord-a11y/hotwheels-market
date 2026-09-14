@@ -130,7 +130,6 @@ function SellForm() {
   const [backPhoto, setBackPhoto] = useState<string | null>(null);
   const [extraPhotos, setExtraPhotos] = useState<string[]>([]);
   const [startingBid, setStartingBid] = useState("");
-  const [bidIncrement, setBidIncrement] = useState("100");
   const [buyNowPrice, setBuyNowPrice] = useState("");
   const [durationDays, setDurationDays] = useState("3");
   const [isPrivate, setIsPrivate] = useState(false);
@@ -235,7 +234,6 @@ function SellForm() {
       condition,
       wantsInExchange: isTrade ? wantsInExchange.trim() || undefined : undefined,
       startingBidInr: isAuction ? startingBidInr : undefined,
-      bidIncrementInr: isAuction ? Number(bidIncrement) || 100 : undefined,
       buyNowInr: isAuction ? buyNowInr : undefined,
       endsAt: isAuction
         ? new Date(Date.now() + Number(durationDays) * 24 * 60 * 60 * 1000).toISOString()
@@ -442,27 +440,20 @@ function SellForm() {
 
           {isAuction && (
             <div className="grid grid-cols-2 gap-4 rounded-2xl border border-red-100 bg-red-50/50 p-3 dark:border-red-900/40 dark:bg-red-950/20">
-              <Field label="Bid increment (INR)">
-                <input
-                  value={bidIncrement}
-                  onChange={(e) => setBidIncrement(e.target.value.replace(/[^0-9]/g, ""))}
-                  inputMode="numeric"
-                  placeholder="e.g. 100"
-                  className="input"
-                />
-              </Field>
-              <Field label="Auction duration">
-                <select
-                  value={durationDays}
-                  onChange={(e) => setDurationDays(e.target.value)}
-                  className="input"
-                >
-                  <option value="1">1 day</option>
-                  <option value="3">3 days</option>
-                  <option value="5">5 days</option>
-                  <option value="7">7 days</option>
-                </select>
-              </Field>
+              <div className="col-span-2">
+                <Field label="Auction duration">
+                  <select
+                    value={durationDays}
+                    onChange={(e) => setDurationDays(e.target.value)}
+                    className="input"
+                  >
+                    <option value="1">1 day</option>
+                    <option value="3">3 days</option>
+                    <option value="5">5 days</option>
+                    <option value="7">7 days</option>
+                  </select>
+                </Field>
+              </div>
               <div className="col-span-2">
                 <Field label="Buy Now price (optional)">
                   <input
