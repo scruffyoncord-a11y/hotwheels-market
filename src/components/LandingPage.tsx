@@ -92,10 +92,17 @@ function StatPill({ value, label }: { value: string; label: string }) {
   );
 }
 
+const HERO_PHOTO_STYLES = [
+  "left-0 top-[8%] h-[45%] w-[48%] -rotate-6 z-10",
+  "left-[26%] top-[32%] h-[52%] w-[58%] rotate-2 z-20 shadow-2xl",
+  "right-0 top-0 h-[42%] w-[44%] rotate-6 z-10",
+];
+
 export function LandingPage({ onContinue }: { onContinue: () => void }) {
   const { listings } = useListings();
   const activeListings = listings.filter((l) => l.status === "ACTIVE");
   const previewListings = activeListings.slice(0, 4);
+  const heroPhotos = activeListings.slice(0, 3);
 
   return (
     <main className="flex-1">
@@ -110,42 +117,74 @@ export function LandingPage({ onContinue }: { onContinue: () => void }) {
               "radial-gradient(500px circle at 75% 60%, rgba(139,92,246,0.14), transparent 60%)",
           }}
         />
-        <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center px-4 py-16 text-center sm:px-6 sm:py-24">
-          <Image
-            src="/logo-lockup-crop.png"
-            alt="LotClub"
-            width={1431}
-            height={355}
-            className="h-10 w-auto brightness-0 dark:brightness-100 sm:h-12"
-            priority
-          />
-          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl">
-            Trade and bid with real Hot Wheels collectors.
-          </h1>
-          <p className="mt-4 max-w-xl text-base text-zinc-600 dark:text-zinc-400 sm:text-lg">
-            Swap cars from your own collection, or bid in live auctions — every listing is a
-            genuine trade or auction between real, signed-in collectors near you.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <button
-              onClick={onContinue}
-              className="rounded-xl bg-orange-600 px-6 py-3 text-sm font-bold text-white shadow-[0_0_28px_rgba(249,115,22,0.35)] transition hover:bg-orange-700 hover:shadow-[0_0_36px_rgba(249,115,22,0.55)]"
-            >
-              Browse trades
-            </button>
-            <Link
-              href="/auctions"
-              onClick={onContinue}
-              className="rounded-xl border border-zinc-300 px-6 py-3 text-sm font-bold text-zinc-700 shadow-[0_0_20px_rgba(244,244,245,0.08)] transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-300 dark:hover:shadow-[0_0_24px_rgba(249,115,22,0.25)]"
-            >
-              See live auctions
-            </Link>
+        <div className="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+          <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+            <Image
+              src="/logo-lockup-crop.png"
+              alt="LotClub"
+              width={1431}
+              height={355}
+              className="h-10 w-auto brightness-0 dark:brightness-100 sm:h-12"
+              priority
+            />
+            {activeListings.length > 0 && (
+              <span className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700 dark:bg-orange-950 dark:text-orange-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                {activeListings.length} {activeListings.length === 1 ? "listing" : "listings"} live
+                right now
+              </span>
+            )}
+            <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl">
+              Trade and bid with real Hot Wheels collectors.
+            </h1>
+            <p className="mt-4 max-w-xl text-base text-zinc-600 dark:text-zinc-400 sm:text-lg">
+              Swap cars from your own collection, or bid in live auctions — every listing is a
+              genuine trade or auction between real, signed-in collectors near you.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+              <button
+                onClick={onContinue}
+                className="rounded-xl bg-orange-600 px-6 py-3 text-sm font-bold text-white shadow-[0_0_28px_rgba(249,115,22,0.35)] transition hover:bg-orange-700 hover:shadow-[0_0_36px_rgba(249,115,22,0.55)]"
+              >
+                Browse trades
+              </button>
+              <Link
+                href="/auctions"
+                onClick={onContinue}
+                className="rounded-xl border border-zinc-300 px-6 py-3 text-sm font-bold text-zinc-700 shadow-[0_0_20px_rgba(244,244,245,0.08)] transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-300 dark:hover:shadow-[0_0_24px_rgba(249,115,22,0.25)]"
+              >
+                See live auctions
+              </Link>
+            </div>
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-x-10 gap-y-4 lg:justify-start">
+              <StatPill value={String(activeListings.length)} label="Active Listings" />
+              <StatPill value="0%" label="Scalper Markup" />
+              <StatPill value="100%" label="Google-Verified" />
+            </div>
           </div>
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
-            <StatPill value={String(activeListings.length)} label="Active Listings" />
-            <StatPill value="0%" label="Scalper Markup" />
-            <StatPill value="100%" label="Google-Verified" />
-          </div>
+
+          {heroPhotos.length > 0 && (
+            <div className="relative mx-auto hidden h-72 w-full max-w-sm lg:block xl:h-80">
+              <div
+                aria-hidden
+                className="absolute inset-4 -z-10 rounded-[2rem] bg-gradient-to-br from-orange-500/15 to-violet-500/15 blur-2xl"
+              />
+              {heroPhotos.map((listing, i) => (
+                <div
+                  key={listing.id}
+                  className={`absolute overflow-hidden rounded-2xl border border-zinc-200 bg-white transition-transform hover:rotate-0 hover:scale-105 dark:border-zinc-800 dark:bg-zinc-900 ${HERO_PHOTO_STYLES[i]}`}
+                >
+                  <Image
+                    src={listing.images[0]}
+                    alt={listing.title}
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
