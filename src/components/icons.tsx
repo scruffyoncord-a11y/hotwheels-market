@@ -67,10 +67,12 @@ export function LinkIcon({ className = "h-4 w-4" }: IconProps) {
 
 export function HammerIcon({ className = "h-4 w-4" }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={base} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14.5 5.5 18.5 9.5" />
-      <path d="M4 20l6.5-6.5" />
-      <path d="M12.5 7.5 16 4l4.5 4.5-3.5 3.5-2-2-4.5 4.5-3-3Z" />
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+      <g transform="rotate(45 12 12)">
+        <rect x="10.3" y="9.5" width="3.4" height="13" rx="1.7" />
+        <rect x="5.5" y="3" width="13" height="7" rx="2.2" />
+        <path d="M18.5 3a3.5 3.5 0 0 1 0 7v-7Z" />
+      </g>
     </svg>
   );
 }
