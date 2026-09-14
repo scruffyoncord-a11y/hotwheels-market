@@ -90,7 +90,14 @@ export function BidsProvider({ children }: { children: React.ReactNode }) {
       highestBid: (listingId) => {
         const forListing = bids.filter((b) => b.listingId === listingId);
         if (forListing.length === 0) return undefined;
-        return forListing.reduce((max, b) => (b.amountInr > max.amountInr ? b : max));
+        // Ties on amountInr are real (proxy bids from the same bidder
+        // re-raising their own max keep the same amount) — break them by
+        // createdAt so the most recent bid always wins, matching
+        // place_bid()'s tiebreak server-side.
+        return forListing.reduce((max, b) => {
+          if (b.amountInr !== max.amountInr) return b.amountInr > max.amountInr ? b : max;
+          return b.createdAt > max.createdAt ? b : max;
+        });
       },
       placeBid: async (listingId, maxBidInr) => {
         const { data, error } = await supabase
