@@ -8,6 +8,7 @@ import { ProposalsProvider } from "@/lib/proposals-store";
 import { BidsProvider } from "@/lib/bids-store";
 import { FavoritesProvider } from "@/lib/favorites-store";
 import { InventoryProvider } from "@/lib/inventory-store";
+import { NotificationsProvider } from "@/lib/notifications-store";
 import { AuthProvider } from "@/lib/auth-store";
 import { AccessProvider } from "@/lib/access-store";
 import { ThemeProvider, ThemeInitScript } from "@/lib/theme-store";
@@ -50,11 +51,13 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
                 <BidsProvider>
                   <FavoritesProvider>
                     <InventoryProvider>
-                      <AccessProvider>
-                        <Header />
-                        {children}
-                        <Footer />
-                      </AccessProvider>
+                      <NotificationsProvider>
+                        <AccessProvider>
+                          <Header />
+                          {children}
+                          <Footer />
+                        </AccessProvider>
+                      </NotificationsProvider>
                     </InventoryProvider>
                   </FavoritesProvider>
                 </BidsProvider>

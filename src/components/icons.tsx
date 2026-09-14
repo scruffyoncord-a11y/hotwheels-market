@@ -12,6 +12,15 @@ export function HeartIcon({ className = "h-4 w-4", filled = false }: IconProps &
   );
 }
 
+export function BellIcon({ className = "h-4 w-4", filled = false }: IconProps & { filled?: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth={base}>
+      <path d="M6 9a6 6 0 0 1 12 0c0 3.4 1 5.5 1.8 6.6.4.5 0 1.2-.6 1.2H4.8c-.6 0-1-.7-.6-1.2C5 14.5 6 12.4 6 9Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M9.5 19.5a2.5 2.5 0 0 0 5 0" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function StarIcon({ className = "h-4 w-4", filled = false }: IconProps & { filled?: boolean }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth={base}>

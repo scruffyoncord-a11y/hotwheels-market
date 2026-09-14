@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase/client";
 import { getProfileByUsername } from "@/lib/profile";
 import { isAuctionEnded } from "./AuctionTimer";
 import { Avatar } from "./Avatar";
+import { NotificationBell } from "./NotificationBell";
 import { HammerIcon, HandshakeIcon, HeartIcon, SearchIcon, SwapIcon } from "./icons";
 
 function NavLink({
@@ -163,6 +164,7 @@ export function Header() {
               Offers
             </NavLink>
           </div>
+          {isAuthenticated && <NotificationBell />}
           <Link
             href="/wishlist"
             className="relative flex h-9 w-9 items-center justify-center rounded-full text-lg text-zinc-500 transition hover:bg-zinc-100 hover:text-orange-600 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-orange-400"
@@ -207,6 +209,7 @@ export function Header() {
           Auctions
         </NavLink>
         <NavLink href="/inventory">Collection</NavLink>
+        <NavLink href="/profile?tab=listings">My Listings</NavLink>
         <NavLink
           href="/offers"
           glow={pendingOffersCount > 0}
