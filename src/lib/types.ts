@@ -29,8 +29,16 @@ export interface Listing {
   // --- AUCTION-only fields ---
   startingBidInr?: number;
   buyNowInr?: number;
+  // ISO timestamp the auction goes live and bidding opens. Undefined
+  // means it went live immediately at creation, same as before scheduled
+  // auctions existed.
+  startsAt?: string;
   endsAt?: string; // ISO timestamp the auction closes
   biddingPaused?: boolean; // host has temporarily paused new bids
+  // Publicly-visible count of people who tapped "Notify me" on a
+  // scheduled auction — kept in sync by a trigger, same pattern as
+  // pendingOffersCount.
+  watchersCount?: number;
   // --- Private auction access control ---
   isPrivate?: boolean;
   // Secret shared via an invite link (?access=<token>) that grants a

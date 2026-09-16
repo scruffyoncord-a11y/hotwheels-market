@@ -17,7 +17,9 @@ interface ListingRow {
   wants_in_exchange: string | null;
   starting_bid_inr: number | null;
   buy_now_inr: number | null;
+  starts_at: string | null;
   ends_at: string | null;
+  watchers_count: number | null;
   bidding_paused: boolean;
   is_private: boolean;
   access_token: string | null;
@@ -50,7 +52,9 @@ function rowToListing(r: ListingRow): Listing {
     wantsInExchange: r.wants_in_exchange ?? undefined,
     startingBidInr: r.starting_bid_inr ?? undefined,
     buyNowInr: r.buy_now_inr ?? undefined,
+    startsAt: r.starts_at ?? undefined,
     endsAt: r.ends_at ?? undefined,
+    watchersCount: r.watchers_count ?? 0,
     biddingPaused: r.bidding_paused,
     isPrivate: r.is_private,
     accessToken: r.access_token ?? undefined,
@@ -86,6 +90,7 @@ function listingToRow(l: Listing) {
     wants_in_exchange: l.wantsInExchange ?? null,
     starting_bid_inr: l.startingBidInr ?? null,
     buy_now_inr: l.buyNowInr ?? null,
+    starts_at: l.startsAt ?? null,
     ends_at: l.endsAt ?? null,
     bidding_paused: l.biddingPaused ?? false,
     is_private: l.isPrivate ?? false,

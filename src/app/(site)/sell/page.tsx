@@ -19,6 +19,12 @@ import { MAJOR_INDIAN_CITIES } from "@/lib/cities";
 
 const CONDITIONS = Object.keys(CONDITION_LABELS) as ListingCondition[];
 
+const DURATION_UNIT_MS: Record<"minutes" | "hours" | "days", number> = {
+  minutes: 60 * 1000,
+  hours: 60 * 60 * 1000,
+  days: 24 * 60 * 60 * 1000,
+};
+
 function PhotoSlot({
   label,
   photo,
@@ -131,7 +137,10 @@ function SellForm() {
   const [extraPhotos, setExtraPhotos] = useState<string[]>([]);
   const [startingBid, setStartingBid] = useState("");
   const [buyNowPrice, setBuyNowPrice] = useState("");
-  const [durationDays, setDurationDays] = useState("3");
+  const [durationValue, setDurationValue] = useState("3");
+  const [durationUnit, setDurationUnit] = useState<"minutes" | "hours" | "days">("days");
+  const [startMode, setStartMode] = useState<"now" | "later">("now");
+  const [startAt, setStartAt] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
   const [error, setError] = useState("");
   const [prefilledFromInventory, setPrefilledFromInventory] = useState(false);
@@ -209,6 +218,16 @@ function SellForm() {
         setError("Buy Now price should be higher than the starting bid.");
         return;
       }
+      if (!Number(durationValue) || Number(durationValue) <= 0) {
+        setError("Please enter a valid auction duration.");
+        return;
+      }
+      if (startMode === "later") {
+        if (!startAt || new Date(startAt).getTime() <= Date.now()) {
+          setError("Pick a start time in the future.");
+          return;
+        }
+      }
     }
 
     // Trade listings watch an ad before publishing; auctions publish
@@ -227,6 +246,8 @@ function SellForm() {
     const startingBidInr = Number(startingBid);
     const buyNowInr = buyNowPrice ? Number(buyNowPrice) : undefined;
     const id = crypto.randomUUID();
+    const durationMs = Number(durationValue) * DURATION_UNIT_MS[durationUnit];
+    const startsAtMs = isAuction && startMode === "later" ? new Date(startAt).getTime() : Date.now();
     const { error: submitError } = await addListing({
       id,
       type,
@@ -238,9 +259,8 @@ function SellForm() {
       wantsInExchange: isTrade ? wantsInExchange.trim() || undefined : undefined,
       startingBidInr: isAuction ? startingBidInr : undefined,
       buyNowInr: isAuction ? buyNowInr : undefined,
-      endsAt: isAuction
-        ? new Date(Date.now() + Number(durationDays) * 24 * 60 * 60 * 1000).toISOString()
-        : undefined,
+      startsAt: isAuction && startMode === "later" ? new Date(startsAtMs).toISOString() : undefined,
+      endsAt: isAuction ? new Date(startsAtMs + durationMs).toISOString() : undefined,
       isPrivate: isAuction ? isPrivate : undefined,
       accessToken: isAuction && isPrivate ? Math.random().toString(36).slice(2, 10) : undefined,
       city: city.trim(),
@@ -445,18 +465,61 @@ function SellForm() {
           {isAuction && (
             <div className="grid grid-cols-2 gap-4 rounded-2xl border border-red-100 bg-red-50/50 p-3 dark:border-red-900/40 dark:bg-red-950/20">
               <div className="col-span-2">
-                <Field label="Auction duration">
-                  <select
-                    value={durationDays}
-                    onChange={(e) => setDurationDays(e.target.value)}
-                    className="input"
+                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  When should it start?
+                </span>
+                <div className="mt-1.5 inline-flex rounded-xl border border-zinc-300 bg-white p-1 dark:border-zinc-700 dark:bg-zinc-900">
+                  <button
+                    type="button"
+                    onClick={() => setStartMode("now")}
+                    className={`rounded-lg px-3 py-1 text-xs font-semibold transition ${
+                      startMode === "now" ? "bg-red-600 text-white" : "text-zinc-600 dark:text-zinc-300"
+                    }`}
                   >
-                    <option value="1">1 day</option>
-                    <option value="3">3 days</option>
-                    <option value="5">5 days</option>
-                    <option value="7">7 days</option>
+                    Right away
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStartMode("later")}
+                    className={`rounded-lg px-3 py-1 text-xs font-semibold transition ${
+                      startMode === "later" ? "bg-red-600 text-white" : "text-zinc-600 dark:text-zinc-300"
+                    }`}
+                  >
+                    Schedule for later
+                  </button>
+                </div>
+                {startMode === "later" && (
+                  <input
+                    type="datetime-local"
+                    value={startAt}
+                    onChange={(e) => setStartAt(e.target.value)}
+                    min={new Date(Date.now() + 5 * 60 * 1000).toISOString().slice(0, 16)}
+                    className="input mt-2"
+                  />
+                )}
+              </div>
+              <div className="col-span-2">
+                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  Auction duration
+                </span>
+                <div className="mt-1.5 flex gap-2">
+                  <input
+                    value={durationValue}
+                    onChange={(e) => setDurationValue(e.target.value.replace(/[^0-9]/g, ""))}
+                    inputMode="numeric"
+                    placeholder="3"
+                    className="input w-24"
+                  />
+                  <select
+                    value={durationUnit}
+                    onChange={(e) => setDurationUnit(e.target.value as typeof durationUnit)}
+                    className="input flex-1"
+                  >
+                    <option value="minutes">Minutes</option>
+                    <option value="hours">Hours</option>
+                    <option value="days">Days</option>
                   </select>
-                </Field>
+                </div>
               </div>
               <div className="col-span-2">
                 <Field label="Buy Now price (optional)">
@@ -535,7 +598,10 @@ function SellForm() {
                   Starting bid: {startingBid ? `₹${Number(startingBid).toLocaleString("en-IN")}` : "₹—"}
                 </p>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Runs {durationDays} {durationDays === "1" ? "day" : "days"}
+                  {startMode === "later" && startAt
+                    ? `Starts ${new Date(startAt).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })} · `
+                    : ""}
+                  Runs {durationValue || "—"} {durationUnit}
                   {buyNowPrice && ` · Buy Now ₹${Number(buyNowPrice).toLocaleString("en-IN")}`}
                 </p>
               </div>

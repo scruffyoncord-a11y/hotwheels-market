@@ -158,3 +158,77 @@ export function AuctionTimerBig({ endsAt }: { endsAt: string }) {
 export function isAuctionEnded(endsAt: string): boolean {
   return new Date(endsAt).getTime() <= Date.now();
 }
+
+export function isAuctionLive(startsAt: string | undefined): boolean {
+  return !startsAt || new Date(startsAt).getTime() <= Date.now();
+}
+
+/** Small "Starts in Xd Yh" label for scheduled auctions — used on cards. */
+export function AuctionStartCountdown({
+  startsAt,
+  className,
+}: {
+  startsAt: string;
+  className?: string;
+}) {
+  const now = useNow(1000);
+
+  if (now === null) {
+    return <span className={className}>&nbsp;</span>;
+  }
+
+  const remaining = getRemaining(startsAt, now);
+  if (remaining.ended) return null;
+
+  const label = remaining.days > 0
+    ? `Starts in ${remaining.days}d ${remaining.hours}h`
+    : remaining.hours > 0
+      ? `Starts in ${remaining.hours}h ${remaining.minutes}m`
+      : `Starts in ${remaining.minutes}m ${remaining.seconds}s`;
+
+  return <span className={className}>{label}</span>;
+}
+
+/** Big boxed-digit countdown to an auction's scheduled start — mirrors AuctionTimerBig. */
+export function AuctionStartCountdownBig({ startsAt }: { startsAt: string }) {
+  const now = useNow(1000);
+
+  if (now === null) {
+    return <div className="h-14" />;
+  }
+
+  const remaining = getRemaining(startsAt, now);
+  if (remaining.ended) return null;
+
+  const startsLabel = new Date(startsAt).toLocaleString("en-IN", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  return (
+    <div className="flex flex-col gap-1.5 rounded-2xl border border-amber-200 bg-amber-50/60 px-4 py-3 shadow-sm dark:border-amber-900 dark:bg-amber-950/20">
+      <div className="flex items-center gap-3">
+        <span className="text-xs font-bold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+          Starts in
+        </span>
+        <div className="flex items-center gap-1.5">
+          {remaining.days > 0 && (
+            <>
+              <Digit value={remaining.days} label="days" />
+              <span className="pb-4 text-lg font-bold text-zinc-400">:</span>
+            </>
+          )}
+          <Digit value={remaining.hours} label="hrs" />
+          <span className="pb-4 text-lg font-bold text-zinc-400">:</span>
+          <Digit value={remaining.minutes} label="min" />
+          <span className="pb-4 text-lg font-bold text-zinc-400">:</span>
+          <Digit value={remaining.seconds} label="sec" />
+        </div>
+      </div>
+      <p className="text-[11px] text-zinc-400 dark:text-zinc-500">Starts {startsLabel}</p>
+    </div>
+  );
+}

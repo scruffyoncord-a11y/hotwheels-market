@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ConditionBadge } from "./ConditionBadge";
-import { AuctionTimer } from "./AuctionTimer";
+import { AuctionStartCountdown, AuctionTimer, isAuctionLive } from "./AuctionTimer";
 import { useBids } from "@/lib/bids-store";
 import { useFavorites } from "@/lib/favorites-store";
 import { useAccess } from "@/lib/access-store";
@@ -31,6 +31,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
   const currentBid = isAuction ? (topBid?.amountInr ?? listing.startingBidInr ?? 0) : 0;
   const auctionOver = isAuction && listing.endsAt ? new Date(listing.endsAt).getTime() <= Date.now() : false;
   const isBoosted = !!listing.boostedUntil && new Date(listing.boostedUntil).getTime() > Date.now();
+  const isScheduled = isAuction && !isAuctionLive(listing.startsAt);
 
   return (
     <Link
@@ -54,7 +55,11 @@ export function ListingCard({ listing }: { listing: Listing }) {
         )}
         <div className="absolute left-2 top-2 flex gap-1.5">
           {isAuction && !sold && !reserved && !auctionOver && (
-            listing.biddingPaused ? (
+            isScheduled ? (
+              <span className="inline-flex items-center gap-1 rounded-xl bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                Scheduled
+              </span>
+            ) : listing.biddingPaused ? (
               <span className="inline-flex items-center gap-1 rounded-xl bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
                 <PauseIcon className="h-2.5 w-2.5" /> Paused
               </span>
@@ -87,10 +92,16 @@ export function ListingCard({ listing }: { listing: Listing }) {
         >
           <HeartIcon className="h-3.5 w-3.5" filled={favorited} />
         </button>
-        {isAuction && listing.endsAt && !auctionOver && !sold && !reserved && (
-          <span className="absolute bottom-2 right-2 rounded-xl bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white">
-            <AuctionTimer endsAt={listing.endsAt} />
-          </span>
+        {isAuction && !sold && !reserved && (
+          isScheduled && listing.startsAt ? (
+            <span className="absolute bottom-2 right-2 rounded-xl bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white">
+              <AuctionStartCountdown startsAt={listing.startsAt} />
+            </span>
+          ) : listing.endsAt && !auctionOver ? (
+            <span className="absolute bottom-2 right-2 rounded-xl bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white">
+              <AuctionTimer endsAt={listing.endsAt} />
+            </span>
+          ) : null
         )}
       </div>
       <div className="flex flex-1 flex-col gap-1 p-3">
@@ -127,7 +138,11 @@ export function ListingCard({ listing }: { listing: Listing }) {
                   {formatInr(currentBid)}
                 </p>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  {bidCount > 0 ? `${bidCount} ${bidCount === 1 ? "bid" : "bids"}` : "No bids yet"}
+                  {isScheduled
+                    ? `${listing.watchersCount ?? 0} ${(listing.watchersCount ?? 0) === 1 ? "person" : "people"} notified`
+                    : bidCount > 0
+                      ? `${bidCount} ${bidCount === 1 ? "bid" : "bids"}`
+                      : "No bids yet"}
                   {listing.buyNowInr && ` · Buy Now ${formatInr(listing.buyNowInr)}`}
                 </p>
               </>

@@ -6,10 +6,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ConditionBadge } from "@/components/ConditionBadge";
 import { ListingCard } from "@/components/ListingCard";
-import { AuctionTimer, AuctionTimerBig, isAuctionEnded } from "@/components/AuctionTimer";
+import {
+  AuctionStartCountdown,
+  AuctionStartCountdownBig,
+  AuctionTimer,
+  AuctionTimerBig,
+  isAuctionEnded,
+  isAuctionLive,
+} from "@/components/AuctionTimer";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { ReportButton } from "@/components/ReportButton";
 import {
+  BellIcon,
   CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -29,6 +37,7 @@ import {
 import { useListings } from "@/lib/listings-store";
 import { useProposals } from "@/lib/proposals-store";
 import { useBids } from "@/lib/bids-store";
+import { useAuctionWatchers } from "@/lib/auction-watchers-store";
 import { useFavorites } from "@/lib/favorites-store";
 import { useAccess } from "@/lib/access-store";
 import { useAuth } from "@/lib/auth-store";
@@ -50,6 +59,8 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const { listings, getListing, loading: listingsLoading } = useListings();
   const { proposals } = useProposals();
   const { bidsForListing, highestBid, placeBid: placeBidRpc } = useBids();
+  const { isWatching, toggleWatch } = useAuctionWatchers();
+  const [watchBusy, setWatchBusy] = useState(false);
   const { isFavorited, toggleFavorite } = useFavorites();
   const { hasAccess, grantViaToken, requestAccess, respondToRequest, requestsForListing, myRequest } =
     useAccess();
@@ -156,6 +167,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
 
   const isTrade = listing.type === "TRADE";
   const auctionEnded = isAuction && listing.endsAt ? isAuctionEnded(listing.endsAt) : false;
+  const notYetLive = isAuction && !isAuctionLive(listing.startsAt);
   const disabled = listing.status !== "ACTIVE" || auctionEnded;
   const offerCount = proposals.filter((p) => p.listingId === listing.id).length;
   const favorited = isFavorited(listing.id);
@@ -169,7 +181,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
   const myLatestBid = listingBids.find((b) => b.bidderId === user.id);
   const isPopular = (listing.views ?? 0) > 400 || offerCount >= 2 || listingBids.length >= 3;
   const biddingPaused = !!listing.biddingPaused;
-  const biddingBlocked = disabled || biddingPaused;
+  const biddingBlocked = disabled || biddingPaused || notYetLive;
   const isOwnListing = !!user.id && listing.sellerId === user.id;
   const isHost = isAuction && isOwnListing;
 
@@ -431,6 +443,19 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                   ...(isAuction && listing.startingBidInr
                     ? [["Starting bid", formatInr(listing.startingBidInr)]]
                     : []),
+                  ...(isAuction && listing.startsAt && notYetLive
+                    ? [
+                        [
+                          "Auction starts",
+                          new Date(listing.startsAt).toLocaleString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                            hour: "numeric",
+                            minute: "2-digit",
+                          }),
+                        ],
+                      ]
+                    : []),
                   ...(isAuction && listing.endsAt
                     ? [
                         [
@@ -519,12 +544,17 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                       <HammerIcon className="h-3 w-3" /> Auction
                     </span>
                   )}
-                  {isAuction && !disabled && !biddingPaused && (
+                  {isAuction && !disabled && notYetLive && (
+                    <span className="inline-flex items-center gap-1 rounded-xl bg-amber-500 px-2.5 py-0.5 text-xs font-bold text-white">
+                      Scheduled
+                    </span>
+                  )}
+                  {isAuction && !disabled && !biddingPaused && !notYetLive && (
                     <span className="inline-flex items-center gap-1 rounded-xl bg-red-600 px-2.5 py-0.5 text-xs font-bold text-white">
                       <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> LIVE
                     </span>
                   )}
-                  {isAuction && biddingPaused && !disabled && (
+                  {isAuction && biddingPaused && !disabled && !notYetLive && (
                     <span className="inline-flex items-center gap-1 rounded-xl bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800">
                       <PauseIcon className="h-2.5 w-2.5" /> Paused
                     </span>
@@ -580,14 +610,29 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                       {formatInr(currentBid)}
                     </p>
                   </div>
-                  {listing.endsAt && !disabled && (
-                    <AuctionTimer
-                      endsAt={listing.endsAt}
-                      className="text-sm font-semibold text-zinc-600 dark:text-zinc-300"
+                  {notYetLive && listing.startsAt ? (
+                    <AuctionStartCountdown
+                      startsAt={listing.startsAt}
+                      className="text-sm font-semibold text-amber-600 dark:text-amber-400"
                     />
+                  ) : (
+                    listing.endsAt &&
+                    !disabled && (
+                      <AuctionTimer
+                        endsAt={listing.endsAt}
+                        className="text-sm font-semibold text-zinc-600 dark:text-zinc-300"
+                      />
+                    )
                   )}
                 </div>
-                {youAreHighestBidder && !disabled && (
+                {notYetLive && (
+                  <p className="mt-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                    {listing.watchersCount ?? 0}{" "}
+                    {(listing.watchersCount ?? 0) === 1 ? "person" : "people"} notified when this
+                    goes live
+                  </p>
+                )}
+                {!notYetLive && youAreHighestBidder && !disabled && (
                   <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                     <CheckIcon className="h-3.5 w-3.5" /> You&apos;re the highest bidder
                   </p>
@@ -646,9 +691,35 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
 
             {isAuction ? (
               <div className="flex flex-col gap-3">
-                {!disabled && listing.endsAt && <AuctionTimerBig endsAt={listing.endsAt} />}
+                {!disabled && notYetLive && listing.startsAt && (
+                  <AuctionStartCountdownBig startsAt={listing.startsAt} />
+                )}
+                {!disabled && !notYetLive && listing.endsAt && (
+                  <AuctionTimerBig endsAt={listing.endsAt} />
+                )}
 
-                {biddingPaused && !disabled && (
+                {!disabled && notYetLive && !isHost && (
+                  <button
+                    onClick={async () => {
+                      if (!isAuthenticated) return;
+                      setWatchBusy(true);
+                      await toggleWatch(listing.id);
+                      setWatchBusy(false);
+                    }}
+                    disabled={watchBusy || !isAuthenticated}
+                    className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition disabled:opacity-60 ${
+                      isWatching(listing.id)
+                        ? "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
+                        : "border-zinc-300 text-zinc-700 hover:border-amber-400 dark:border-zinc-700 dark:text-zinc-300"
+                    }`}
+                    title={isAuthenticated ? undefined : "Sign in to get notified"}
+                  >
+                    <BellIcon className="h-4 w-4" />
+                    {isWatching(listing.id) ? "You'll be notified" : "Notify me when it starts"}
+                  </button>
+                )}
+
+                {biddingPaused && !disabled && !notYetLive && (
                   <p className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
                     <PauseIcon className="h-4 w-4 shrink-0" /> The seller has paused bidding — check back shortly.
                   </p>
