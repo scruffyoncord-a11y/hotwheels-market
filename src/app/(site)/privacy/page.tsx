@@ -155,10 +155,10 @@ export default function PrivacyPage() {
         <p>
           To request deletion of your account and associated personal data, email{" "}
           <a
-            href="mailto:lotclub.in@gmail.com?subject=Account%20deletion%20request"
+            href="mailto:lotclub.help@gmail.com?subject=Account%20deletion%20request"
             className="text-orange-600 hover:underline dark:text-orange-400"
           >
-            lotclub.in@gmail.com
+            lotclub.help@gmail.com
           </a>{" "}
           from the email address associated with your account (or, for phone sign-in, include the
           phone number on the account) with the subject &ldquo;Account deletion request.&rdquo; We
@@ -199,10 +199,10 @@ export default function PrivacyPage() {
         <p>
           Questions about this policy, or requests regarding your data, can be sent to{" "}
           <a
-            href="mailto:lotclub.in@gmail.com"
+            href="mailto:lotclub.help@gmail.com"
             className="text-orange-600 hover:underline dark:text-orange-400"
           >
-            lotclub.in@gmail.com
+            lotclub.help@gmail.com
           </a>
           .
         </p>

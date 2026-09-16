@@ -77,10 +77,10 @@ export default function RefundPolicyPage() {
         <p>
           Email{" "}
           <a
-            href="mailto:lotclub.in@gmail.com"
+            href="mailto:lotclub.help@gmail.com"
             className="text-orange-600 hover:underline dark:text-orange-400"
           >
-            lotclub.in@gmail.com
+            lotclub.help@gmail.com
           </a>{" "}
           with the affected listing, the approximate time of payment, and your Razorpay payment
           ID if you have it. We aim to respond within 3 business days.
