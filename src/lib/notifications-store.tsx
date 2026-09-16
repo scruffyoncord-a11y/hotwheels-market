@@ -11,7 +11,11 @@ export type NotificationType =
   | "trade_completed"
   | "trade_failed"
   | "outbid"
-  | "auction_won";
+  | "auction_won"
+  | "auction_live"
+  | "more_items_requested"
+  | "more_items_added"
+  | "more_items_declined";
 
 export interface AppNotification {
   id: string;

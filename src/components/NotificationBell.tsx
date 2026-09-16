@@ -14,6 +14,10 @@ const TYPE_ICON: Record<AppNotification["type"], React.ReactNode> = {
   trade_failed: <XIcon className="h-4 w-4" />,
   outbid: <HammerIcon className="h-4 w-4" />,
   auction_won: <HammerIcon className="h-4 w-4" />,
+  auction_live: <HammerIcon className="h-4 w-4" />,
+  more_items_requested: <HandshakeIcon className="h-4 w-4" />,
+  more_items_added: <HandshakeIcon className="h-4 w-4" />,
+  more_items_declined: <XIcon className="h-4 w-4" />,
 };
 
 export function NotificationBell() {

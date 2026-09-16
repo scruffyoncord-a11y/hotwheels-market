@@ -20,6 +20,9 @@ interface ProposalRow {
   status: ProposalStatus;
   seller_outcome: TradeOutcome;
   proposer_outcome: TradeOutcome;
+  more_requested: boolean;
+  more_request_note: string | null;
+  more_request_declined: boolean;
   created_at: string;
 }
 
@@ -39,6 +42,9 @@ function rowToProposal(r: ProposalRow): TradeProposal {
     status: r.status,
     sellerOutcome: r.seller_outcome,
     proposerOutcome: r.proposer_outcome,
+    moreRequested: r.more_requested,
+    moreRequestNote: r.more_request_note ?? undefined,
+    moreRequestDeclined: r.more_request_declined,
     createdAt: r.created_at,
   };
 }
@@ -58,6 +64,15 @@ interface ProposalsContextValue {
   // Either side of a COMPLETED trade can rate the other, once (enforced
   // server-side by submit_trade_rating(), see migration 0012).
   submitRating: (proposalId: string, stars: number) => Promise<{ error?: string }>;
+  // Only the seller, only while PENDING (request_more_items() RPC).
+  requestMoreItems: (proposalId: string, note?: string) => Promise<{ error?: string }>;
+  // Only the proposer, only in response to an open request
+  // (respond_to_more_items() RPC) — pass itemIds to add them, or
+  // decline: true to turn the request down instead.
+  respondToMoreItems: (
+    proposalId: string,
+    opts: { itemIds?: string[]; decline?: boolean },
+  ) => Promise<{ error?: string }>;
 }
 
 const ProposalsContext = createContext<ProposalsContextValue | null>(null);
@@ -170,6 +185,21 @@ export function ProposalsProvider({ children }: { children: React.ReactNode }) {
         const { error } = await supabase.rpc("submit_trade_rating", {
           p_proposal_id: proposalId,
           p_stars: stars,
+        });
+        return error ? { error: error.message } : {};
+      },
+      requestMoreItems: async (proposalId, note) => {
+        const { error } = await supabase.rpc("request_more_items", {
+          p_proposal_id: proposalId,
+          p_note: note ?? null,
+        });
+        return error ? { error: error.message } : {};
+      },
+      respondToMoreItems: async (proposalId, { itemIds, decline }) => {
+        const { error } = await supabase.rpc("respond_to_more_items", {
+          p_proposal_id: proposalId,
+          p_item_ids: itemIds ?? null,
+          p_decline: !!decline,
         });
         return error ? { error: error.message } : {};
       },

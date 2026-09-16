@@ -92,6 +92,14 @@ export interface TradeProposal {
   status: ProposalStatus;
   sellerOutcome: TradeOutcome;
   proposerOutcome: TradeOutcome;
+  // Seller asked the proposer to add more items to a still-pending offer
+  // — set/cleared via the request_more_items()/respond_to_more_items()
+  // RPCs, never written directly.
+  moreRequested?: boolean;
+  moreRequestNote?: string;
+  // True once the proposer has chosen not to add anything, so the seller
+  // sees a definite answer instead of the request just staying pending.
+  moreRequestDeclined?: boolean;
   createdAt: string;
 }
 
