@@ -84,7 +84,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 }
 
 function EditProfileView({ onBack }: { onBack: () => void }) {
-  const { user, updateProfile, signInWithPhone } = useAuth();
+  const { user, updateProfile, linkPhone } = useAuth();
   const { profile, setProfile } = useMyProfile();
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -100,6 +100,8 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
   const [editingPhone, setEditingPhone] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [otpBusy, setOtpBusy] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -110,17 +112,63 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
     if (profile?.username) setUsername(profile.username);
   }, [profile?.username]);
 
-  function sendOtp() {
-    if (!/^\d{10}$/.test(phone.trim())) return;
-    setOtpSent(true);
+  async function sendOtp() {
+    setPhoneError("");
+    if (!/^\d{10}$/.test(phone.trim())) {
+      setPhoneError("Enter a valid 10-digit mobile number.");
+      return;
+    }
+    setOtpBusy(true);
+    try {
+      const res = await fetch("/api/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: `+91${phone.trim()}` }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPhoneError(data.error ?? "Couldn't send the code.");
+        return;
+      }
+      setOtpSent(true);
+    } catch {
+      setPhoneError("Couldn't send the code — try again.");
+    } finally {
+      setOtpBusy(false);
+    }
   }
 
-  function verifyOtp() {
-    if (!/^\d{6}$/.test(otp.trim())) return;
-    signInWithPhone(phone.trim());
-    setEditingPhone(false);
-    setOtpSent(false);
-    setOtp("");
+  async function verifyOtp() {
+    setPhoneError("");
+    if (!/^\d{6}$/.test(otp.trim())) {
+      setPhoneError("Enter the 6-digit code.");
+      return;
+    }
+    setOtpBusy(true);
+    try {
+      const res = await fetch("/api/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: `+91${phone.trim()}`, code: otp.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPhoneError(data.error ?? "Couldn't verify that code.");
+        return;
+      }
+      const result = await linkPhone(phone.trim());
+      if (result.error) {
+        setPhoneError(result.error);
+        return;
+      }
+      setEditingPhone(false);
+      setOtpSent(false);
+      setOtp("");
+    } catch {
+      setPhoneError("Couldn't verify that code — try again.");
+    } finally {
+      setOtpBusy(false);
+    }
   }
 
   function handleAvatarPick(file: File) {
@@ -303,8 +351,15 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
         </label>
 
         <label className="mt-4 flex flex-col gap-1">
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Phone Number</span>
-          {!editingPhone ? (
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            WhatsApp Number
+          </span>
+          {!user.id ? (
+            <p className="rounded-xl bg-zinc-100 px-3 py-2 text-xs text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+              Sign in with Google to link a WhatsApp number — it&apos;s only ever shared with
+              someone you&apos;ve completed a trade with.
+            </p>
+          ) : !editingPhone ? (
             <div className="flex gap-2">
               <div className="input flex-1 text-zinc-500 dark:text-zinc-400">
                 {user.phone ? `+91 ${user.phone}` : "Not linked yet"}
@@ -333,10 +388,12 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
               <button
                 type="button"
                 onClick={sendOtp}
-                className="self-start rounded-xl bg-zinc-200 px-4 py-1.5 text-xs font-semibold text-zinc-800 transition hover:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                disabled={otpBusy}
+                className="self-start rounded-xl bg-zinc-200 px-4 py-1.5 text-xs font-semibold text-zinc-800 transition hover:bg-zinc-300 disabled:opacity-60 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
               >
-                Send OTP
+                {otpBusy ? "Sending…" : "Send OTP"}
               </button>
+              {phoneError && <p className="text-xs text-rose-600 dark:text-rose-400">{phoneError}</p>}
             </div>
           ) : (
             <div className="flex flex-col gap-2">
@@ -354,15 +411,19 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
               <button
                 type="button"
                 onClick={verifyOtp}
-                className="self-start rounded-xl bg-orange-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-orange-700"
+                disabled={otpBusy}
+                className="self-start rounded-xl bg-orange-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-orange-700 disabled:opacity-60"
               >
-                Verify
+                {otpBusy ? "Verifying…" : "Verify"}
               </button>
+              {phoneError && <p className="text-xs text-rose-600 dark:text-rose-400">{phoneError}</p>}
             </div>
           )}
-          <span className="text-xs text-zinc-500">
-            Use the update button to change your phone number with OTP verification.
-          </span>
+          {user.id && (
+            <span className="text-xs text-zinc-500">
+              Only shared with someone once you&apos;ve completed a trade with them.
+            </span>
+          )}
         </label>
 
         {error && <p className="mt-4 text-xs text-rose-600 dark:text-rose-400">{error}</p>}

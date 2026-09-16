@@ -82,7 +82,9 @@ export default function PrivacyPage() {
         <p>
           Your username, display name, avatar, city, listings, and (if you choose to make it
           public) your collection are visible to anyone who views your public profile. Your email
-          address and phone number are never shown to other users.
+          address is never shown to other users. If you link a WhatsApp number, it stays private
+          until a trade you&apos;re part of is marked completed by both sides — at that point it is
+          shared with that one other person only, so you can coordinate the handover.
         </p>
       </Section>
 

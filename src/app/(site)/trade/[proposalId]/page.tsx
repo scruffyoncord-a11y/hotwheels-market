@@ -14,7 +14,7 @@ import {
   ProposalStatusBadge,
 } from "@/components/ProposalChips";
 import { StarPicker } from "@/components/StarPicker";
-import { CheckIcon, StarIcon, SwapIcon, XIcon } from "@/components/icons";
+import { CheckIcon, HandshakeIcon, StarIcon, SwapIcon, XIcon } from "@/components/icons";
 
 export default function TradeConfirmationPage({
   params,
@@ -32,6 +32,7 @@ export default function TradeConfirmationPage({
   const [myRating, setMyRating] = useState<number | null>(null);
   const [ratingLoaded, setRatingLoaded] = useState(false);
   const [ratingError, setRatingError] = useState<string | null>(null);
+  const [counterpartyPhone, setCounterpartyPhone] = useState<string | null | undefined>(undefined);
 
   const proposal = proposals.find((p) => p.id === proposalId);
 
@@ -49,6 +50,21 @@ export default function TradeConfirmationPage({
           setMyRating(data?.stars ?? null);
           setRatingLoaded(true);
         }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [proposal, user.id]);
+
+  useEffect(() => {
+    if (!proposal || proposal.status !== "COMPLETED" || !user.id) return;
+    let cancelled = false;
+    createClient()
+      .rpc("get_trade_contact", { p_proposal_id: proposal.id })
+      .single()
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        setCounterpartyPhone(error ? null : (data as { phone: string | null }).phone ?? null);
       });
     return () => {
       cancelled = true;
@@ -215,7 +231,44 @@ export default function TradeConfirmationPage({
             <p className="text-sm font-semibold text-zinc-100">
               Trade completed with {counterparty}!
             </p>
-            <p className="mt-1 text-xs text-zinc-500">This listing has been marked sold.</p>
+            <p className="mt-1 text-xs text-zinc-500">
+              Thank you for trading on LotClub — hope it&apos;s a great addition to your
+              collection.
+            </p>
+
+            {counterpartyPhone === undefined ? null : counterpartyPhone ? (
+              <div className="mx-auto mt-5 max-w-xs rounded-2xl border border-emerald-800/60 bg-emerald-950/20 p-4 text-left">
+                <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-emerald-400">
+                  <HandshakeIcon className="h-3.5 w-3.5" /> Coordinate the handover
+                </p>
+                <p className="mt-1.5 text-sm font-medium text-zinc-200">
+                  {counterparty}&apos;s WhatsApp: +91 {counterpartyPhone}
+                </p>
+                <a
+                  href={`https://wa.me/91${counterpartyPhone}?text=${encodeURIComponent(
+                    `Hi ${counterparty}, this is regarding our LotClub trade for "${proposal.listingTitle}"!`,
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2 text-sm font-bold text-white transition hover:bg-emerald-700"
+                >
+                  Message on WhatsApp
+                </a>
+              </div>
+            ) : (
+              <p className="mx-auto mt-5 max-w-xs text-xs text-zinc-500">
+                {counterparty} hasn&apos;t linked a WhatsApp number yet — try reaching them another
+                way, or check back later.
+              </p>
+            )}
+            {!user.phone && (
+              <p className="mx-auto mt-2 max-w-xs text-xs text-zinc-500">
+                <Link href="/settings" className="font-semibold text-orange-500 hover:underline">
+                  Link your own WhatsApp number
+                </Link>{" "}
+                so {counterparty} can reach you too.
+              </p>
+            )}
 
             {ratingLoaded && (
               <div className="mx-auto mt-5 max-w-xs border-t border-zinc-800 pt-5">

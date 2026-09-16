@@ -46,6 +46,11 @@ interface AuthContextValue {
   updateProfile: (
     patch: Partial<Pick<AuthUser, "displayName" | "phone" | "avatarUrl" | "city" | "pincode">>,
   ) => Promise<void>;
+  // Saves a verified WhatsApp number against the real (Google) account,
+  // in the private profile_phones table — never in the public `profiles`
+  // row. Only ever read back by get_trade_contact(), which releases it
+  // to the other side of a trade once that trade is COMPLETED.
+  linkPhone: (phone: string) => Promise<{ error?: string }>;
   setAwayMode: (away: boolean) => void;
   signOut: () => Promise<void>;
 }
@@ -95,21 +100,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, loaded]);
 
-  // Real Supabase session: source of truth for Google sign-in.
+  // Real Supabase session: source of truth for Google sign-in. Own
+  // WhatsApp number lives in a separate private table (see migration
+  // 0019), so it's fetched alongside rather than coming from the
+  // session itself.
+  function applySupabaseUser(supaUser: User) {
+    setUser(fromSupabaseUser(supaUser));
+    supabase
+      .from("profile_phones")
+      .select("phone")
+      .eq("id", supaUser.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.phone) setUser((prev) => ({ ...prev, phone: data.phone }));
+      });
+  }
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.user) setUser(fromSupabaseUser(data.session.user));
+      if (data.session?.user) applySupabaseUser(data.session.user);
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
-        setUser(fromSupabaseUser(session.user));
+        applySupabaseUser(session.user);
       } else if (event === "SIGNED_OUT") {
         setUser(GUEST_USER);
       }
     });
 
     return () => listener.subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase]);
 
   const value = useMemo<AuthContextValue>(
@@ -157,6 +178,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           avatarUrl: patch.avatarUrl,
           city: patch.city,
         });
+      },
+      linkPhone: async (phone) => {
+        if (!user.id) return { error: "Sign in with Google to link a WhatsApp number." };
+        const { error } = await supabase
+          .from("profile_phones")
+          .upsert({ id: user.id, phone, updated_at: new Date().toISOString() });
+        if (error) return { error: error.message };
+        setUser((prev) => ({ ...prev, phone }));
+        return {};
       },
       setAwayMode: (away) => setUser((prev) => ({ ...prev, awayMode: away })),
       signOut: async () => {
