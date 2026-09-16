@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth-store";
 import { useListings } from "@/lib/listings-store";
 import { useProposals } from "@/lib/proposals-store";
 import { createClient } from "@/lib/supabase/client";
-import { getProfileByUsername } from "@/lib/profile";
+import { findProfileByQuery } from "@/lib/profile";
 import { isAuctionEnded } from "./AuctionTimer";
 import { Avatar } from "./Avatar";
 import { NotificationBell } from "./NotificationBell";
@@ -71,11 +71,14 @@ export function Header() {
   async function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = query.trim();
-    if (trimmed.startsWith("@") && trimmed.length > 1) {
+    // "@name" always means "find this person" — a bare name/username
+    // also tries a person search first, since a real collector's name
+    // is a much more useful match than an empty listings search.
+    if (trimmed.length > 1) {
       setSearching(true);
-      const profile = await getProfileByUsername(createClient(), trimmed.slice(1));
+      const profile = await findProfileByQuery(createClient(), trimmed);
       setSearching(false);
-      if (profile) {
+      if (profile?.username) {
         router.push(`/u/${profile.username}`);
         return;
       }

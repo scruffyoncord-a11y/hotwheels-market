@@ -65,6 +65,36 @@ export async function getProfileByUsername(
   return data ? rowToProfile(data as ProfileRow) : null;
 }
 
+// Best-effort "find this person" search for the header search bar — an
+// exact username match (with or without a leading @) wins outright;
+// otherwise falls back to a partial match on username or display name,
+// so typing a plain name (not just @username) actually finds someone.
+export async function findProfileByQuery(
+  supabase: SupabaseClient,
+  rawQuery: string,
+): Promise<Profile | null> {
+  const query = rawQuery.trim().replace(/^@/, "");
+  if (!query) return null;
+
+  const exact = await getProfileByUsername(supabase, query);
+  if (exact) return exact;
+
+  // Strip characters that would otherwise break PostgREST's or()/ilike
+  // filter syntax (commas, parens, the % wildcard itself) — a name with
+  // punctuation just searches on its safe remainder instead of erroring.
+  const safe = query.replace(/[,()%*]/g, "").trim();
+  if (!safe) return null;
+
+  const { data } = await supabase
+    .from("profiles")
+    .select("*")
+    .or(`username.ilike.%${safe}%,display_name.ilike.%${safe}%`)
+    .not("username", "is", null)
+    .limit(1)
+    .maybeSingle();
+  return data ? rowToProfile(data as ProfileRow) : null;
+}
+
 const USERNAME_PATTERN = /^[a-z0-9_]{3,20}$/;
 
 export function isValidUsername(username: string): boolean {

@@ -93,7 +93,7 @@ export function BrowseListings({
       if (query) {
         const haystack = `${l.title} ${l.castingName ?? ""} ${l.series ?? ""} ${
           l.wantsInExchange ?? ""
-        }`.toLowerCase();
+        } ${l.seller.name}`.toLowerCase();
         if (!haystack.includes(query)) return false;
       }
       return true;
