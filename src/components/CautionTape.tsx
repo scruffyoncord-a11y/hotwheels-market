@@ -1,3 +1,28 @@
+// A small hazard-tape-striped badge — the subtle sibling of CautionTape,
+// for statuses that are final but don't need the full diagonal banner
+// (e.g. a trade that's already gone through).
+export function CautionChip({
+  text,
+  className = "",
+}: {
+  text: string;
+  className?: string;
+}) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-lg border border-black/50 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-white shadow-sm ${className}`}
+      style={{
+        backgroundImage:
+          "repeating-linear-gradient(45deg, #f5c518 0px, #f5c518 8px, #18181b 8px, #18181b 16px)",
+        textShadow:
+          "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 3px rgba(0,0,0,0.6)",
+      }}
+    >
+      {text}
+    </span>
+  );
+}
+
 // A diagonal hazard-tape banner — used to flag an ended auction the way
 // a real caution tape strip would, rather than a plain text pill.
 export function CautionTape({

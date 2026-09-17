@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ConditionBadge } from "@/components/ConditionBadge";
-import { CautionTape } from "@/components/CautionTape";
+import { CautionChip, CautionTape } from "@/components/CautionTape";
 import { ListingCard } from "@/components/ListingCard";
 import {
   AuctionStartCountdown,
@@ -361,9 +361,13 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                     </div>
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/50">
-                      <span className="rounded-xl bg-white px-4 py-1.5 text-base font-bold uppercase tracking-wide text-zinc-900">
-                        {listing.status === "SOLD" ? "Traded" : "Reserved"}
-                      </span>
+                      {listing.status === "SOLD" ? (
+                        <CautionChip text="Traded" className="text-sm" />
+                      ) : (
+                        <span className="rounded-xl bg-white px-4 py-1.5 text-base font-bold uppercase tracking-wide text-zinc-900">
+                          Reserved
+                        </span>
+                      )}
                     </div>
                   )
                 )}

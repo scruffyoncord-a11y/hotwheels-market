@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ConditionBadge } from "./ConditionBadge";
 import { AuctionStartCountdown, AuctionTimer, isAuctionLive } from "./AuctionTimer";
-import { CautionTape } from "./CautionTape";
+import { CautionChip, CautionTape } from "./CautionTape";
 import { useBids } from "@/lib/bids-store";
 import { useFavorites } from "@/lib/favorites-store";
 import { useAccess } from "@/lib/access-store";
@@ -58,9 +58,13 @@ export function ListingCard({ listing }: { listing: Listing }) {
         ) : (
           (sold || reserved) && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-              <span className="rounded-xl bg-white px-3 py-1 text-sm font-bold uppercase tracking-wide text-zinc-900 shadow-sm">
-                {sold ? "Traded" : "Reserved"}
-              </span>
+              {sold ? (
+                <CautionChip text="Traded" />
+              ) : (
+                <span className="rounded-xl bg-white px-3 py-1 text-sm font-bold uppercase tracking-wide text-zinc-900 shadow-sm">
+                  Reserved
+                </span>
+              )}
             </div>
           )
         )}
