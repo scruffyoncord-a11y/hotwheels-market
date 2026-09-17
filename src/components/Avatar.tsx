@@ -17,7 +17,7 @@ export function Avatar({
         className={`relative shrink-0 overflow-hidden rounded-full ${className}`}
         style={{ width: size, height: size }}
       >
-        <Image src={url} alt={name} fill unoptimized className="object-cover" />
+        <Image src={url} alt={name} fill sizes={`${size}px`} className="object-cover" />
       </div>
     );
   }

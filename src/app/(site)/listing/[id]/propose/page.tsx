@@ -46,7 +46,13 @@ function PickerCard({
       }`}
     >
       <div className="relative aspect-4/3 bg-zinc-800">
-        <Image src={item.image} alt={item.title} fill unoptimized className="object-cover" />
+        <Image
+          src={item.image}
+          alt={item.title}
+          fill
+          sizes="(max-width: 640px) 50vw, 25vw"
+          className="object-cover"
+        />
         <div
           className={`absolute inset-0 transition ${selected ? "bg-orange-600/20" : "bg-black/0 group-hover:bg-black/10"}`}
         />
@@ -318,7 +324,7 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
 
       <div className="mb-6 flex items-center gap-3">
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-800">
-          <Image src={listing.images[0]} alt="" fill unoptimized className="object-cover" />
+          <Image src={listing.images[0]} alt="" fill sizes="56px" className="object-cover" />
         </div>
         <div>
           <h1 className="text-xl font-extrabold tracking-tight text-zinc-50">Propose a Trade</h1>

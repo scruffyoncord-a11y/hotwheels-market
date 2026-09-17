@@ -60,7 +60,7 @@ function MyListingRow({ listing }: { listing: Listing }) {
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-zinc-800 bg-zinc-900 p-3 shadow-sm sm:flex-row sm:items-center">
       <Link href={`/listing/${listing.id}`} className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg bg-zinc-800">
-        <Image src={listing.images[0]} alt={listing.title} fill unoptimized className="object-cover" />
+        <Image src={listing.images[0]} alt={listing.title} fill sizes="112px" className="object-cover" />
       </Link>
       <div className="flex-1">
         <div className="mb-1 flex flex-wrap items-center gap-1.5">
@@ -174,7 +174,7 @@ function MyBidRow({ listing }: { listing: Listing }) {
         href={`/listing/${listing.id}`}
         className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg bg-zinc-800"
       >
-        <Image src={listing.images[0]} alt={listing.title} fill unoptimized className="object-cover" />
+        <Image src={listing.images[0]} alt={listing.title} fill sizes="112px" className="object-cover" />
       </Link>
       <div className="flex-1">
         <div className="mb-1 flex flex-wrap items-center gap-1.5">

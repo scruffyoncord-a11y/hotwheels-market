@@ -281,6 +281,8 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
               className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zinc-300 bg-zinc-100 text-zinc-400 transition hover:border-orange-500 hover:text-orange-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:text-orange-400"
             >
               {avatarPreview ? (
+                // unoptimized: avatarPreview is a blob: URL right after picking a
+                // file, which Next's server-side image optimizer can't fetch.
                 <Image src={avatarPreview} alt="" fill unoptimized className="object-cover" />
               ) : (
                 <CameraIcon className="h-6 w-6" />

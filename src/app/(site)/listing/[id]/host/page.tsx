@@ -104,7 +104,13 @@ export default function HostAuctionPage({ params }: { params: Promise<{ id: stri
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[220px_1fr]">
         <div className="relative h-40 w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800 lg:h-full">
-          <Image src={listing.images[0]} alt={listing.title} fill unoptimized className="object-cover" />
+          <Image
+            src={listing.images[0]}
+            alt={listing.title}
+            fill
+            sizes="(max-width: 1024px) 100vw, 220px"
+            className="object-cover"
+          />
         </div>
 
         <div className="flex flex-col gap-4">

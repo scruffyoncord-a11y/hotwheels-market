@@ -409,7 +409,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                       i === activeImage ? "border-orange-600" : "border-transparent"
                     }`}
                   >
-                    <Image src={img} alt="" fill unoptimized className="object-cover" />
+                    <Image src={img} alt="" fill sizes="80px" className="object-cover" />
                   </button>
                 ))}
               </div>

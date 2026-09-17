@@ -178,7 +178,7 @@ export function LandingPage({ onContinue }: { onContinue: () => void }) {
                     src={listing.images[0]}
                     alt={listing.title}
                     fill
-                    unoptimized
+                    sizes="200px"
                     className="object-cover"
                   />
                 </div>

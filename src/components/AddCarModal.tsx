@@ -138,6 +138,8 @@ export function AddCarModal({ open, onClose }: { open: boolean; onClose: () => v
           >
             {photoPreview ? (
               <>
+                {/* unoptimized: photoPreview is always a blob: URL, which Next's
+                    server-side image optimizer can't fetch. */}
                 <Image src={photoPreview} alt="" fill unoptimized className="object-cover" />
                 {uploading && (
                   <span className="absolute inset-0 flex items-center justify-center bg-black/40 text-xs font-semibold text-white">

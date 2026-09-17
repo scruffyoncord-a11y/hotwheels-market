@@ -54,7 +54,7 @@ function WishlistCard({
             src={listing.images[0]}
             alt={listing.title}
             fill
-            unoptimized
+            sizes="(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 16vw"
             className={`object-cover ${!available ? "opacity-50 grayscale" : ""}`}
           />
         </Link>

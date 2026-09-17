@@ -143,6 +143,8 @@ function OnboardingForm() {
                 className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zinc-700 bg-zinc-800 text-zinc-500 transition hover:border-orange-500 hover:text-orange-400"
               >
                 {avatarPreview ? (
+                  // unoptimized: avatarPreview is a blob: URL right after picking a
+                  // file, which Next's server-side image optimizer can't fetch.
                   <Image src={avatarPreview} alt="" fill unoptimized className="object-cover" />
                 ) : (
                   <CameraIcon className="h-6 w-6" />

@@ -51,7 +51,7 @@ function ListingItemChip({ listing }: { listing: Listing | undefined }) {
       className="flex w-20 shrink-0 flex-col gap-1 rounded-md border border-zinc-700 bg-zinc-800 p-1.5 transition hover:border-orange-500"
     >
       <div className="relative h-12 w-full overflow-hidden rounded bg-zinc-900">
-        <Image src={listing.images[0]} alt={listing.title} fill unoptimized className="object-cover" />
+        <Image src={listing.images[0]} alt={listing.title} fill sizes="80px" className="object-cover" />
       </div>
       <p className="line-clamp-2 text-[10px] font-medium leading-tight text-zinc-300">
         {listing.castingName ?? listing.title}
@@ -125,7 +125,7 @@ export function OfferedItemChips({ ids, cash }: { ids: string[]; cash: number })
             className="flex w-20 shrink-0 flex-col gap-1 rounded-md border border-zinc-700 bg-zinc-800 p-1.5"
           >
             <div className="relative h-12 w-full overflow-hidden rounded bg-zinc-900">
-              <Image src={item.image} alt={item.title} fill unoptimized className="object-cover" />
+              <Image src={item.image} alt={item.title} fill sizes="80px" className="object-cover" />
             </div>
             <p className="line-clamp-2 text-[10px] font-medium leading-tight text-zinc-300">
               {item.title}

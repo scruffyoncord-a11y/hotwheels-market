@@ -138,7 +138,13 @@ export default function PublicProfilePage({
                   className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-sm"
                 >
                   <div className="relative aspect-square bg-zinc-800">
-                    <Image src={item.image} alt={item.title} fill unoptimized className="object-cover" />
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 16vw"
+                      className="object-cover"
+                    />
                     <div className="absolute left-2 top-2">
                       <ConditionBadge condition={item.condition} />
                     </div>

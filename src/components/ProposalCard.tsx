@@ -137,7 +137,7 @@ function RespondToMoreItemsBox({ proposal }: { proposal: TradeProposal }) {
                         src={item.image}
                         alt={item.title}
                         fill
-                        unoptimized
+                        sizes="(max-width: 640px) 33vw, 25vw"
                         className="object-cover"
                       />
                       {selected && (
@@ -252,7 +252,7 @@ export function ProposalCard({
             className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-zinc-800"
           >
             {listing && (
-              <Image src={listing.images[0]} alt="" fill unoptimized className="object-cover" />
+              <Image src={listing.images[0]} alt="" fill sizes="56px" className="object-cover" />
             )}
             <span className="absolute inset-x-0 bottom-0 bg-black/70 py-0.5 text-center text-[8px] font-bold uppercase tracking-wide text-white">
               View

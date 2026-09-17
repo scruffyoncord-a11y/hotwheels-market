@@ -74,6 +74,8 @@ function PhotoSlot({
         }`}
       >
         {photo ? (
+          // unoptimized: `photo` is a blob: URL until the upload finishes — Next's
+          // server-side image optimizer can't fetch that, only http(s) sources.
           <Image src={photo} alt={label} fill unoptimized className="object-cover" />
         ) : (
           <>
@@ -583,6 +585,7 @@ function SellForm() {
         <SectionCard title="Preview">
           <div className="p-5">
             <div className="relative aspect-4/3 overflow-hidden rounded-xl border border-zinc-100 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-800">
+              {/* unoptimized: mirrors frontPhoto, a blob: URL until upload finishes */}
               <Image src={previewImage} alt="" fill unoptimized className="object-cover" />
             </div>
             <p className="mt-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">

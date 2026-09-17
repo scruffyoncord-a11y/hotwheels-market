@@ -137,7 +137,7 @@ export default function TradeConfirmationPage({
       <div className="mb-6 flex items-center gap-3">
         {listing && (
           <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-800">
-            <Image src={listing.images[0]} alt="" fill unoptimized className="object-cover" />
+            <Image src={listing.images[0]} alt="" fill sizes="56px" className="object-cover" />
           </div>
         )}
         <div>
