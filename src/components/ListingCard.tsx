@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ConditionBadge } from "./ConditionBadge";
 import { AuctionStartCountdown, AuctionTimer, isAuctionLive } from "./AuctionTimer";
+import { CautionTape } from "./CautionTape";
 import { useBids } from "@/lib/bids-store";
 import { useFavorites } from "@/lib/favorites-store";
 import { useAccess } from "@/lib/access-store";
@@ -32,6 +33,10 @@ export function ListingCard({ listing }: { listing: Listing }) {
   const auctionOver = isAuction && listing.endsAt ? new Date(listing.endsAt).getTime() <= Date.now() : false;
   const isBoosted = !!listing.boostedUntil && new Date(listing.boostedUntil).getTime() > Date.now();
   const isScheduled = isAuction && !isAuctionLive(listing.startsAt);
+  // Ended by running out the clock OR by the seller hammering it SOLD —
+  // either way it's over, and the card should say so even before the
+  // seller gets around to marking it sold.
+  const auctionEnded = isAuction && (auctionOver || sold);
 
   return (
     <Link
@@ -46,12 +51,18 @@ export function ListingCard({ listing }: { listing: Listing }) {
           sizes="(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 20vw"
           className="object-cover transition group-hover:scale-105"
         />
-        {(sold || reserved) && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-            <span className="rounded-xl bg-white px-3 py-1 text-sm font-bold uppercase tracking-wide text-zinc-900 shadow-sm">
-              {sold ? (isAuction ? "Ended" : "Traded") : "Reserved"}
-            </span>
+        {auctionEnded ? (
+          <div className="absolute inset-0 bg-black/40">
+            <CautionTape />
           </div>
+        ) : (
+          (sold || reserved) && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <span className="rounded-xl bg-white px-3 py-1 text-sm font-bold uppercase tracking-wide text-zinc-900 shadow-sm">
+                {sold ? "Traded" : "Reserved"}
+              </span>
+            </div>
+          )
         )}
         <div className="absolute left-2 top-2 flex gap-1.5">
           {isAuction && !sold && !reserved && !auctionOver && (
