@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ConditionBadge } from "./ConditionBadge";
 import { AuctionStartCountdown, AuctionTimer, isAuctionLive } from "./AuctionTimer";
 import { CautionChip, CautionTape } from "./CautionTape";
+import { TapeBadge } from "./TapeBadge";
 import { useBids } from "@/lib/bids-store";
 import { useFavorites } from "@/lib/favorites-store";
 import { useAccess } from "@/lib/access-store";
@@ -121,11 +122,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
       </div>
       <div className="flex flex-1 flex-col gap-1 p-3">
         <div className="mb-0.5 flex flex-wrap items-center gap-1.5">
-          {isTrade && (
-            <span className="inline-flex items-center rounded-xl bg-violet-100 px-2.5 py-0.5 text-xs font-medium text-violet-800">
-              Trade
-            </span>
-          )}
+          {isTrade && <TapeBadge />}
           {isAuction && (
             <span className="inline-flex items-center gap-1 rounded-xl bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
               <HammerIcon className="h-3 w-3" /> Auction

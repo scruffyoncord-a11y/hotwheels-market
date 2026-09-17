@@ -6,6 +6,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ConditionBadge } from "@/components/ConditionBadge";
 import { CautionChip, CautionTape } from "@/components/CautionTape";
+import { TapeBadge } from "@/components/TapeBadge";
 import { ListingCard } from "@/components/ListingCard";
 import {
   AuctionStartCountdown,
@@ -541,11 +542,7 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                  {isTrade && (
-                    <span className="inline-flex items-center rounded-xl bg-violet-100 px-2.5 py-0.5 text-xs font-medium text-violet-800">
-                      Trade
-                    </span>
-                  )}
+                  {isTrade && <TapeBadge />}
                   {isAuction && (
                     <span className="inline-flex items-center gap-1 rounded-xl bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
                       <HammerIcon className="h-3 w-3" /> Auction
