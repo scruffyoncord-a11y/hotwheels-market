@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { ListingCard } from "./ListingCard";
 import { EmptyState } from "./ui/EmptyState";
 import { PageHeader } from "./ui/PageHeader";
-import { SearchIcon } from "./icons";
+import { ChevronRightIcon, SearchIcon } from "./icons";
 import { useListings } from "@/lib/listings-store";
 import { useBids } from "@/lib/bids-store";
 import { formatInr, timeAgo } from "@/lib/format";
@@ -62,6 +62,10 @@ function ActivityFeed() {
 const CONDITIONS = Object.keys(CONDITION_LABELS) as ListingCondition[];
 type SortKey = "newest" | "price-asc" | "price-desc" | "ending-soon" | "bid-desc";
 
+// Once an auction has been over this long, it moves out of the main
+// board and into the collapsed "Ended auctions" section below it.
+const ENDED_BOARD_CUTOFF_MS = 24 * 60 * 60 * 1000;
+
 export function BrowseListings({
   type,
   subheading,
@@ -80,24 +84,46 @@ export function BrowseListings({
   const [sort, setSort] = useState<SortKey>(isAuction ? "ending-soon" : "newest");
   const [hideUnavailable, setHideUnavailable] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [showEnded, setShowEnded] = useState(false);
 
   const byType = useMemo(() => listings.filter((l) => l.type === type), [listings, type]);
 
   const cities = useMemo(() => Array.from(new Set(byType.map((l) => l.city))).sort(), [byType]);
 
+  const commonFiltered = useMemo(
+    () =>
+      byType.filter((l) => {
+        if (hideUnavailable && l.status !== "ACTIVE") return false;
+        if (activeConditions.size > 0 && !activeConditions.has(l.condition)) return false;
+        if (city && l.city !== city) return false;
+        if (query) {
+          const haystack = `${l.title} ${l.castingName ?? ""} ${l.series ?? ""} ${
+            l.wantsInExchange ?? ""
+          } ${l.seller.name}`.toLowerCase();
+          if (!haystack.includes(query)) return false;
+        }
+        return true;
+      }),
+    [byType, activeConditions, city, hideUnavailable, query],
+  );
+
+  // An auction that ended more than a day ago moves out of the main
+  // board into its own collapsed section — trades have no such concept,
+  // so this is always empty for the "For trade" board.
+  const isLongEnded = (l: (typeof commonFiltered)[number]) =>
+    isAuction && !!l.endsAt && Date.now() - new Date(l.endsAt).getTime() > ENDED_BOARD_CUTOFF_MS;
+
+  const endedListings = useMemo(
+    () =>
+      commonFiltered
+        .filter(isLongEnded)
+        .sort((a, b) => new Date(b.endsAt ?? 0).getTime() - new Date(a.endsAt ?? 0).getTime()),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [commonFiltered, isAuction],
+  );
+
   const filtered = useMemo(() => {
-    let result = byType.filter((l) => {
-      if (hideUnavailable && l.status !== "ACTIVE") return false;
-      if (activeConditions.size > 0 && !activeConditions.has(l.condition)) return false;
-      if (city && l.city !== city) return false;
-      if (query) {
-        const haystack = `${l.title} ${l.castingName ?? ""} ${l.series ?? ""} ${
-          l.wantsInExchange ?? ""
-        } ${l.seller.name}`.toLowerCase();
-        if (!haystack.includes(query)) return false;
-      }
-      return true;
-    });
+    let result = commonFiltered.filter((l) => !isLongEnded(l));
 
     const isBoosted = (l: (typeof result)[number]) =>
       !!l.boostedUntil && new Date(l.boostedUntil).getTime() > Date.now();
@@ -118,7 +144,8 @@ export function BrowseListings({
     });
 
     return result;
-  }, [byType, activeConditions, city, sort, hideUnavailable, query, isAuction, highestBid]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commonFiltered, sort, isAuction, highestBid]);
 
   function toggleCondition(c: ListingCondition) {
     setActiveConditions((prev) => {
@@ -274,6 +301,28 @@ export function BrowseListings({
               {filtered.map((listing) => (
                 <ListingCard key={listing.id} listing={listing} />
               ))}
+            </div>
+          )}
+
+          {endedListings.length > 0 && (
+            <div className="mt-8 border-t border-zinc-800 pt-6">
+              <button
+                onClick={() => setShowEnded((v) => !v)}
+                className="flex items-center gap-1.5 text-sm font-semibold text-zinc-400 transition hover:text-zinc-200"
+              >
+                <ChevronRightIcon
+                  className={`h-3.5 w-3.5 transition-transform ${showEnded ? "rotate-90" : ""}`}
+                />
+                {showEnded ? "Hide" : "Show"} {endedListings.length} ended{" "}
+                {endedListings.length === 1 ? "auction" : "auctions"}
+              </button>
+              {showEnded && (
+                <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                  {endedListings.map((listing) => (
+                    <ListingCard key={listing.id} listing={listing} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
