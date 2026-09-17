@@ -15,11 +15,30 @@ import { Avatar } from "./Avatar";
 import { NotificationBell } from "./NotificationBell";
 import { HammerIcon, HandshakeIcon, HeartIcon, SearchIcon, SwapIcon } from "./icons";
 
+// Two adjacent shades of the same hue, repeated on a diagonal — the same
+// "strip of tape" texture as TapeBadge/CautionTape, just level (no tilt)
+// and cut to pixel offsets so it reads consistently across nav links of
+// different widths. Kept dark enough to stay readable under white text.
+const TAPE_TONES = {
+  orange: ["#ea580c", "#f97316"],
+  violet: ["#7c3aed", "#8b5cf6"],
+  red: ["#dc2626", "#ef4444"],
+} as const;
+
+function tapeStyle(color: keyof typeof TAPE_TONES): React.CSSProperties {
+  const [a, b] = TAPE_TONES[color];
+  return {
+    backgroundImage: `repeating-linear-gradient(45deg, ${a} 0px, ${a} 7px, ${b} 7px, ${b} 14px)`,
+    clipPath: "polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)",
+  };
+}
+
 function NavLink({
   href,
   icon,
   badge,
   glow,
+  color = "orange",
   children,
 }: {
   href: string;
@@ -28,6 +47,9 @@ function NavLink({
   // Pulses a soft glow around the link — used to draw the eye to a new
   // alert (e.g. a pending offer) without a jarring flicker.
   glow?: boolean;
+  // Matches the Trade/Auction tape-badge color language used on listing
+  // cards, so the active tab reads as the same "kind" as what it leads to.
+  color?: keyof typeof TAPE_TONES;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -36,9 +58,10 @@ function NavLink({
   return (
     <Link
       href={href}
+      style={active ? tapeStyle(color) : undefined}
       className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-sm font-semibold transition ${
         active
-          ? "bg-orange-600 text-white"
+          ? "text-white shadow-sm"
           : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
       } ${glow ? "animate-bloom" : ""}`}
     >
@@ -109,12 +132,13 @@ export function Header() {
         </Link>
 
         <nav className="hidden shrink-0 items-center gap-1 sm:flex">
-          <NavLink href="/" icon={<SwapIcon className="h-3.5 w-3.5" />}>
+          <NavLink href="/" icon={<SwapIcon className="h-3.5 w-3.5" />} color="violet">
             For Trade
           </NavLink>
           <NavLink
             href="/auctions"
             icon={<HammerIcon className="h-3.5 w-3.5" />}
+            color="red"
             badge={
               hasLiveAuction && (
                 <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white">
@@ -144,7 +168,8 @@ export function Header() {
         <nav className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <Link
             href="/sell"
-            className="rounded-xl bg-orange-600 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 sm:px-4"
+            style={tapeStyle("orange")}
+            className="px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 sm:px-4"
           >
             <span className="sm:hidden">+</span>
             <span className="hidden sm:inline">+ List a car</span>
@@ -195,12 +220,13 @@ export function Header() {
         </nav>
       </div>
       <nav className="flex items-center gap-1 overflow-x-auto border-t border-zinc-200 px-4 py-1.5 dark:border-zinc-800 sm:hidden">
-        <NavLink href="/" icon={<SwapIcon className="h-3.5 w-3.5" />}>
+        <NavLink href="/" icon={<SwapIcon className="h-3.5 w-3.5" />} color="violet">
           For Trade
         </NavLink>
         <NavLink
           href="/auctions"
           icon={<HammerIcon className="h-3.5 w-3.5" />}
+          color="red"
           badge={
             hasLiveAuction && (
               <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white">
