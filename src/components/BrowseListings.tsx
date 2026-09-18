@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { ListingCard } from "./ListingCard";
 import { EmptyState } from "./ui/EmptyState";
 import { PageHeader } from "./ui/PageHeader";
+import { Select } from "./ui/Select";
 import { ChevronRightIcon, SearchIcon } from "./icons";
 import { useListings } from "@/lib/listings-store";
 import { useBids } from "@/lib/bids-store";
@@ -205,18 +206,14 @@ export function BrowseListings({
         <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
           Collector Location
         </h3>
-        <select
+        <Select
           value={city}
-          onChange={(e) => setCity(e.target.value)}
-          className="input w-full"
-        >
-          <option value="">All cities across India</option>
-          {cities.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+          onChange={setCity}
+          options={[
+            { value: "", label: "All cities across India" },
+            ...cities.map((c) => ({ value: c, label: c })),
+          ]}
+        />
       </div>
 
       {isAuction && (
@@ -224,15 +221,15 @@ export function BrowseListings({
           <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
             Sort
           </h3>
-          <select
+          <Select
             value={sort}
-            onChange={(e) => setSort(e.target.value as SortKey)}
-            className="input w-full"
-          >
-            <option value="ending-soon">Ending soon</option>
-            <option value="bid-desc">Highest bid</option>
-            <option value="newest">Newest first</option>
-          </select>
+            onChange={(v) => setSort(v as SortKey)}
+            options={[
+              { value: "ending-soon", label: "Ending soon" },
+              { value: "bid-desc", label: "Highest bid" },
+              { value: "newest", label: "Newest first" },
+            ]}
+          />
         </div>
       )}
 
