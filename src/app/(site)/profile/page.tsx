@@ -87,11 +87,11 @@ function MyListingRow({ listing }: { listing: Listing }) {
         </p>
         <p className="text-xs text-zinc-500">{listing.city} · Listed {timeAgo(listing.createdAt)}</p>
       </div>
-      <div className="flex shrink-0 flex-wrap gap-2 sm:flex-col">
+      <div className="flex shrink-0 flex-col gap-1.5 sm:w-40">
         {isAuction && (
           <Link
             href={`/listing/${listing.id}/host`}
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-zinc-50 px-3 py-1 text-center text-xs font-semibold text-zinc-900 transition hover:bg-zinc-200"
+            className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-orange-600 px-3 py-1.5 text-center text-xs font-semibold text-white shadow-sm transition hover:bg-orange-700"
           >
             <HammerIcon className="h-3.5 w-3.5" /> Host
           </Link>
@@ -100,7 +100,7 @@ function MyListingRow({ listing }: { listing: Listing }) {
           <button
             onClick={boost}
             disabled={busy}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-orange-800 px-3 py-1 text-xs font-semibold text-orange-400 transition hover:bg-orange-950 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-orange-800 px-3 py-1.5 text-xs font-semibold text-orange-400 transition hover:bg-orange-950 disabled:opacity-50"
           >
             <ZapIcon className="h-3.5 w-3.5" /> {busy ? "Processing…" : `Boost (₹${BOOST_PRICE_INR})`}
           </button>
@@ -108,7 +108,7 @@ function MyListingRow({ listing }: { listing: Listing }) {
         {listing.status === "ACTIVE" && (
           <button
             onClick={() => updateListingStatus(listing.id, "RESERVED")}
-            className="rounded-xl border border-amber-800 px-3 py-1 text-xs font-semibold text-amber-400 transition hover:bg-amber-950"
+            className="w-full rounded-xl border border-amber-800 px-3 py-1.5 text-xs font-semibold text-amber-400 transition hover:bg-amber-950"
           >
             Mark Reserved
           </button>
@@ -116,7 +116,7 @@ function MyListingRow({ listing }: { listing: Listing }) {
         {listing.status !== "SOLD" && !isAuction && (
           <button
             onClick={() => updateListingStatus(listing.id, "SOLD")}
-            className="rounded-xl border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-800"
+            className="w-full rounded-xl border border-zinc-700 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-800"
           >
             Mark {isTrade ? "Traded" : "Sold"}
           </button>
@@ -124,7 +124,7 @@ function MyListingRow({ listing }: { listing: Listing }) {
         {listing.status !== "SOLD" && isAuction && (
           <Link
             href={`/listing/${listing.id}/host`}
-            className="rounded-xl border border-zinc-700 px-3 py-1 text-center text-xs font-semibold text-zinc-300 transition hover:bg-zinc-800"
+            className="w-full rounded-xl border border-zinc-700 px-3 py-1.5 text-center text-xs font-semibold text-zinc-300 transition hover:bg-zinc-800"
           >
             Close via Host
           </Link>
@@ -132,18 +132,18 @@ function MyListingRow({ listing }: { listing: Listing }) {
         {listing.status !== "ACTIVE" && (
           <button
             onClick={() => updateListingStatus(listing.id, "ACTIVE")}
-            className="rounded-xl border border-emerald-800 px-3 py-1 text-xs font-semibold text-emerald-400 transition hover:bg-emerald-950"
+            className="w-full rounded-xl border border-emerald-800 px-3 py-1.5 text-xs font-semibold text-emerald-400 transition hover:bg-emerald-950"
           >
             Reactivate
           </button>
         )}
         <button
           onClick={remove}
-          className="rounded-xl border border-rose-800 px-3 py-1 text-xs font-semibold text-rose-400 transition hover:bg-rose-950"
+          className="mt-1 w-full rounded-xl border border-rose-800/60 px-3 py-1.5 text-xs font-semibold text-rose-400/90 transition hover:border-rose-800 hover:bg-rose-950 hover:text-rose-400"
         >
           Remove
         </button>
-        {error && <p className="max-w-40 text-right text-xs text-rose-400">{error}</p>}
+        {error && <p className="text-right text-xs text-rose-400">{error}</p>}
       </div>
     </div>
   );
