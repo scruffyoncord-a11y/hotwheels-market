@@ -46,7 +46,9 @@ export default function OffersPage() {
             <button
               onClick={() => setTab("received")}
               className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
-                tab === "received" ? "bg-zinc-50 text-zinc-900" : "text-zinc-400 hover:text-zinc-200"
+                tab === "received"
+                  ? "bg-orange-600 text-white shadow-sm"
+                  : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
               Received ({received.length})
@@ -54,7 +56,9 @@ export default function OffersPage() {
             <button
               onClick={() => setTab("sent")}
               className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
-                tab === "sent" ? "bg-zinc-50 text-zinc-900" : "text-zinc-400 hover:text-zinc-200"
+                tab === "sent"
+                  ? "bg-orange-600 text-white shadow-sm"
+                  : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
               Sent ({sent.length})
