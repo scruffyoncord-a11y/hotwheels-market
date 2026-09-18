@@ -58,19 +58,26 @@ function NavLink({
   return (
     <Link
       href={href}
-      style={active ? tapeStyle(color) : undefined}
-      className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-sm font-semibold transition ${
-        active
-          ? "text-white shadow-sm"
-          : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
-      } ${glow ? "animate-bloom" : ""}`}
+      className={`flex shrink-0 items-center whitespace-nowrap text-sm font-semibold ${glow ? "animate-bloom" : ""}`}
     >
-      {icon}
-      {children}
-      {badge}
-      {active && !badge && icon && (
-        <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
-      )}
+      {/* The tape's clip-path only wraps icon+label — a badge rendered
+          inside it would get sliced off by the slanted edge, so it sits
+          outside instead, like a little flag stuck on next to the tape. */}
+      <span
+        style={active ? tapeStyle(color) : undefined}
+        className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 transition ${
+          active
+            ? "text-white shadow-sm"
+            : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
+        }`}
+      >
+        {icon}
+        {children}
+        {active && !badge && icon && (
+          <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
+        )}
+      </span>
+      {badge && <span className="-ml-1">{badge}</span>}
     </Link>
   );
 }
@@ -141,8 +148,8 @@ export function Header() {
             color="red"
             badge={
               hasLiveAuction && (
-                <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white">
-                  LIVE
+                <span className="inline-flex items-center gap-1 rounded-md border border-red-500 bg-zinc-900 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-red-400 shadow-sm dark:bg-zinc-950">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" /> LIVE
                 </span>
               )
             }
@@ -229,8 +236,8 @@ export function Header() {
           color="red"
           badge={
             hasLiveAuction && (
-              <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white">
-                LIVE
+              <span className="inline-flex items-center gap-1 rounded-md border border-red-500 bg-zinc-900 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-red-400 shadow-sm dark:bg-zinc-950">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" /> LIVE
               </span>
             )
           }
