@@ -33,6 +33,7 @@ import {
   MessageIcon,
   PauseIcon,
   ShareIcon,
+  SwapIcon,
   TrophyIcon,
   ZapIcon,
 } from "@/components/icons";
@@ -829,15 +830,15 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
                 ) : (
                   <Link
                     href={`/listing/${listing.id}/propose`}
-                    className="flex-1 rounded-xl bg-violet-600 px-5 py-3 text-center text-sm font-bold text-white shadow-sm transition hover:bg-violet-700"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 px-5 py-3 text-center text-sm font-bold text-white shadow-md transition hover:shadow-lg hover:brightness-110 active:brightness-95"
                   >
-                    Propose a Trade
+                    <SwapIcon className="h-4 w-4" /> Propose a Trade
                   </Link>
                 )}
                 {!disabled && !isOwnListing && (
                   <button
                     onClick={() => setChatOpen((v) => !v)}
-                    className="flex items-center justify-center rounded-xl border border-zinc-300 px-4 py-3 text-sm font-semibold text-zinc-700 transition hover:border-violet-400 dark:border-zinc-700 dark:text-zinc-300"
+                    className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-full border border-zinc-300 text-zinc-600 transition hover:border-violet-400 hover:text-violet-600 dark:border-zinc-700 dark:text-zinc-300 dark:hover:text-violet-400"
                     title="Message seller"
                   >
                     <MessageIcon className="h-4 w-4" />
