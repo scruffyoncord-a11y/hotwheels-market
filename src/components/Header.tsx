@@ -16,9 +16,9 @@ import { NotificationBell } from "./NotificationBell";
 import { HammerIcon, HandshakeIcon, HeartIcon, SearchIcon, SwapIcon } from "./icons";
 
 // Two adjacent shades of the same hue, repeated on a diagonal — the same
-// "strip of tape" texture as TapeBadge/CautionTape, just level (no tilt)
-// and cut to pixel offsets so it reads consistently across nav links of
-// different widths. Kept dark enough to stay readable under white text.
+// striped texture as TapeBadge/CautionTape, on a plain rounded pill
+// (rounded-xl in the className below) rather than the clipped tape
+// shape, which didn't sit well in a nav row.
 const TAPE_TONES = {
   orange: ["#ea580c", "#f97316"],
   violet: ["#7c3aed", "#8b5cf6"],
@@ -29,7 +29,6 @@ function tapeStyle(color: keyof typeof TAPE_TONES): React.CSSProperties {
   const [a, b] = TAPE_TONES[color];
   return {
     backgroundImage: `repeating-linear-gradient(45deg, ${a} 0px, ${a} 7px, ${b} 7px, ${b} 14px)`,
-    clipPath: "polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)",
   };
 }
 
@@ -173,7 +172,7 @@ export function Header() {
           <Link
             href="/sell"
             style={tapeStyle("orange")}
-            className="px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 sm:px-4"
+            className="rounded-xl px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 sm:px-4"
           >
             <span className="sm:hidden">+</span>
             <span className="hidden sm:inline">+ List a car</span>
