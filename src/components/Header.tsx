@@ -73,9 +73,6 @@ function NavLink({
       >
         {icon}
         {children}
-        {active && !badge && icon && (
-          <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
-        )}
       </span>
       {badge && <span className="-ml-1">{badge}</span>}
     </Link>
