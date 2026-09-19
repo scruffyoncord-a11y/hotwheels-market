@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import "../globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { OnboardingGate } from "@/components/OnboardingGate";
 import { ListingsProvider } from "@/lib/listings-store";
 import { ProposalsProvider } from "@/lib/proposals-store";
 import { BidsProvider } from "@/lib/bids-store";
@@ -55,6 +56,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
                       <NotificationsProvider>
                         <AuctionWatchersProvider>
                           <AccessProvider>
+                            <OnboardingGate />
                             <Header />
                             {children}
                             <Footer />

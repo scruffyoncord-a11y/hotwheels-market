@@ -308,13 +308,13 @@ export function ProposalCard({
               <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/20">
                 <CheckIcon className="h-2.5 w-2.5" />
               </span>
-              Trade confirmed! Coordinate the handover with {counterparty} in chat.
+              Trade accepted! Get {counterparty}’s WhatsApp and arrange the handover.
             </p>
             <Link
               href={`/trade/${proposal.id}`}
               className="rounded-xl bg-emerald-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-700"
             >
-              Confirm trade →
+              Contact and confirm →
             </Link>
           </div>
         )}

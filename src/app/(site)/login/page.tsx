@@ -1,11 +1,10 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-store";
-import { CheckIcon } from "@/components/icons";
 
 function GoogleGIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
@@ -31,82 +30,14 @@ function GoogleGIcon({ className = "h-5 w-5" }: { className?: string }) {
 }
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/profile";
-  const { signInWithGoogle, signInWithPhone, googleBusy } = useAuth();
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [sendBusy, setSendBusy] = useState(false);
-  const [otpBusy, setOtpBusy] = useState(false);
-  const [error, setError] = useState("");
+  const { signInWithGoogle, googleBusy } = useAuth();
   const [agreed, setAgreed] = useState(false);
-
-  const phoneE164 = `+91${phone.trim()}`;
 
   function handleGoogle() {
     if (!agreed) return;
     void signInWithGoogle(next);
-  }
-
-  async function sendOtp(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    if (!agreed) {
-      setError("Please agree to the Terms & Conditions first.");
-      return;
-    }
-    if (!/^\d{10}$/.test(phone.trim())) {
-      setError("Enter a valid 10-digit mobile number.");
-      return;
-    }
-    setSendBusy(true);
-    try {
-      const res = await fetch("/api/otp/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phoneE164 }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Couldn't send the code.");
-        return;
-      }
-      setOtpSent(true);
-    } catch {
-      setError("Couldn't send the code — try again.");
-    } finally {
-      setSendBusy(false);
-    }
-  }
-
-  async function verifyOtp(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    if (!/^\d{6}$/.test(otp.trim())) {
-      setError("Enter the 6-digit code.");
-      return;
-    }
-    setOtpBusy(true);
-    try {
-      const res = await fetch("/api/otp/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phoneE164, code: otp.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Couldn't verify that code.");
-        return;
-      }
-      signInWithPhone(phone.trim());
-      router.push(next);
-    } catch {
-      setError("Couldn't verify that code — try again.");
-    } finally {
-      setOtpBusy(false);
-    }
   }
 
   return (
@@ -121,8 +52,8 @@ function LoginForm() {
             className="h-10 w-10 rounded-xl"
             priority
           />
-          <h1 className="text-xl font-extrabold text-zinc-50">Sign in to LotClub</h1>
-          <p className="text-sm text-zinc-400">Trade and bid with collectors near you.</p>
+          <h1 className="text-xl font-extrabold text-zinc-50">Join LotClub</h1>
+          <p className="text-sm text-zinc-400">Trade and bid with real collectors near you.</p>
         </div>
 
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 shadow-sm">
@@ -156,73 +87,21 @@ function LoginForm() {
             {googleBusy ? "Signing in..." : "Continue with Google"}
           </button>
 
-          <div className="my-4 flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-zinc-600">
-            <span className="h-px flex-1 bg-zinc-800" />
-            or
-            <span className="h-px flex-1 bg-zinc-800" />
-          </div>
-
-          {!otpSent ? (
-            <form onSubmit={sendOtp} className="flex flex-col gap-2">
-              <label className="flex flex-col gap-1">
-                <span className="text-sm font-medium text-zinc-300">Mobile number</span>
-                <div className="flex gap-2">
-                  <span className="input flex items-center justify-center px-3">+91</span>
-                  <input
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))}
-                    inputMode="numeric"
-                    placeholder="9876543210"
-                    className="input flex-1"
-                  />
-                </div>
-              </label>
-              {error && <p className="text-xs text-rose-400">{error}</p>}
-              <button
-                type="submit"
-                disabled={!agreed || sendBusy}
-                title={!agreed ? "Agree to the Terms & Conditions first" : undefined}
-                className="mt-1 rounded-xl bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {sendBusy ? "Sending…" : "Send OTP"}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={verifyOtp} className="flex flex-col gap-2">
-              <p className="flex items-center gap-1.5 text-xs text-emerald-400">
-                <CheckIcon className="h-3.5 w-3.5" /> OTP sent to +91 {phone}
-              </p>
-              <label className="flex flex-col gap-1">
-                <span className="text-sm font-medium text-zinc-300">Enter 6-digit code</span>
-                <input
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
-                  inputMode="numeric"
-                  placeholder="123456"
-                  className="input tracking-[0.3em]"
-                  autoFocus
-                />
-              </label>
-              {error && <p className="text-xs text-rose-400">{error}</p>}
-              <button
-                type="submit"
-                disabled={otpBusy}
-                className="mt-1 rounded-xl bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:opacity-60"
-              >
-                {otpBusy ? "Verifying..." : "Verify & Sign In"}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setOtpSent(false);
-                  setOtp("");
-                }}
-                className="text-xs font-semibold text-zinc-500 hover:text-zinc-300"
-              >
-                Use a different number
-              </button>
-            </form>
-          )}
+          <ol className="mt-5 flex flex-col gap-2 border-t border-zinc-800 pt-4 text-xs text-zinc-400">
+            <li className="flex items-start gap-2">
+              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-[10px] font-bold text-zinc-300">
+                1
+              </span>
+              Sign in with your Google account
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-[10px] font-bold text-zinc-300">
+                2
+              </span>
+              Verify your WhatsApp number — it&apos;s how you and a trade partner arrange the
+              handover, and it&apos;s only shared once a trade between you is accepted
+            </li>
+          </ol>
         </div>
 
         <p className="mt-2 text-center text-sm">

@@ -5,9 +5,10 @@ import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { syncProfileIdentity } from "@/lib/profile";
 
-const STORAGE_KEY = "hotwheels-market:auth:v1";
+// Older builds kept a fake phone-only session here; it no longer exists.
+const LEGACY_STORAGE_KEY = "hotwheels-market:auth:v1";
 
-export type AuthProvider = "guest" | "google" | "phone";
+export type AuthProvider = "guest" | "google";
 
 export interface AuthUser {
   // Shown throughout the UI (header, profile hero, settings).
@@ -41,15 +42,17 @@ interface AuthContextValue {
   user: AuthUser;
   isAuthenticated: boolean;
   googleBusy: boolean;
+  // False until we know whether the signed-in account has a WhatsApp number
+  // on file (it lives in a separate table, so it loads after the session).
+  phoneChecked: boolean;
   signInWithGoogle: (next?: string) => Promise<void>;
-  signInWithPhone: (phone: string) => void;
   updateProfile: (
     patch: Partial<Pick<AuthUser, "displayName" | "phone" | "avatarUrl" | "city" | "pincode">>,
   ) => Promise<void>;
   // Saves a verified WhatsApp number against the real (Google) account,
   // in the private profile_phones table — never in the public `profiles`
   // row. Only ever read back by get_trade_contact(), which releases it
-  // to the other side of a trade once that trade is COMPLETED.
+  // to the other side of a trade once that trade is ACCEPTED.
   linkPhone: (phone: string) => Promise<{ error?: string }>;
   setAwayMode: (away: boolean) => void;
   signOut: () => Promise<void>;
@@ -73,39 +76,26 @@ function fromSupabaseUser(supaUser: User): AuthUser {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser>(GUEST_USER);
-  const [loaded, setLoaded] = useState(false);
+  const [phoneChecked, setPhoneChecked] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
   const supabase = useMemo(() => createClient(), []);
 
-  // Local (non-Supabase) session: guest or fake-phone, kept in localStorage.
   useEffect(() => {
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed.provider !== "google") setUser({ ...GUEST_USER, ...parsed });
-      }
+      window.localStorage.removeItem(LEGACY_STORAGE_KEY);
     } catch {
-      // localStorage unavailable or corrupt — fall back to guest
+      // localStorage unavailable — nothing to clean up
     }
-    setLoaded(true);
   }, []);
-
-  useEffect(() => {
-    if (!loaded || user.provider === "google") return;
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-    } catch {
-      // ignore quota/availability errors
-    }
-  }, [user, loaded]);
 
   // Real Supabase session: source of truth for Google sign-in. Own
   // WhatsApp number lives in a separate private table (see migration
   // 0019), so it's fetched alongside rather than coming from the
   // session itself.
   function applySupabaseUser(supaUser: User) {
-    setUser(fromSupabaseUser(supaUser));
+    // Keep an already-loaded phone across token-refresh style events, so the
+    // onboarding gate never sees it blank while it re-fetches.
+    setUser((prev) => ({ ...fromSupabaseUser(supaUser), phone: prev.phone }));
     supabase
       .from("profile_phones")
       .select("phone")
@@ -113,12 +103,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .maybeSingle()
       .then(({ data }) => {
         if (data?.phone) setUser((prev) => ({ ...prev, phone: data.phone }));
+        setPhoneChecked(true);
       });
   }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session?.user) applySupabaseUser(data.session.user);
+      else setPhoneChecked(true);
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
@@ -126,6 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         applySupabaseUser(session.user);
       } else if (event === "SIGNED_OUT") {
         setUser(GUEST_USER);
+        setPhoneChecked(true);
       }
     });
 
@@ -138,6 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       isAuthenticated: user.provider !== "guest",
       googleBusy,
+      phoneChecked,
       signInWithGoogle: async (next = "/profile") => {
         setGoogleBusy(true);
         const { error } = await supabase.auth.signInWithOAuth({
@@ -148,17 +142,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         if (error) setGoogleBusy(false);
         // On success the browser navigates to Google, so no further action here.
-      },
-      signInWithPhone: (phone) => {
-        setUser((prev) => ({
-          displayName: prev.provider === "guest" ? "You" : prev.displayName,
-          email: prev.email,
-          phone,
-          avatarUrl: prev.avatarUrl,
-          provider: "phone",
-          id: null,
-          ownerKey: "You",
-        }));
       },
       updateProfile: async (patch) => {
         setUser((prev) => ({ ...prev, ...patch }));
@@ -184,7 +167,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { error } = await supabase
           .from("profile_phones")
           .upsert({ id: user.id, phone, updated_at: new Date().toISOString() });
-        if (error) return { error: error.message };
+        if (error) {
+          if (error.code === "23505") {
+            return { error: "That number is already linked to another account." };
+          }
+          return { error: error.message };
+        }
         setUser((prev) => ({ ...prev, phone }));
         return {};
       },
@@ -194,7 +182,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(GUEST_USER);
       },
     }),
-    [user, googleBusy, supabase],
+    [user, googleBusy, phoneChecked, supabase],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

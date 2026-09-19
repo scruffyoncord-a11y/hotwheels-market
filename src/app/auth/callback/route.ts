@@ -11,7 +11,14 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
       const hasPincode = !!data.user?.user_metadata?.pincode;
-      if (!hasPincode) {
+      const { data: phoneRow } = await supabase
+        .from("profile_phones")
+        .select("phone")
+        .eq("id", data.user.id)
+        .maybeSingle();
+      // A verified WhatsApp number is required to trade, so an account
+      // without one (new, or from before it was required) finishes setup first.
+      if (!hasPincode || !phoneRow?.phone) {
         return NextResponse.redirect(
           `${origin}/onboarding?next=${encodeURIComponent(next)}`,
         );

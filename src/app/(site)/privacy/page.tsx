@@ -48,9 +48,8 @@ export default function PrivacyPage() {
           <span className="font-semibold text-zinc-800 dark:text-zinc-200">
             Account information.
           </span>{" "}
-          If you sign in with Google, we receive your name, email address, and profile photo. If
-          you sign in with a phone number, we collect that number and use it to send and verify a
-          one-time WhatsApp code.
+          We sign you in with Google, so we receive your name, email address, and profile photo.
+          We also require a WhatsApp number, which we verify by sending it a one-time code.
         </p>
         <p>
           <span className="font-semibold text-zinc-800 dark:text-zinc-200">
@@ -71,7 +70,7 @@ export default function PrivacyPage() {
         <ul className="list-disc space-y-1 pl-5">
           <li>To create and maintain your account and public profile;</li>
           <li>To operate listings, trades, auctions, and the reporting/moderation tools;</li>
-          <li>To send you one-time codes (via WhatsApp) needed to sign in;</li>
+          <li>To send you a one-time code (via WhatsApp) to verify your number;</li>
           <li>To keep the Platform safe — detecting scalping, fraud, and abuse; and</li>
           <li>To communicate with you about your account or activity on the Platform.</li>
         </ul>
@@ -82,9 +81,9 @@ export default function PrivacyPage() {
         <p>
           Your username, display name, avatar, city, listings, and (if you choose to make it
           public) your collection are visible to anyone who views your public profile. Your email
-          address is never shown to other users. If you link a WhatsApp number, it stays private
-          until a trade you&apos;re part of is marked completed by both sides — at that point it is
-          shared with that one other person only, so you can coordinate the handover.
+          address is never shown to other users. Your WhatsApp number (required to trade) stays private
+          until a trade you&apos;re part of is accepted — at that point it is shared with that one
+          other person only, so the two of you can arrange the handover.
         </p>
       </Section>
 
@@ -107,8 +106,7 @@ export default function PrivacyPage() {
             <span className="font-semibold text-zinc-800 dark:text-zinc-200">
               Meta / WhatsApp Business Platform
             </span>{" "}
-            — used to deliver one-time sign-in codes to your phone number when you choose phone
-            sign-in.
+            — used to deliver the one-time code that verifies your WhatsApp number.
           </li>
           <li>
             <span className="font-semibold text-zinc-800 dark:text-zinc-200">India Post</span> —
@@ -162,8 +160,7 @@ export default function PrivacyPage() {
           >
             lotclub.help@gmail.com
           </a>{" "}
-          from the email address associated with your account (or, for phone sign-in, include the
-          phone number on the account) with the subject &ldquo;Account deletion request.&rdquo; We
+          from the email address associated with your account (and include your WhatsApp number) with the subject &ldquo;Account deletion request.&rdquo; We
           will delete your profile, listings, inventory, and account data within 30 days,
           confirming once it&apos;s done.
         </p>

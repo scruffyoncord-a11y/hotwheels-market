@@ -358,8 +358,8 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
           </span>
           {!user.id ? (
             <p className="rounded-xl bg-zinc-100 px-3 py-2 text-xs text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
-              Sign in with Google to link a WhatsApp number — it&apos;s only ever shared with
-              someone you&apos;ve completed a trade with.
+              Sign in with Google to add your WhatsApp number — it&apos;s only ever shared with
+              someone whose trade with you has been accepted.
             </p>
           ) : !editingPhone ? (
             <div className="flex gap-2">
@@ -423,7 +423,7 @@ function EditProfileView({ onBack }: { onBack: () => void }) {
           )}
           {user.id && (
             <span className="text-xs text-zinc-500">
-              Only shared with someone once you&apos;ve completed a trade with them.
+              Only shared with someone once a trade between you is accepted.
             </span>
           )}
         </label>
