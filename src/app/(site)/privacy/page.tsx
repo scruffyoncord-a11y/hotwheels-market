@@ -198,10 +198,10 @@ export default function PrivacyPage() {
         <p>
           Questions about this policy, or requests regarding your data, can be sent to{" "}
           <a
-            href="mailto:lotclub.help@gmail.com"
+            href="mailto:lotclub.in@gmail.com"
             className="text-orange-600 hover:underline dark:text-orange-400"
           >
-            lotclub.help@gmail.com
+            lotclub.in@gmail.com
           </a>
           .
         </p>
