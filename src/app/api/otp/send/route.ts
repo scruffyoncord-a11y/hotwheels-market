@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { randomInt, createHash } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendWhatsAppOtp } from "@/lib/whatsapp";
+import { sendSmsOtp } from "@/lib/telnyx";
 
 const RESEND_COOLDOWN_MS = 30_000;
 const EXPIRY_MS = 5 * 60_000;
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Couldn't start verification." }, { status: 500 });
   }
 
-  const { ok, error } = await sendWhatsAppOtp(phone, code);
+  const { ok, error } = await sendSmsOtp(phone, code);
   if (!ok) {
     return NextResponse.json({ error: error ?? "Couldn't send the code." }, { status: 502 });
   }

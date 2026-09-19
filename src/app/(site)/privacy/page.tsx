@@ -70,7 +70,7 @@ export default function PrivacyPage() {
         <ul className="list-disc space-y-1 pl-5">
           <li>To create and maintain your account and public profile;</li>
           <li>To operate listings, trades, auctions, and the reporting/moderation tools;</li>
-          <li>To send you a one-time code (via WhatsApp) to verify your number;</li>
+          <li>To send you a one-time code (by SMS) to verify your number;</li>
           <li>To keep the Platform safe — detecting scalping, fraud, and abuse; and</li>
           <li>To communicate with you about your account or activity on the Platform.</li>
         </ul>
@@ -104,9 +104,9 @@ export default function PrivacyPage() {
           </li>
           <li>
             <span className="font-semibold text-zinc-800 dark:text-zinc-200">
-              Meta / WhatsApp Business Platform
+              Telnyx
             </span>{" "}
-            — used to deliver the one-time code that verifies your WhatsApp number.
+            — our SMS provider, used to deliver the one-time code that verifies your number.
           </li>
           <li>
             <span className="font-semibold text-zinc-800 dark:text-zinc-200">India Post</span> —

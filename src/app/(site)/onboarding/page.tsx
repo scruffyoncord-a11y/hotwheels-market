@@ -175,7 +175,7 @@ function OnboardingForm() {
         <div className="mb-6 text-center">
           <h1 className="text-xl font-extrabold text-zinc-50">Welcome to LotClub</h1>
           <p className="mt-1 text-sm text-zinc-400">
-            A few quick things before you start trading — including a verified WhatsApp number.
+            A few quick things before you start trading — including a verified WhatsApp number (we text a code to check it).
           </p>
         </div>
 
@@ -308,7 +308,7 @@ function OnboardingForm() {
                   disabled={otpBusy}
                   className="self-start rounded-xl bg-zinc-800 px-4 py-1.5 text-xs font-semibold text-zinc-200 transition hover:bg-zinc-700 disabled:opacity-60"
                 >
-                  {otpBusy ? "Sending…" : "Send code on WhatsApp"}
+                  {otpBusy ? "Sending…" : "Send code by SMS"}
                 </button>
               </div>
             ) : (
