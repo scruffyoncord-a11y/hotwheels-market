@@ -98,7 +98,7 @@ function LoginForm() {
               <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-[10px] font-bold text-zinc-300">
                 2
               </span>
-              Verify your WhatsApp number — it&apos;s how you and a trade partner arrange the
+              Add your WhatsApp number — it&apos;s how you and a trade partner arrange the
               handover, and it&apos;s only shared once a trade between you is accepted
             </li>
           </ol>

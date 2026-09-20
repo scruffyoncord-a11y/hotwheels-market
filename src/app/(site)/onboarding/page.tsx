@@ -36,70 +36,9 @@ function OnboardingForm() {
   const [lookingUp, setLookingUp] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpBusy, setOtpBusy] = useState(false);
-  const [phoneError, setPhoneError] = useState("");
-  const phoneVerified = !!user.phone;
-
-  async function sendOtp() {
-    setPhoneError("");
-    if (!/^\d{10}$/.test(phone.trim())) {
-      setPhoneError("Enter a valid 10-digit mobile number.");
-      return;
-    }
-    setOtpBusy(true);
-    try {
-      const res = await fetch("/api/otp/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: `+91${phone.trim()}` }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setPhoneError(data.error ?? "Couldn't send the code.");
-        return;
-      }
-      setOtpSent(true);
-    } catch {
-      setPhoneError("Couldn't send the code — try again.");
-    } finally {
-      setOtpBusy(false);
-    }
-  }
-
-  async function verifyOtp() {
-    setPhoneError("");
-    if (!/^\d{6}$/.test(otp.trim())) {
-      setPhoneError("Enter the 6-digit code.");
-      return;
-    }
-    setOtpBusy(true);
-    try {
-      const res = await fetch("/api/otp/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: `+91${phone.trim()}`, code: otp.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setPhoneError(data.error ?? "Couldn't verify that code.");
-        return;
-      }
-      const result = await linkPhone(phone.trim());
-      if (result.error) {
-        setPhoneError(result.error);
-        return;
-      }
-      setOtp("");
-      setOtpSent(false);
-    } catch {
-      setPhoneError("Couldn't verify that code — try again.");
-    } finally {
-      setOtpBusy(false);
-    }
-  }
+  const [phoneInput, setPhoneInput] = useState<string | null>(null);
+  // Falls back to an already-saved number (loads a moment after sign-in).
+  const phone = phoneInput ?? user.phone ?? "";
 
   async function handlePincodeChange(value: string) {
     const digits = value.replace(/[^0-9]/g, "").slice(0, 6);
@@ -131,14 +70,20 @@ function OnboardingForm() {
       setError("Enter your 6-digit pincode.");
       return;
     }
-    if (!phoneVerified) {
-      setError("Verify your WhatsApp number to continue.");
+    if (!/^\d{10}$/.test(phone)) {
+      setError("Enter your 10-digit WhatsApp number.");
       return;
     }
     setSaving(true);
     setError("");
 
     if (user.id) {
+      const phoneResult = await linkPhone(phone);
+      if (phoneResult.error) {
+        setSaving(false);
+        setError(phoneResult.error);
+        return;
+      }
       const usernameResult = await claimUsername(supabase, user.id, username);
       if (usernameResult.error) {
         setSaving(false);
@@ -175,7 +120,7 @@ function OnboardingForm() {
         <div className="mb-6 text-center">
           <h1 className="text-xl font-extrabold text-zinc-50">Welcome to LotClub</h1>
           <p className="mt-1 text-sm text-zinc-400">
-            A few quick things before you start trading — including a verified WhatsApp number (we text a code to check it).
+            A few quick things before you start trading — including your WhatsApp number.
           </p>
         </div>
 
@@ -284,74 +229,22 @@ function OnboardingForm() {
             )}
           </label>
 
-          <div className="mt-4 flex flex-col gap-1">
+          <label className="mt-4 flex flex-col gap-1">
             <span className="text-sm font-medium text-zinc-300">WhatsApp number</span>
-            {phoneVerified ? (
-              <p className="flex items-center gap-1.5 rounded-xl border border-emerald-800/60 bg-emerald-950/20 px-3 py-2 text-sm font-medium text-emerald-400">
-                <CheckIcon className="h-4 w-4" /> +91 {user.phone} — verified
-              </p>
-            ) : !otpSent ? (
-              <div className="flex flex-col gap-2">
-                <div className="flex gap-2">
-                  <span className="input flex items-center justify-center px-3">+91</span>
-                  <input
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))}
-                    inputMode="numeric"
-                    placeholder="9876543210"
-                    className="input flex-1"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={sendOtp}
-                  disabled={otpBusy}
-                  className="self-start rounded-xl bg-zinc-800 px-4 py-1.5 text-xs font-semibold text-zinc-200 transition hover:bg-zinc-700 disabled:opacity-60"
-                >
-                  {otpBusy ? "Sending…" : "Send code by SMS"}
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <p className="flex items-center gap-1.5 text-xs text-emerald-400">
-                  <CheckIcon className="h-3.5 w-3.5" /> Code sent to +91 {phone}
-                </p>
-                <input
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
-                  inputMode="numeric"
-                  placeholder="123456"
-                  className="input tracking-[0.3em]"
-                  autoFocus
-                />
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={verifyOtp}
-                    disabled={otpBusy}
-                    className="rounded-xl bg-orange-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-orange-700 disabled:opacity-60"
-                  >
-                    {otpBusy ? "Verifying…" : "Verify"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOtpSent(false);
-                      setOtp("");
-                      setPhoneError("");
-                    }}
-                    className="text-xs font-semibold text-zinc-500 hover:text-zinc-300"
-                  >
-                    Use a different number
-                  </button>
-                </div>
-              </div>
-            )}
-            {phoneError && <p className="text-xs text-rose-400">{phoneError}</p>}
+            <div className="flex gap-2">
+              <span className="input flex items-center justify-center px-3">+91</span>
+              <input
+                value={phone}
+                onChange={(e) => setPhoneInput(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))}
+                inputMode="numeric"
+                placeholder="9876543210"
+                className="input flex-1"
+              />
+            </div>
             <span className="text-xs text-zinc-500">
               Required to trade. Only shared with someone once a trade between you is accepted.
             </span>
-          </div>
+          </label>
 
           {error && <p className="mt-3 text-xs text-rose-400">{error}</p>}
 
