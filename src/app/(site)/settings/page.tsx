@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Link000 } from "@/components/ui/skiper40";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-store";
 import { useListings } from "@/lib/listings-store";
@@ -420,12 +421,12 @@ export default function SettingsPage() {
     <main className="flex-1">
       <div className="bg-gradient-to-b from-zinc-100 to-white px-4 pb-10 pt-8 dark:from-zinc-900 dark:to-zinc-950 sm:px-6">
         <div className="mx-auto w-full max-w-2xl">
-          <Link
+          <Link000
             href="/profile"
-            className="mb-4 inline-block text-sm text-zinc-500 hover:text-orange-500 dark:text-zinc-400 dark:hover:text-orange-400"
+            className="mb-4 w-fit text-sm text-zinc-500 hover:text-orange-500 dark:text-zinc-400 dark:hover:text-orange-400"
           >
             ← Back to profile
-          </Link>
+          </Link000>
           <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-50">Account Settings</h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             Manage your profile information and preferences

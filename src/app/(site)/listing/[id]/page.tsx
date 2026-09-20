@@ -3,6 +3,7 @@
 import { use, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Link000 } from "@/components/ui/skiper40";
 import { notFound } from "next/navigation";
 import { ConditionBadge } from "@/components/ConditionBadge";
 import { CautionChip, CautionTape } from "@/components/CautionTape";
@@ -232,12 +233,12 @@ export default function ListingDetail({ params }: { params: Promise<{ id: string
 
   return (
     <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-6 sm:px-6">
-      <Link
+      <Link000
         href={isAuction ? "/auctions" : "/"}
-        className="mb-4 inline-block text-sm text-zinc-500 hover:text-orange-600 dark:text-zinc-400"
+        className="mb-4 w-fit text-sm text-zinc-500 hover:text-orange-600 dark:text-zinc-400"
       >
         ← Back to {isAuction ? "auctions" : "trades"}
-      </Link>
+      </Link000>
 
       {isPrivateAuction && !hasAccessGranted ? (
         <div className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-2xl border border-zinc-100 bg-white p-8 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-900">

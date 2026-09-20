@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Link000 } from "@/components/ui/skiper40";
 import { useProposals } from "@/lib/proposals-store";
 import { useListings } from "@/lib/listings-store";
 import { useAuth } from "@/lib/auth-store";
@@ -100,9 +101,9 @@ export default function TradeConfirmationPage({
         <p className="text-lg font-semibold text-zinc-300">
           This trade isn&apos;t available to you.
         </p>
-        <Link href="/profile" className="mt-3 inline-block text-sm font-semibold text-orange-500">
+        <Link000 href="/profile" className="mt-3 w-fit text-sm font-semibold text-orange-500">
           ← Back to your offers
-        </Link>
+        </Link000>
       </main>
     );
   }
@@ -159,9 +160,9 @@ export default function TradeConfirmationPage({
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 sm:px-6">
-      <Link href="/profile" className="mb-4 inline-block text-sm text-zinc-500 hover:text-orange-500">
+      <Link000 href="/profile" className="mb-4 w-fit text-sm text-zinc-500 hover:text-orange-500">
         ← Back to your offers
-      </Link>
+      </Link000>
 
       <div className="mb-6 flex items-center gap-3">
         {listing && (

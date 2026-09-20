@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { Link000 } from "@/components/ui/skiper40";
 import { useRouter } from "next/navigation";
 import { useListings } from "@/lib/listings-store";
 import { useBids } from "@/lib/bids-store";
@@ -53,9 +53,9 @@ export default function HostAuctionPage({ params }: { params: Promise<{ id: stri
         <p className="text-lg font-semibold text-zinc-700 dark:text-zinc-300">
           You can only host auctions you&apos;re selling.
         </p>
-        <Link href="/auctions" className="mt-3 inline-block text-sm font-semibold text-red-600">
+        <Link000 href="/auctions" className="mt-3 w-fit text-sm font-semibold text-red-600">
           ← Back to auctions
-        </Link>
+        </Link000>
       </main>
     );
   }
@@ -91,12 +91,12 @@ export default function HostAuctionPage({ params }: { params: Promise<{ id: stri
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6">
       <div className="mb-4 flex items-center justify-between">
-        <Link
+        <Link000
           href={`/listing/${listing.id}`}
           className="text-sm text-zinc-500 hover:text-red-600 dark:text-zinc-400"
         >
           ← Back to listing
-        </Link>
+        </Link000>
         <span className="inline-flex items-center gap-1.5 rounded-xl bg-red-600 px-3 py-1 text-xs font-bold text-white">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> AUCTIONEER CONSOLE
         </span>

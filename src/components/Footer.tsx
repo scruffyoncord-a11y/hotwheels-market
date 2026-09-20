@@ -1,6 +1,6 @@
-import Link from "next/link";
 import Image from "next/image";
 import { CheckIcon, ShieldIcon } from "./icons";
+import { Link000 } from "./ui/skiper40";
 
 const SAFETY_ITEMS = [
   { title: "Public Meetup", body: "Meet the other collector in a public place." },
@@ -43,24 +43,24 @@ export function Footer() {
           <p className="text-xs font-semibold text-zinc-900 dark:text-white">Marketplace</p>
           <ul className="mt-2 flex flex-col gap-1 text-xs text-zinc-500 dark:text-zinc-400">
             <li>
-              <Link href="/" className="hover:text-orange-500 dark:hover:text-orange-400">
+              <Link000 href="/" className="hover:text-orange-500 dark:hover:text-orange-400">
                 Browse trades
-              </Link>
+              </Link000>
             </li>
             <li>
-              <Link href="/auctions" className="hover:text-orange-500 dark:hover:text-orange-400">
+              <Link000 href="/auctions" className="hover:text-orange-500 dark:hover:text-orange-400">
                 Browse auctions
-              </Link>
+              </Link000>
             </li>
             <li>
-              <Link href="/sell" className="hover:text-orange-500 dark:hover:text-orange-400">
+              <Link000 href="/sell" className="hover:text-orange-500 dark:hover:text-orange-400">
                 List a car
-              </Link>
+              </Link000>
             </li>
             <li>
-              <Link href="/profile" className="hover:text-orange-500 dark:hover:text-orange-400">
+              <Link000 href="/profile" className="hover:text-orange-500 dark:hover:text-orange-400">
                 Your profile
-              </Link>
+              </Link000>
             </li>
           </ul>
         </div>
@@ -96,17 +96,30 @@ export function Footer() {
 
       <div className="border-t border-zinc-200 px-4 py-3 dark:border-zinc-900 sm:px-6">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-400 dark:text-zinc-600">
-          <span>© {new Date().getFullYear()} LotClub. All rights reserved.</span>
+          <span className="flex flex-wrap items-center gap-x-3">
+            <span>© {new Date().getFullYear()} LotClub. All rights reserved.</span>
+            <span>
+              Link animations by{" "}
+              <a
+                href="https://skiper-ui.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline-offset-2 hover:text-orange-500 hover:underline dark:hover:text-orange-400"
+              >
+                Skiper UI
+              </a>
+            </span>
+          </span>
           <span className="flex gap-3">
-            <Link href="/terms" className="hover:text-orange-500 dark:hover:text-orange-400">
+            <Link000 href="/terms" className="hover:text-orange-500 dark:hover:text-orange-400">
               Terms &amp; Conditions
-            </Link>
-            <Link href="/privacy" className="hover:text-orange-500 dark:hover:text-orange-400">
+            </Link000>
+            <Link000 href="/privacy" className="hover:text-orange-500 dark:hover:text-orange-400">
               Privacy Policy
-            </Link>
-            <Link href="/refund-policy" className="hover:text-orange-500 dark:hover:text-orange-400">
+            </Link000>
+            <Link000 href="/refund-policy" className="hover:text-orange-500 dark:hover:text-orange-400">
               Refund Policy
-            </Link>
+            </Link000>
           </span>
         </div>
       </div>

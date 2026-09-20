@@ -2,6 +2,7 @@
 
 import { use, useMemo, useState } from "react";
 import Link from "next/link";
+import { Link000 } from "@/components/ui/skiper40";
 import Image from "next/image";
 import { useListings } from "@/lib/listings-store";
 import { useProposals } from "@/lib/proposals-store";
@@ -253,9 +254,9 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
     return (
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-16 text-center sm:px-6">
         <p className="text-lg font-semibold text-zinc-300">This listing isn&apos;t available.</p>
-        <Link href="/" className="mt-3 inline-block text-sm font-semibold text-orange-500">
+        <Link000 href="/" className="mt-3 w-fit text-sm font-semibold text-orange-500">
           ← Back to trades
-        </Link>
+        </Link000>
       </main>
     );
   }
@@ -315,12 +316,12 @@ export default function ProposeTradePage({ params }: { params: Promise<{ id: str
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6">
-      <Link
+      <Link000
         href={`/listing/${listing.id}`}
-        className="mb-4 inline-block text-sm text-zinc-500 hover:text-orange-500"
+        className="mb-4 w-fit text-sm text-zinc-500 hover:text-orange-500"
       >
         ← Back to listing
-      </Link>
+      </Link000>
 
       <div className="mb-6 flex items-center gap-3">
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-800">

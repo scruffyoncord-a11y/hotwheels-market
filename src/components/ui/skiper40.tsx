@@ -95,7 +95,7 @@ const Link002 = ({
   className?: string;
 }) => {
   return (
-    <a
+    <Link
       href={href}
       className={cn(
         "group relative flex items-center",
@@ -122,7 +122,7 @@ const Link002 = ({
           strokeLinejoin="round"
         ></path>
       </svg>
-    </a>
+    </Link>
   );
 };
 const Link003 = ({
@@ -135,7 +135,7 @@ const Link003 = ({
   className?: string;
 }) => {
   return (
-    <a
+    <Link
       href={href}
       className={cn(
         "group relative flex items-center",
@@ -162,7 +162,7 @@ const Link003 = ({
           strokeLinejoin="round"
         ></path>
       </svg>
-    </a>
+    </Link>
   );
 };
 
@@ -176,7 +176,7 @@ const Link004 = ({
   className?: string;
 }) => {
   return (
-    <a
+    <Link
       href={href}
       className={cn(
         "group relative flex items-center",
@@ -203,7 +203,7 @@ const Link004 = ({
           strokeLinejoin="round"
         ></path>
       </svg>
-    </a>
+    </Link>
   );
 };
 const Link005 = ({
@@ -216,7 +216,7 @@ const Link005 = ({
   className?: string;
 }) => {
   return (
-    <a
+    <Link
       href={href}
       className={cn(
         className,
@@ -243,7 +243,7 @@ const Link005 = ({
           strokeLinejoin="round"
         ></path>
       </svg>
-    </a>
+    </Link>
   );
 };
 
